@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShootFlow — Photography & Video Business Platform</title>
+<style>
+/* ───────────────────────────────────────────────
+   RESET & BASE
+─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+}
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: 0.95rem; }
+a { color: inherit; text-decoration: none; }
+:root {
+  --sidebar-w: 230px;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-hover: #FEF1F3;
+  --sidebar-active: #E5325A;
+  --sidebar-text: #6B7280;
+  --accent: #E5325A;
+  --accent-hover: #CC2A4E;
+  --accent-light: #FEF1F3;
+  --bg: #F5F6F8;
+  --card: #FFFFFF;
+  --border: #E8ECF0;
+  --text: #111827;
+  --text-muted: #6B7280;
+  --text-light: #9CA3AF;
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --danger: #EF4444;
+  --danger-bg: #FEF2F2;
+  --info: #3B82F6;
+  --info-bg: #EFF6FF;
+  --purple: #8B5CF6;
+  --purple-bg: #F5F3FF;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.04);
+}
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
+.logo-mark { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 36px; height: 36px; background: var(--accent); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; font-size: 1rem; letter-spacing: -0.5px;
+  flex-shrink: 0; box-shadow: 0 2px 8px rgba(229,50,90,0.3);
+}
+.logo-text { color: var(--text); font-weight: 800; font-size: 1.05rem; letter-spacing: -0.3px; }
+.logo-sub { color: var(--text-muted); font-size: 0.68rem; margin-top: 1px; }
+.sidebar-section { padding: 14px 12px 4px; }
+.sidebar-section-label {
+  color: var(--text-light); font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0 8px; margin-bottom: 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  color: var(--sidebar-text); cursor: pointer;
+  transition: all 0.15s; margin-bottom: 2px;
+  font-size: 0.87rem; font-weight: 500;
+}
+.nav-item:hover { background: var(--sidebar-hover); color: var(--accent); }
+.nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 700; }
+.nav-item .nav-icon { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; background: var(--danger); color: white;
+  font-size: 0.65rem; font-weight: 700; padding: 1px 6px;
+  border-radius: 10px; min-width: 18px; text-align: center;
+}
+.sidebar-footer { margin-top: auto; padding: 14px 12px; border-top: 1px solid var(--border); }
+.sidebar-plan {
+  background: var(--accent-light); border-radius: 10px;
+  padding: 12px 14px; border: 1px solid rgba(229,50,90,0.15);
+}
+.plan-label { color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.plan-name { color: var(--text); font-weight: 800; font-size: 0.95rem; }
+.plan-price { color: var(--accent); font-size: 0.78rem; font-weight: 700; margin-top: 2px; }
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 60px; display: flex;
+  align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.page-title { font-size: 1.4rem; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.content { padding: 28px; flex: 1; }
+.view { display: none; }
+.view.active { display: block; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 20px; font-size: 0.85rem;
+  font-weight: 600; border: none; transition: all 0.15s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(229,50,90,0.25); }
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 3px 12px rgba(229,50,90,0.35); transform: translateY(-1px); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg); }
+.btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
+.btn-danger:hover { background: #FEE2E2; }
+.btn-success { background: var(--success-bg); color: var(--success); border: 1px solid #A7F3D0; }
+.btn-ghost { background: transparent; color: var(--text-muted); padding: 6px 10px; }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+.btn-icon { padding: 7px; border-radius: 6px; }
+.card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 0.95rem; font-weight: 700; }
+.card-body { padding: 20px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px 22px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.stat-card::after { content: \'👁\'; position: absolute; top: 16px; right: 16px; font-size: 1rem; opacity: 0.25; }
+.stat-label { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); margin-bottom: 10px; }
+.stat-value { font-size: 2.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.5px; line-height: 1; }
+.stat-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--card); padding: 10px 16px; text-align: left;
+  font-size: 0.72rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+tbody td { padding: 13px 16px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; color: var(--text); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #F8FAFC; }
+.table-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 0.72rem;
+  font-weight: 600; text-transform: capitalize; white-space: nowrap;
+}
+.badge-inquiry    { background: #F1F5F9; color: #64748B; }
+.badge-booked     { background: var(--info-bg); color: var(--info); }
+.badge-shot       { background: var(--purple-bg); color: var(--purple); }
+.badge-editing    { background: var(--warning-bg); color: var(--warning); }
+.badge-delivered  { background: #ECFDF5; color: #059669; }
+.badge-invoiced   { background: #FFF7ED; color: #EA580C; }
+.badge-paid       { background: var(--success-bg); color: var(--success); }
+.badge-draft      { background: #F1F5F9; color: #64748B; }
+.badge-sent       { background: var(--info-bg); color: var(--info); }
+.badge-overdue    { background: var(--danger-bg); color: var(--danger); }
+.badge-confirmed  { background: var(--success-bg); color: var(--success); }
+.badge-pending    { background: var(--warning-bg); color: var(--warning); }
+.badge-completed  { background: var(--accent-light); color: var(--accent); }
+.badge-cancelled  { background: var(--danger-bg); color: var(--danger); }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.section-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px; }
+.section-sub { color: var(--text-muted); font-size: 0.82rem; margin-top: 3px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.empty-sub { font-size: 0.85rem; margin-bottom: 20px; }
+.filters-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input {
+  flex: 1; min-width: 200px; max-width: 300px;
+  padding: 8px 12px 8px 34px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--card); font-size: 0.85rem;
+}
+.search-wrap { position: relative; }
+.search-wrap::before {
+  content: \'🔍\'; position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%); font-size: 0.8rem; opacity: 0.5; pointer-events: none;
+}
+.filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); font-size: 0.85rem; color: var(--text); }
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,23,42,0.5); z-index: 1000;
+  align-items: center; justify-content: center;
+  padding: 20px; backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border-radius: 12px; width: 100%;
+  max-width: 560px; max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-lg); animation: modalIn 0.2s ease;
+}
+.modal-lg { max-width: 700px; }
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.97) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 1rem; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: 4px; line-height: 1; }
+.modal-close:hover { background: var(--bg); color: var(--text); }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+.form-group { margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.form-label span { color: var(--danger); }
+.form-control {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 7px; font-size: 0.88rem; color: var(--text);
+  background: var(--card); transition: border-color 0.15s;
+}
+.form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,50,90,0.1); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+.form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: #1E293B; color: white; padding: 12px 16px;
+  border-radius: 8px; font-size: 0.85rem; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 8px;
+  animation: toastIn 0.25s ease; min-width: 240px; max-width: 340px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error   { border-left: 3px solid var(--danger); }
+.toast.info    { border-left: 3px solid var(--accent); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.dash-section-label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+.activity-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F1F5F9; }
+.activity-item:last-child { border-bottom: none; }
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.activity-text { font-size: 0.85rem; color: var(--text); flex: 1; }
+.activity-time { font-size: 0.75rem; color: var(--text-muted); }
+.line-items-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+.line-items-table th { background: #F8FAFC; padding: 8px 10px; text-align: left; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.line-items-table td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; }
+.line-items-table input { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 5px; font-size: 0.82rem; }
+.invoice-totals { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+.invoice-total-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.88rem; }
+.invoice-total-row.grand { font-weight: 800; font-size: 1.1rem; color: var(--accent); padding-top: 8px; border-top: 1px solid var(--border); margin-top: 4px; }
+.booking-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 10px; display: flex;
+  align-items: center; gap: 16px; box-shadow: var(--shadow);
+}
+.booking-date-block { background: var(--accent-light); border-radius: 8px; padding: 8px 14px; text-align: center; min-width: 56px; flex-shrink: 0; }
+.booking-month { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 0.05em; }
+.booking-day { font-size: 1.6rem; font-weight: 800; color: var(--accent); line-height: 1; }
+.booking-info { flex: 1; }
+.booking-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 3px; }
+.booking-meta { font-size: 0.78rem; color: var(--text-muted); }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
+.settings-section { margin-bottom: 28px; }
+.settings-section-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.delivery-link-box { background: var(--accent-light); border: 1px solid #C7D2FE; border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.delivery-link-url { font-size: 0.82rem; color: var(--accent); font-family: monospace; flex: 1; word-break: break-all; }
+.media-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); margin-bottom: 8px; }
+.media-item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.media-item-info { flex: 1; }
+.media-item-name { font-weight: 700; font-size: 0.88rem; }
+.media-item-meta { font-size: 0.75rem; color: var(--text-muted); }
+.cdv-file-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+.cdv-file-icon { width: 48px; height: 48px; border-radius: 10px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.int-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.int-section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.int-section-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.int-section-title { font-size: 1rem; font-weight: 700; margin-bottom: 3px; }
+.int-section-sub { font-size: 0.8rem; color: var(--text-muted); }
+.int-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.int-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--bg); }
+.int-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.int-logo { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; flex-shrink: 0; }
+.int-name { font-weight: 700; font-size: 0.9rem; flex: 1; }
+.toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: #CBD5E1; border-radius: 22px; cursor: pointer; transition: background 0.2s; }
+.toggle-slider::before { content: \'\'; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+.pr-method-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg); }
+.pr-method-logo { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.82rem; color: white; flex-shrink: 0; }
+.pr-method-info { flex: 1; }
+.pr-method-name { font-weight: 700; font-size: 0.88rem; }
+.pr-method-handle { font-size: 0.75rem; color: var(--text-muted); }
+.pr-method-link { font-size: 0.78rem; font-weight: 600; color: var(--accent); background: var(--accent-light); border: none; border-radius: 6px; padding: 5px 10px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .form-row { grid-template-columns: 1fr; }
+  .content { padding: 16px; }
+}
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; color: var(--accent); flex-shrink: 0; border: 2px solid rgba(229,50,90,0.15); }
+.avatar-wrap { display: flex; align-items: center; gap: 10px; }
+.text-right { text-align: right; }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-accent { color: var(--accent); }
+.fw-bold { font-weight: 700; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.tag { display: inline-block; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; font-size: 0.72rem; color: var(--text-muted); }
+.autosave-chip { background: #ECFDF5; color: var(--success); font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid #A7F3D0; }
+/* ── AUTH SCREEN ── */
+#auth-screen { position: fixed; inset: 0; z-index: 9000; display: flex; min-height: 100vh; background: #fff; }
+#auth-screen.hidden { display: none; }
+.auth-left {
+  width: 42%; background: linear-gradient(145deg, #E5325A 0%, #B51E3F 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 50px; position: relative; overflow: hidden;
+}
+.auth-left::before { content: \'\'; position: absolute; width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,0.06); top: -100px; right: -100px; }
+.auth-left::after { content: \'\'; position: absolute; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,0.06); bottom: -60px; left: -60px; }
+.auth-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 50px; position: relative; z-index: 1; }
+.auth-brand-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: white; letter-spacing: -1px; backdrop-filter: blur(4px); }
+.auth-brand-name { color: white; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px; }
+.auth-brand-sub { color: rgba(255,255,255,0.7); font-size: 0.78rem; margin-top: 2px; }
+.auth-tagline { color: white; font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 20px; position: relative; z-index: 1; }
+.auth-tagline span { opacity: 0.75; }
+.auth-features { list-style: none; padding: 0; margin: 0; position: relative; z-index: 1; }
+.auth-features li { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 12px; font-weight: 500; }
+.auth-features li::before { content: \'✓\'; width: 22px; height: 22px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: white; flex-shrink: 0; }
+.auth-price-tag { margin-top: 40px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 16px 20px; position: relative; z-index: 1; backdrop-filter: blur(4px); }
+.auth-price-tag .price { color: white; font-size: 2rem; font-weight: 900; }
+.auth-price-tag .price sup { font-size: 1rem; vertical-align: top; margin-top: 6px; display: inline-block; }
+.auth-price-tag .price-label { color: rgba(255,255,255,0.75); font-size: 0.8rem; margin-top: 2px; }
+.auth-right { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; background: #fff; }
+.auth-form-wrap { width: 100%; max-width: 400px; }
+.auth-form-title { font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
+.auth-form-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 32px; }
+.auth-toggle { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 28px; }
+.auth-toggle-btn { flex: 1; padding: 9px; border: none; border-radius: 8px; background: transparent; font-size: 0.87rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+.auth-toggle-btn.active { background: white; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.auth-error { background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px 14px; color: #DC2626; font-size: 0.83rem; margin-bottom: 16px; display: none; }
+.auth-error.show { display: block; }
+.auth-form-group { margin-bottom: 16px; }
+.auth-form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.auth-form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 0.9rem; color: var(--text); font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; background: white; }
+.auth-form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,50,90,0.1); }
+.auth-submit { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 8px; transition: all 0.15s; box-shadow: 0 3px 12px rgba(229,50,90,0.3); font-family: inherit; }
+.auth-submit:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(229,50,90,0.35); }
+.auth-footer-text { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-top: 24px; }
+.auth-footer-text a { color: var(--accent); font-weight: 600; cursor: pointer; }
+.auth-footer-text a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .auth-left { display: none; } .auth-right { padding: 24px; } }
+/* ── CLIENT SCHEDULING PAGE ── */
+#schedule-screen { position: fixed; inset: 0; z-index: 8000; background: var(--bg); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 20px 60px; }
+#schedule-screen.hidden { display: none; }
+.sched-wrap { width: 100%; max-width: 540px; }
+.sched-header { text-align: center; margin-bottom: 28px; }
+.sched-logo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.sched-logo-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1rem; box-shadow: 0 2px 8px rgba(229,50,90,0.3); }
+.sched-logo-name { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+.sched-business-name { font-size: 1rem; color: var(--text-muted); margin-bottom: 4px; }
+.sched-appt-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.sched-appt-title { font-size: 1.4rem; font-weight: 800; color: var(--text); margin-bottom: 16px; letter-spacing: -0.3px; }
+.sched-detail { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F5F6F8; font-size: 0.9rem; color: var(--text); }
+.sched-detail:last-child { border-bottom: none; }
+.sched-detail-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+.sched-detail-label { font-size: 0.72rem; color: var(--text-muted); }
+.sched-detail-value { font-weight: 600; }
+.sched-form-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.sched-form-title { font-size: 1rem; font-weight: 700; margin-bottom: 18px; }
+.sched-confirm-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 3px 12px rgba(229,50,90,0.3); transition: all 0.15s; }
+.sched-confirm-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.sched-confirmed-card { background: white; border: 2px solid var(--success); border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(16,185,129,0.1); }
+.sched-confirmed-icon { font-size: 3rem; margin-bottom: 12px; }
+.sched-confirmed-title { font-size: 1.3rem; font-weight: 800; color: var(--success); margin-bottom: 6px; }
+.sched-confirmed-sub { font-size: 0.88rem; color: var(--text-muted); }
+.cal-sync-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; box-shadow: var(--shadow); }
+.cal-sync-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; text-align: center; }
+.cal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cal-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; background: white; cursor: pointer; font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text); transition: all 0.15s; text-decoration: none; }
+.cal-btn:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+.cal-btn-icon { font-size: 1.3rem; }
+.cal-btn-google  { border-color: #4285F4; }
+.cal-btn-google:hover  { background: #EBF3FE; color: #4285F4; border-color: #4285F4; }
+.cal-btn-apple   { border-color: #555; }
+.cal-btn-apple:hover   { background: #F2F2F2; color: #000; border-color: #000; }
+.cal-btn-outlook { border-color: #0072C6; }
+.cal-btn-outlook:hover { background: #E5F2FB; color: #0072C6; border-color: #0072C6; }
+.cal-btn-ics     { border-color: var(--success); }
+.cal-btn-ics:hover     { background: #ECFDF5; color: var(--success); border-color: var(--success); }
+</style>
+</head>
+<body>
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">SF</div>
+      <div>
+        <div class="auth-brand-name">ShootFlow</div>
+        <div class="auth-brand-sub">Photography &amp; Video Platform</div>
+      </div>
+    </div>
+    <div class="auth-tagline">Run your entire<br><span>photography business</span><br>in one place.</div>
+    <ul class="auth-features">
+      <li>Projects, clients &amp; invoices</li>
+      <li>Automated file delivery</li>
+      <li>Payment request links</li>
+      <li>Bookings &amp; calendar</li>
+      <li>Works with any payment app</li>
+    </ul>
+    <div class="auth-price-tag">
+      <div class="price" style="font-size:1.6rem;letter-spacing:-0.5px">🎉 Free Alpha</div>
+      <div class="price-label">You're an early tester — all features are free while we're in alpha. No credit card needed.</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <div class="auth-toggle">
+        <button class="auth-toggle-btn active" id="tab-signin" onclick="showAuthTab('signin')">Sign In</button>
+        <button class="auth-toggle-btn" id="tab-signup" onclick="showAuthTab('signup')">Create Account</button>
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+      <div id="form-signin">
+        <div class="auth-form-title">Welcome back 👋</div>
+        <div class="auth-form-sub">Sign in to your ShootFlow account</div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Email Address</label>
+          <input class="auth-form-input" type="email" id="si-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doSignIn()">
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Password</label>
+          <input class="auth-form-input" type="password" id="si-password" placeholder="Your password" onkeydown="if(event.key==='Enter')doSignIn()">
+        </div>
+        <button class="auth-submit" id="signin-btn" onclick="doSignIn()">Sign In →</button>
+        <div class="auth-footer-text">Don't have an account? <a onclick="showAuthTab('signup')">Create one free</a></div>
+      </div>
+      <div id="form-signup" style="display:none">
+        <div class="auth-form-title">Create your account</div>
+        <div class="auth-form-sub">You're invited to the free alpha — no credit card required</div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Your Full Name</label>
+          <input class="auth-form-input" type="text" id="su-name" placeholder="Your Full Name">
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Business Name</label>
+          <input class="auth-form-input" type="text" id="su-business" placeholder="Your Business Name">
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Email Address</label>
+          <input class="auth-form-input" type="email" id="su-email" placeholder="you@example.com">
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-form-label">Password <span style="color:var(--text-light);font-weight:400">(min 8 chars, 1 uppercase, 1 number)</span></label>
+          <input class="auth-form-input" type="password" id="su-password" placeholder="Create a password" onkeydown="if(event.key==='Enter')doSignUp()">
+        </div>
+        <button class="auth-submit" id="signup-btn" onclick="doSignUp()">Create Account →</button>
+        <div class="auth-footer-text">Already have an account? <a onclick="showAuthTab('signin')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT SCHEDULING PAGE -->
+<div id="schedule-screen" class="hidden">
+  <div class="sched-wrap">
+    <div class="sched-header">
+      <div class="sched-logo">
+        <div class="sched-logo-icon">SF</div>
+        <span class="sched-logo-name" id="sched-biz-name">ShootFlow</span>
+      </div>
+      <div class="sched-business-name" id="sched-biz-sub">Photography &amp; Video</div>
+    </div>
+    <div class="sched-appt-card" id="sched-appt-card">
+      <div class="sched-appt-title" id="sched-title">Loading...</div>
+      <div id="sched-details"></div>
+    </div>
+    <div class="sched-form-card" id="sched-form-card">
+      <div class="sched-form-title">Confirm Your Appointment</div>
+      <div class="auth-form-group">
+        <label class="auth-form-label">Your Name</label>
+        <input class="auth-form-input" type="text" id="sched-client-name" placeholder="Your full name">
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-form-label">Email Address</label>
+        <input class="auth-form-input" type="email" id="sched-client-email" placeholder="your@email.com">
+      </div>
+      <div class="auth-form-group">
+        <label class="auth-form-label">Notes (optional)</label>
+        <textarea class="auth-form-input" id="sched-client-notes" rows="2" placeholder="Anything else we should know?"></textarea>
+      </div>
+      <div class="auth-error" id="sched-error"></div>
+      <button class="sched-confirm-btn" onclick="confirmClientSchedule()">✓ Confirm My Appointment</button>
+    </div>
+    <div id="sched-confirmed-section" style="display:none">
+      <div class="sched-confirmed-card">
+        <div class="sched-confirmed-icon">🎉</div>
+        <div class="sched-confirmed-title">You're all set!</div>
+        <div class="sched-confirmed-sub" id="sched-confirmed-msg">Your appointment has been confirmed!</div>
+      </div>
+      <div class="cal-sync-card">
+        <div class="cal-sync-title">📅 Add to Your Calendar</div>
+        <div class="cal-btn-grid" id="sched-cal-btns"></div>
+      </div>
+    </div>
+    <div id="sched-not-found" style="display:none">
+      <div class="card" style="text-align:center;padding:40px">
+        <div style="font-size:2rem;margin-bottom:12px">😕</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:8px">Booking link not found</div>
+        <div style="color:var(--text-muted);font-size:0.88rem">This link may have expired or been removed. Contact your photographer directly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">SF</div>
+      <div>
+        <div class="logo-text" id="sidebar-business-name">ShootFlow</div>
+        <div class="logo-sub">Photography &amp; Video Platform</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item active" onclick="navigate('dashboard')" data-view="dashboard"><span class="nav-icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="navigate('projects')" data-view="projects"><span class="nav-icon">📁</span> Projects</div>
+    <div class="nav-item" onclick="navigate('clients')" data-view="clients"><span class="nav-icon">👤</span> Clients</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Billing</div>
+    <div class="nav-item" onclick="navigate('invoices')" data-view="invoices">
+      <span class="nav-icon">💳</span> Invoices
+      <span class="nav-badge" id="invoice-badge" style="display:none">0</span>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Schedule</div>
+    <div class="nav-item" onclick="navigate('bookings')" data-view="bookings"><span class="nav-icon">📅</span> Bookings</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Delivery</div>
+    <div class="nav-item" onclick="navigate('delivery')" data-view="delivery"><span class="nav-icon">📤</span> File Delivery</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Account</div>
+    <div class="nav-item" onclick="navigate('integrations')" data-view="integrations"><span class="nav-icon">🔗</span> Integrations</div>
+    <div class="nav-item" onclick="navigate('settings')" data-view="settings"><span class="nav-icon">⚙️</span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-plan">
+      <div class="plan-label">Current Plan</div>
+      <div class="plan-name">Alpha</div>
+      <div class="plan-price" style="color:var(--success)">Free — Thank you for testing!</div>
+    </div>
+    <div id="sidebar-user" style="display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 4px">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.78rem;flex-shrink:0" id="sidebar-avatar-initials">SF</div>
+      <div style="flex:1;min-width:0">
+        <div id="sidebar-user-name" style="font-size:0.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My Account</div>
+        <div id="sidebar-user-email" style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+      <button onclick="doSignOut()" title="Sign out" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;padding:4px;border-radius:6px;flex-shrink:0" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">⏏</button>
+    </div>
+  </div>
+</nav>
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div><div class="page-title" id="topbar-title">Dashboard</div></div>
+    </div>
+    <div class="topbar-right">
+      <span class="autosave-chip" id="autosave-chip">● Saved</span>
+      <button class="btn btn-secondary btn-sm" onclick="exportBackup()" style="border-radius:20px">⬇ Backup</button>
+      <button class="btn btn-primary btn-sm" id="topbar-action-btn" onclick="topbarAction()">+ New Project</button>
+      <div id="topbar-avatar" style="width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.82rem;cursor:pointer;box-shadow:0 2px 8px rgba(229,50,90,0.3)" onclick="navigate('settings')" title="Settings">SG</div>
+    </div>
+  </div>
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="dash-section-label">To Complete</div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div class="dash-section-label" style="margin-top:8px">Activity</div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Projects</div><button class="btn btn-ghost btn-sm" onclick="navigate('projects')">View all →</button></div>
+          <div class="card-body" id="dash-projects"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Upcoming Shoots</div><button class="btn btn-ghost btn-sm" onclick="navigate('bookings')">View all →</button></div>
+          <div class="card-body" id="dash-bookings"></div>
+        </div>
+      </div>
+      <div class="dash-grid mt-16">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Outstanding Invoices</div><button class="btn btn-ghost btn-sm" onclick="navigate('invoices')">View all →</button></div>
+          <div class="card-body" id="dash-invoices"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Clients</div><button class="btn btn-ghost btn-sm" onclick="navigate('clients')">View all →</button></div>
+          <div class="card-body" id="dash-clients"></div>
+        </div>
+      </div>
+      <div class="dash-grid mt-16">
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-header"><div class="card-title">✨ AI Tools</div><span style="font-size:0.78rem;color:var(--text-muted)">Powered by your Anthropic key — Settings → AI Assistant</span></div>
+          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:10px;padding:16px">
+            <button class="btn btn-secondary" onclick="aiWeeklyBriefing()">📋 Weekly Briefing</button>
+            <button class="btn btn-secondary" onclick="aiPricingSuggestion()">💡 Pricing Analysis</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PROJECTS -->
+    <div class="view" id="view-projects">
+      <div class="section-header">
+        <div><div class="section-title">Projects</div><div class="section-sub">Manage all your photography &amp; video jobs</div></div>
+        <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="project-search" placeholder="Search projects..." oninput="renderProjects()"></div>
+        <select class="filter-select" id="project-status-filter" onchange="renderProjects()">
+          <option value="">All Statuses</option><option value="inquiry">Inquiry</option><option value="booked">Booked</option>
+          <option value="shot">Shot</option><option value="editing">Editing</option><option value="delivered">Delivered</option>
+          <option value="invoiced">Invoiced</option><option value="paid">Paid</option>
+        </select>
+        <select class="filter-select" id="project-type-filter" onchange="renderProjects()">
+          <option value="">All Types</option><option value="real-estate">Real Estate</option><option value="wedding">Wedding</option>
+          <option value="portrait">Portrait</option><option value="commercial">Commercial</option><option value="sports">Sports</option>
+          <option value="event">Event</option><option value="video">Video</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Project</th><th>Client</th><th>Type</th><th>Shoot Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="projects-tbody"></tbody>
+          </table>
+        </div>
+        <div id="projects-empty" style="display:none">
+          <div class="empty-state"><div class="empty-icon">📁</div><div class="empty-title">No projects yet</div><div class="empty-sub">Create your first project to get started</div><button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- CLIENTS -->
+    <div class="view" id="view-clients">
+      <div class="section-header">
+        <div><div class="section-title">Clients</div><div class="section-sub">All your photography &amp; video clients</div></div>
+        <button class="btn btn-primary" onclick="openClientModal()">+ New Client</button>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="client-search" placeholder="Search clients..." oninput="renderClients()"></div>
+        <select class="filter-select" id="client-type-filter" onchange="renderClients()">
+          <option value="">All Types</option><option value="agent">Real Estate Agent</option><option value="homeowner">Homeowner</option>
+          <option value="business">Business</option><option value="individual">Individual</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Type</th><th>Company</th><th>Projects</th><th>Actions</th></tr></thead>
+            <tbody id="clients-tbody"></tbody>
+          </table>
+        </div>
+        <div id="clients-empty" style="display:none">
+          <div class="empty-state"><div class="empty-icon">👤</div><div class="empty-title">No clients yet</div><div class="empty-sub">Add your first client</div><button class="btn btn-primary" onclick="openClientModal()">+ New Client</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- INVOICES -->
+    <div class="view" id="view-invoices">
+      <div class="section-header">
+        <div><div class="section-title">Invoices</div><div class="section-sub">Track your billing and payments</div></div>
+        <button class="btn btn-primary" onclick="openInvoiceModal()">+ New Invoice</button>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="invoice-search" placeholder="Search invoices..." oninput="renderInvoices()"></div>
+        <select class="filter-select" id="invoice-status-filter" onchange="renderInvoices()">
+          <option value="">All Statuses</option><option value="draft">Draft</option><option value="sent">Sent</option>
+          <option value="paid">Paid</option><option value="overdue">Overdue</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Invoice #</th><th>Client</th><th>Project</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="invoices-tbody"></tbody>
+          </table>
+        </div>
+        <div id="invoices-empty" style="display:none">
+          <div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No invoices yet</div><div class="empty-sub">Create your first invoice</div><button class="btn btn-primary" onclick="openInvoiceModal()">+ New Invoice</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- BOOKINGS -->
+    <div class="view" id="view-bookings">
+      <div class="section-header">
+        <div><div class="section-title">Bookings</div><div class="section-sub">Upcoming and past shoots</div></div>
+        <button class="btn btn-primary" onclick="openBookingModal()">+ New Booking</button>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="booking-search" placeholder="Search bookings..." oninput="renderBookings()"></div>
+        <select class="filter-select" id="booking-status-filter" onchange="renderBookings()">
+          <option value="">All Statuses</option><option value="confirmed">Confirmed</option><option value="pending">Pending</option>
+          <option value="completed">Completed</option><option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div id="bookings-list"></div>
+      <div id="bookings-empty" style="display:none">
+        <div class="card"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No bookings yet</div><div class="empty-sub">Schedule your first shoot</div><button class="btn btn-primary" onclick="openBookingModal()">+ New Booking</button></div></div>
+      </div>
+    </div>
+    <!-- DELIVERY -->
+    <div class="view" id="view-delivery">
+      <div class="section-header">
+        <div><div class="section-title">File Delivery</div><div class="section-sub">Send finished photos and videos to clients</div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><div class="card-title">📤 How File Delivery Works</div></div>
+        <div class="card-body">
+          <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;margin-bottom:16px">Each project gets a unique delivery link. Clients click it and download their files — no login required.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">📁</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Add Files</div><div style="font-size:0.75rem;color:var(--text-muted)">Add Google Drive, Dropbox, or any cloud link to your project</div></div>
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">🔗</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Share Link</div><div style="font-size:0.75rem;color:var(--text-muted)">Each project gets a unique branded delivery link</div></div>
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">📬</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Client Downloads</div><div style="font-size:0.75rem;color:var(--text-muted)">Client gets a clean download page, no account needed</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Project Delivery Links</div></div>
+        <div class="card-body"><div id="delivery-list"></div></div>
+      </div>
+    </div>
+    <!-- INTEGRATIONS -->
+    <div class="view" id="view-integrations">
+      <div class="section-header">
+        <div><div class="section-title">Integrations</div><div class="section-sub">Connect payment, email, calendar, and accounting tools</div></div>
+        <button class="btn btn-primary" onclick="saveIntegrations()">Save Integrations</button>
+      </div>
+      <div class="int-section">
+        <div class="int-section-header"><div class="int-section-icon" style="background:#ECFDF5">💳</div><div><div class="int-section-title">Accept Payments</div><div class="int-section-sub">Active links appear on every invoice automatically.</div></div></div>
+        <div class="int-grid">
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#635BFF;color:white">S</div><div class="int-name">Stripe</div><label class="toggle"><input type="checkbox" id="int-stripe-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Payment Link URL</label><input class="form-control" id="int-stripe-link" placeholder="https://buy.stripe.com/..."><div class="form-hint">Create a payment link in Stripe and paste it here</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#3D95CE;color:white">V</div><div class="int-name">Venmo</div><label class="toggle"><input type="checkbox" id="int-venmo-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Venmo Username</label><input class="form-control" id="int-venmo-username" placeholder="@yourusername"><div class="form-hint">Your Venmo @handle</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#0070BA;color:white">P</div><div class="int-name">PayPal</div><label class="toggle"><input type="checkbox" id="int-paypal-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">PayPal.me Username</label><input class="form-control" id="int-paypal-username" placeholder="yourusername"><div class="form-hint">Your PayPal.me handle</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#00D64F;color:white">$</div><div class="int-name">Cash App</div><label class="toggle"><input type="checkbox" id="int-cashapp-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">$Cashtag</label><input class="form-control" id="int-cashapp-cashtag" placeholder="$yourcashtag"><div class="form-hint">Your Cash App $cashtag</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#3D4EAC;color:white">◼</div><div class="int-name">Square</div><label class="toggle"><input type="checkbox" id="int-square-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Square Payment Link</label><input class="form-control" id="int-square-link" placeholder="https://square.link/u/..."><div class="form-hint">Generate a payment link from Square</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#6EC177;color:white">C</div><div class="int-name">Chime</div><label class="toggle"><input type="checkbox" id="int-chime-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Chime Pay Link or Phone</label><input class="form-control" id="int-chime-contact" placeholder="your@email.com or (555) 000-0000"><div class="form-hint">Clients pay via Chime using your linked info</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#6D1ED4;color:white">Z</div><div class="int-name">Zelle</div><label class="toggle"><input type="checkbox" id="int-zelle-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Zelle Email or Phone</label><input class="form-control" id="int-zelle-contact" placeholder="your@email.com or (555) 000-0000"><div class="form-hint">Your Zelle-linked email or phone number</div></div></div>
+        </div>
+      </div>
+      <div class="int-section">
+        <div class="int-section-header"><div class="int-section-icon" style="background:#EFF6FF">📊</div><div><div class="int-section-title">Accounting</div><div class="int-section-sub">Export invoices to your accounting software.</div></div></div>
+        <div class="int-grid">
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#2CA01C;color:white">QB</div><div class="int-name">QuickBooks</div><button class="btn btn-secondary btn-sm" onclick="exportAccounting('quickbooks')">⬇ Export CSV</button></div><div class="form-hint mt-8">CSV formatted for QuickBooks import</div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#FF5540;color:white">FB</div><div class="int-name">FreshBooks</div><button class="btn btn-secondary btn-sm" onclick="exportAccounting('freshbooks')">⬇ Export CSV</button></div><div class="form-hint mt-8">CSV formatted for FreshBooks import</div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#00B9CF;color:white">W</div><div class="int-name">Wave</div><button class="btn btn-secondary btn-sm" onclick="exportAccounting('wave')">⬇ Export CSV</button></div><div class="form-hint mt-8">CSV formatted for Wave Accounting import</div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#13B5EA;color:white">X</div><div class="int-name">Xero</div><button class="btn btn-secondary btn-sm" onclick="exportAccounting('xero')">⬇ Export CSV</button></div><div class="form-hint mt-8">CSV formatted for Xero import</div></div>
+        </div>
+      </div>
+      <div class="int-section">
+        <div class="int-section-header"><div class="int-section-icon" style="background:#FFF7ED">📧</div><div><div class="int-section-title">Email</div><div class="int-section-sub">Choose your email provider for invoice sending.</div></div></div>
+        <div class="form-group" style="max-width:340px">
+          <label class="form-label">Email Provider</label>
+          <select class="form-control" id="int-email-provider">
+            <option value="default">Default Email App (mailto:)</option><option value="gmail">Gmail</option>
+            <option value="outlook">Outlook / Microsoft 365</option><option value="yahoo">Yahoo Mail</option>
+            <option value="apple">Apple Mail</option>
+          </select>
+        </div>
+      </div>
+      <div class="int-section">
+        <div class="int-section-header"><div class="int-section-icon" style="background:#F5F3FF">📅</div><div><div class="int-section-title">Calendar</div><div class="int-section-sub">Default calendar for "Add to Calendar" buttons on bookings.</div></div></div>
+        <div class="form-group" style="max-width:340px">
+          <label class="form-label">Default Calendar</label>
+          <select class="form-control" id="int-calendar-provider">
+            <option value="ics">Download .ics (Apple Calendar, Outlook, any calendar)</option>
+            <option value="google">Google Calendar</option>
+          </select>
+        </div>
+        <div class="form-hint">The "📅 Cal" button on each booking uses this. Clients always get all 4 calendar options on their confirmation page.</div>
+      </div>
+    </div>
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="section-header">
+        <div><div class="section-title">Settings</div><div class="section-sub">Configure your business profile</div></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">🏢 Business Information</div>
+        <div class="settings-grid">
+          <div class="form-group"><label class="form-label">Business Name</label><input class="form-control" id="s-business-name" placeholder="e.g. Your Photography Business"></div>
+          <div class="form-group"><label class="form-label">Your Name</label><input class="form-control" id="s-owner-name" placeholder="e.g. Your Name"></div>
+          <div class="form-group"><label class="form-label">Email Address</label><input class="form-control" id="s-email" type="email" placeholder="you@example.com"></div>
+          <div class="form-group"><label class="form-label">Phone Number</label><input class="form-control" id="s-phone" placeholder="(555) 000-0000"></div>
+          <div class="form-group"><label class="form-label">City / State</label><input class="form-control" id="s-location" placeholder="e.g. Orangevale, CA"></div>
+          <div class="form-group"><label class="form-label">Website</label><input class="form-control" id="s-website" placeholder="https://..."></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">💰 Billing Defaults</div>
+        <div class="settings-grid">
+          <div class="form-group"><label class="form-label">Default Tax Rate (%)</label><input class="form-control" id="s-tax-rate" type="number" min="0" max="100" step="0.1" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Currency</label><select class="form-control" id="s-currency"><option value="USD">USD — US Dollar</option><option value="CAD">CAD — Canadian Dollar</option><option value="GBP">GBP — British Pound</option><option value="EUR">EUR — Euro</option><option value="AUD">AUD — Australian Dollar</option></select></div>
+          <div class="form-group"><label class="form-label">Invoice Payment Terms</label><select class="form-control" id="s-payment-terms"><option value="due-on-receipt">Due on Receipt</option><option value="net-7">Net 7</option><option value="net-14">Net 14</option><option value="net-30">Net 30</option></select></div>
+          <div class="form-group"><label class="form-label">Invoice Notes / Footer</label><textarea class="form-control" id="s-invoice-notes" rows="2" placeholder="Thank you for your business!"></textarea></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">✨ AI Assistant</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">Add your own Anthropic API key to unlock AI features: contract drafting, client emails, and invoice notes. Your key is stored only on this device and never shared.</p>
+        <div class="settings-grid">
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Anthropic API Key</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-control" id="s-ai-key" type="password" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
+              <button class="btn btn-secondary" onclick="testAiKey()" id="ai-test-btn">Test Key</button>
+              <button class="btn btn-primary" onclick="saveAiKey()">Save</button>
+            </div>
+            <div id="ai-key-status" style="font-size:0.8rem;margin-top:6px;color:var(--text-muted)">
+              Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>
+            </div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Photographer Bio</label>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">Generate a professional bio from your business info above. Useful for your website, social profiles, and proposals.</p>
+            <button class="btn btn-secondary" onclick="aiPhotographerBio()">✨ Generate Bio</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">💾 Data Management</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="exportBackup()">⬇ Download Backup (JSON)</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('restore-input').click()">⬆ Restore from Backup</button>
+          <button class="btn btn-danger" onclick="clearAllData()">🗑 Clear All Data</button>
+        </div>
+        <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restoreBackup(event)">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="project-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="project-modal-title">New Project</div><button class="modal-close" onclick="closeModal('project-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="project-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Project Name <span>*</span></label><input class="form-control" id="project-name" placeholder="e.g. 123 Main St Shoot"></div>
+        <div class="form-group"><label class="form-label">Client <span>*</span></label><select class="form-control" id="project-client"><option value="">Select client...</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="project-type"><option value="real-estate">Real Estate Photo</option><option value="wedding">Wedding</option><option value="portrait">Portrait</option><option value="commercial">Commercial</option><option value="sports">Sports</option><option value="event">Event</option><option value="video">Video</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="project-status"><option value="inquiry">Inquiry</option><option value="booked">Booked</option><option value="shot">Shot</option><option value="editing">Editing</option><option value="delivered">Delivered</option><option value="invoiced">Invoiced</option><option value="paid">Paid</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Shoot Date</label><input class="form-control" id="project-date" type="date"></div>
+        <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-control" id="project-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="project-location" placeholder="e.g. 123 Main St, Sacramento, CA"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="project-notes" placeholder="Shoot details, special requests..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('project-modal')">Cancel</button><button class="btn btn-secondary" id="ai-contract-btn" onclick="aiDraftContract()" title="Generate a contract draft with AI">✨ Draft Contract</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div>
+  </div>
+</div>
+
+<!-- CLIENT MODAL -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="client-modal-title">New Client</div><button class="modal-close" onclick="closeModal('client-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="client-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name <span>*</span></label><input class="form-control" id="client-name" placeholder="e.g. Jane Smith"></div>
+        <div class="form-group"><label class="form-label">Client Type</label><select class="form-control" id="client-type"><option value="agent">Real Estate Agent</option><option value="homeowner">Homeowner</option><option value="business">Business</option><option value="individual">Individual</option><option value="other">Other</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="client-email" type="email" placeholder="jane@example.com"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="client-phone" placeholder="(555) 000-0000"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Company / Brokerage</label><input class="form-control" id="client-company" placeholder="e.g. Coldwell Banker"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="client-notes" placeholder="Preferences, referral source..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Save Client</button></div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="invoice-modal-title">New Invoice</div><button class="modal-close" onclick="closeModal('invoice-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="invoice-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client <span>*</span></label><select class="form-control" id="invoice-client"><option value="">Select client...</option></select></div>
+        <div class="form-group"><label class="form-label">Linked Project (optional)</label><select class="form-control" id="invoice-project"><option value="">None</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Invoice Number</label><input class="form-control" id="invoice-number" placeholder="INV-001"></div>
+        <div class="form-group"><label class="form-label">Due Date</label><input class="form-control" id="invoice-due" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="invoice-status"><option value="draft">Draft</option><option value="sent">Sent</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></div>
+        <div class="form-group"><label class="form-label">Tax Rate (%)</label><input class="form-control" id="invoice-tax" type="number" min="0" max="100" step="0.1" value="0" oninput="calcInvoiceTotal()"></div>
+      </div>
+      <div style="margin-top:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin:0">Line Items</label>
+          <button class="btn btn-secondary btn-sm" onclick="addLineItem()">+ Add Item</button>
+        </div>
+        <table class="line-items-table">
+          <thead><tr><th style="width:45%">Description</th><th style="width:12%">Qty</th><th style="width:18%">Rate ($)</th><th style="width:18%">Amount</th><th style="width:7%"></th></tr></thead>
+          <tbody id="line-items-body"></tbody>
+        </table>
+        <div class="invoice-totals">
+          <div class="invoice-total-row"><span>Subtotal</span><span id="inv-subtotal">$0.00</span></div>
+          <div class="invoice-total-row"><span>Tax (<span id="inv-tax-label">0</span>%)</span><span id="inv-tax-amount">$0.00</span></div>
+          <div class="invoice-total-row grand"><span>Total</span><span id="inv-total">$0.00</span></div>
+        </div>
+      </div>
+      <div class="form-group mt-16"><label class="form-label">Notes / Message to Client</label><textarea class="form-control" id="invoice-notes" rows="2" placeholder="Thank you for your business!"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('invoice-modal')">Cancel</button><button class="btn btn-secondary" id="ai-inv-notes-btn" onclick="aiDraftInvoiceNotes()" title="Generate invoice note with AI">✨ Draft Note</button><button class="btn btn-primary" onclick="saveInvoice()">Save Invoice</button></div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="booking-modal-title">New Booking</div><button class="modal-close" onclick="closeModal('booking-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="booking-id">
+      <div class="form-group"><label class="form-label">Title <span>*</span></label><input class="form-control" id="booking-title" placeholder="e.g. Real Estate Shoot — 123 Main St"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client <span>*</span></label><select class="form-control" id="booking-client"><option value="">Select client...</option></select></div>
+        <div class="form-group"><label class="form-label">Linked Project</label><select class="form-control" id="booking-project"><option value="">None</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Date <span>*</span></label><input class="form-control" id="booking-date" type="date"></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="booking-status"><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Start Time</label><input class="form-control" id="booking-start" type="time"></div>
+        <div class="form-group"><label class="form-label">End Time</label><input class="form-control" id="booking-end" type="time"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="booking-location" placeholder="Address or location name"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="booking-notes" placeholder="Access instructions, gear needed, special notes..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('booking-modal')">Cancel</button><button class="btn btn-primary" onclick="saveBooking()">Save Booking</button></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">Confirm Delete</div><button class="modal-close" onclick="closeModal('confirm-modal')">✕</button></div>
+    <div class="modal-body"><p style="font-size:0.9rem;color:var(--text-muted)" id="confirm-message">Are you sure you want to delete this item?</p></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('confirm-modal')">Cancel</button><button class="btn btn-danger" id="confirm-ok-btn">Delete</button></div>
+  </div>
+</div>
+
+<!-- MEDIA MODAL -->
+<div class="modal-overlay" id="media-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div><div class="modal-title">📁 Project Media</div><div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px" id="media-modal-project-name">Project name</div></div>
+      <button class="modal-close" onclick="closeModal('media-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="media-delivery-status"></div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:12px">➕ Add Media to This Project</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">File Name or Description</label><input class="form-control" id="media-filename" placeholder="e.g. Final Edited Photos — 48 images"></div>
+          <div class="form-group"><label class="form-label">File Type</label><select class="form-control" id="media-filetype"><option value="photos">📷 Photos</option><option value="video">🎬 Video</option><option value="raw">📦 RAW Files</option><option value="edits">✨ Edited Files</option><option value="other">📄 Other</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Delivery Link</label><input class="form-control" id="media-link" placeholder="https://drive.google.com/... or https://www.dropbox.com/..."><div class="form-hint">Paste a shareable cloud storage link. Client sees this once paid.</div></div>
+        <div class="form-group"><label class="form-label">Notes (optional)</label><input class="form-control" id="media-notes" placeholder="e.g. Password: sunshine2026, expires in 30 days"></div>
+        <button class="btn btn-primary" onclick="addMediaItem()">+ Add to Project Folder</button>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:10px">📂 Files in This Project</div>
+        <div id="media-list"></div>
+      </div>
+      <div style="margin-top:20px;background:var(--accent-light);border:1px solid #C7D2FE;border-radius:10px;padding:16px">
+        <div style="font-weight:700;font-size:0.88rem;margin-bottom:6px">🔗 Client Delivery Link</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">Share this with your client. Locks until invoice is paid, then auto-unlocks.</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;background:white;border:1px solid #C7D2FE;border-radius:6px;padding:8px 12px;font-family:monospace;font-size:0.78rem;color:var(--accent)" id="media-delivery-url">—</div>
+          <button class="btn btn-secondary btn-sm" onclick="copyDeliveryLink()">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('media-modal')">Close</button></div>
+  </div>
+</div>
+
+<!-- PHOTOGRAPHER CALENDAR SYNC MODAL -->
+<div class="modal-overlay" id="photographer-cal-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📅 Add to Your Calendar</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">Don't miss your shoot!</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('photographer-cal-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--accent-light);border:1px solid rgba(229,50,90,0.15);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+        <div style="font-weight:700;color:var(--text);margin-bottom:4px" id="phot-cal-title">Booking Title</div>
+        <div style="font-size:0.82rem;color:var(--text-muted)" id="phot-cal-date">Date &amp; Time</div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px;text-align:center">Add this shoot to your calendar:</div>
+      <div class="cal-btn-grid" id="phot-cal-btns"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('photographer-cal-modal')">Skip for Now</button></div>
+  </div>
+</div>
+
+<!-- REQUEST PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-request-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div><div class="modal-title">💰 Request Payment</div><div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">Collect payment before delivering the project</div></div>
+      <button class="modal-close" onclick="closeModal('payment-request-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pr-invoice-summary" style="background:var(--accent-light);border:1px solid #C7D2FE;border-radius:8px;padding:14px 16px;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:700;font-size:0.95rem" id="pr-inv-number">INV-001</div><div style="font-size:0.78rem;color:var(--text-muted)" id="pr-inv-client">Client name</div></div>
+          <div style="text-align:right"><div style="font-size:0.72rem;color:var(--text-muted)">Invoice Total</div><div style="font-weight:800;font-size:1.3rem;color:var(--accent)" id="pr-inv-total">$0.00</div></div>
+        </div>
+      </div>
+      <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:10px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+        <div style="width:44px;height:44px;background:var(--success);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">💰</div>
+        <div style="flex:1">
+          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:600">Full Payment Required Before Delivery</div>
+          <div style="font-weight:800;font-size:1.6rem;color:var(--success)" id="pr-request-amount">$0.00</div>
+        </div>
+        <div style="text-align:right"><div style="font-size:0.7rem;color:var(--text-muted)">Media will unlock</div><div style="font-size:0.78rem;font-weight:700;color:var(--success)">automatically on payment ✓</div></div>
+      </div>
+      <div class="form-group"><label class="form-label">Payment Methods</label><div id="pr-payment-methods"></div></div>
+      <div class="form-group"><label class="form-label">Message to Client</label><textarea class="form-control" id="pr-message" rows="3"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('payment-request-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="copyPaymentRequest()">📋 Copy Payment Request</button>
+      <button class="btn btn-primary" onclick="sendPaymentRequest()">📧 Send via Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DELIVERY VIEW -->
+<div id="client-delivery-view" style="display:none;position:fixed;inset:0;background:#F1F5F9;z-index:10000;overflow-y:auto">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:white;margin:0 auto 12px">SF</div>
+      <div style="font-weight:800;font-size:1.4rem;color:var(--text)" id="cdv-business-name">ShootFlow</div>
+      <div style="color:var(--text-muted);font-size:0.85rem" id="cdv-project-name">Project delivery</div>
+    </div>
+    <div id="cdv-payment-wall">
+      <div style="background:white;border-radius:14px;border:1px solid var(--border);padding:28px;margin-bottom:20px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:2rem;margin-bottom:12px">🔒</div>
+        <div style="font-weight:800;font-size:1.1rem;margin-bottom:8px">Payment Required</div>
+        <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px">Complete your payment to unlock and download your files.</div>
+        <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:8px;padding:14px;margin-bottom:20px">
+          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">Amount Due</div>
+          <div style="font-weight:800;font-size:1.8rem;color:var(--success)" id="cdv-amount">$0.00</div>
+        </div>
+        <div id="cdv-payment-methods"></div>
+        <div style="margin-top:16px;font-size:0.75rem;color:var(--text-muted)">After sending payment, notify your photographer and they will unlock your files.</div>
+      </div>
+    </div>
+    <div id="cdv-unlocked" style="display:none">
+      <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:1.5rem">✅</div>
+        <div><div style="font-weight:700;color:var(--success)">Payment Received — Files Unlocked!</div><div style="font-size:0.78rem;color:var(--text-muted)">Your files are ready to download below.</div></div>
+      </div>
+      <div id="cdv-files"></div>
+    </div>
+    <div style="text-align:center;margin-top:32px;font-size:0.72rem;color:var(--text-muted)">Powered by ShootFlow</div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+<script>
+// ── AUTH LAYER ──
+const AUTH_KEY = 'shootflow_auth_v2';
+const SESSION_KEY = 'shootflow_session_v2';
+const LOCKOUT_KEY = 'shootflow_lockout_v1';
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+function getAuthStore() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || { users: [] }; } catch(e) { return { users: [] }; } }
+function saveAuthStore(store) { localStorage.setItem(AUTH_KEY, JSON.stringify(store)); }
+function getSession() { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)) || null; } catch(e) { return null; } }
+function saveSession(user) {
+  // Never persist passwordHash or salt in the session
+  const { passwordHash, salt, ...safeUser } = user;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
+}
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
+
+// ── BRUTE-FORCE PROTECTION ──
+function getLockout(email) {
+  try { return JSON.parse(localStorage.getItem(LOCKOUT_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveLockout(data) { localStorage.setItem(LOCKOUT_KEY, JSON.stringify(data)); }
+function checkLockout(email) {
+  const all = getLockout();
+  const rec = all[email];
+  if (!rec) return false;
+  if (rec.lockedUntil && Date.now() < rec.lockedUntil) return true;
+  if (rec.lockedUntil && Date.now() >= rec.lockedUntil) { delete all[email]; saveLockout(all); }
+  return false;
+}
+function recordFailedAttempt(email) {
+  const all = getLockout();
+  const rec = all[email] || { attempts: 0 };
+  rec.attempts = (rec.attempts || 0) + 1;
+  rec.lastAttempt = Date.now();
+  if (rec.attempts >= MAX_ATTEMPTS) { rec.lockedUntil = Date.now() + LOCKOUT_MS; rec.attempts = 0; }
+  all[email] = rec;
+  saveLockout(all);
+  return rec;
+}
+function clearLockout(email) {
+  const all = getLockout();
+  delete all[email];
+  saveLockout(all);
+}
+function remainingLockoutMins(email) {
+  const all = getLockout();
+  const rec = all[email];
+  if (!rec || !rec.lockedUntil) return 0;
+  return Math.ceil((rec.lockedUntil - Date.now()) / 60000);
+}
+
+// ── CRYPTO: PBKDF2 PASSWORD HASHING ──
+async function hashPassword(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' },
+    keyMaterial, 256
+  );
+  return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function generateSalt() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function verifyPassword(password, salt, storedHash) {
+  const hash = await hashPassword(password, salt);
+  // Constant-time comparison to prevent timing attacks
+  if (hash.length !== storedHash.length) return false;
+  let diff = 0;
+  for (let i = 0; i < hash.length; i++) diff |= hash.charCodeAt(i) ^ storedHash.charCodeAt(i);
+  return diff === 0;
+}
+
+// ── FOUNDER ACCOUNT (no plaintext password in source) ──
+const FOUNDER_ID = 'founder_sg';
+const FOUNDER_EMAIL = '';
+const FOUNDER_META = { id: FOUNDER_ID, name: '', businessName: '', email: FOUNDER_EMAIL, role: 'founder', plan: 'lifetime', createdAt: 0 };
+
+async function ensureFounderAccount() {
+  const store = getAuthStore();
+  const existing = store.users.find(u => u.id === FOUNDER_ID);
+  if (!existing) {
+    // First run: hash the default password and store it — plaintext never lives in source after this
+    const salt = generateSalt();
+    const passwordHash = await hashPassword('ShootFlow2025!', salt);
+    store.users.unshift({ ...FOUNDER_META, salt, passwordHash });
+    saveAuthStore(store);
+  } else {
+    // Keep metadata in sync but preserve stored hash/salt
+    store.users[store.users.indexOf(existing)] = { ...existing, ...FOUNDER_META, salt: existing.salt, passwordHash: existing.passwordHash };
+    saveAuthStore(store);
+  }
+}
+
+function setAuthLoading(loading) {
+  const btn = document.getElementById('signin-btn');
+  if (btn) { btn.disabled = loading; btn.textContent = loading ? 'Signing in…' : 'Sign In →'; }
+}
+function setSignupLoading(loading) {
+  const btn = document.getElementById('signup-btn');
+  if (btn) { btn.disabled = loading; btn.textContent = loading ? 'Creating account…' : 'Create Account →'; }
+}
+
+function showAuthTab(tab) {
+  document.getElementById('form-signin').style.display = tab === 'signin' ? '' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-error').classList.remove('show');
+}
+function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.add('show'); }
+
+async function doSignIn() {
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const password = document.getElementById('si-password').value;
+  if (!email || !password) { showAuthError('Please enter your email and password.'); return; }
+  if (checkLockout(email)) {
+    showAuthError(`Too many failed attempts. Try again in ${remainingLockoutMins(email)} min.`);
+    return;
+  }
+  setAuthLoading(true);
+  try {
+    const store = getAuthStore();
+    const user = store.users.find(u => u.email === email);
+    const valid = user && user.salt && user.passwordHash
+      ? await verifyPassword(password, user.salt, user.passwordHash)
+      : false;
+    if (!valid) {
+      const rec = recordFailedAttempt(email);
+      const left = MAX_ATTEMPTS - (rec.attempts || 0);
+      if (rec.lockedUntil) {
+        showAuthError(`Too many failed attempts. Account locked for ${remainingLockoutMins(email)} min.`);
+      } else {
+        showAuthError(`Incorrect email or password.${left <= 2 ? ` ${left} attempt${left === 1 ? '' : 's'} remaining.` : ''}`);
+      }
+      return;
+    }
+    clearLockout(email);
+    saveSession(user);
+    launchApp(user);
+  } catch(e) {
+    showAuthError('Sign in failed. Please try again.');
+  } finally {
+    setAuthLoading(false);
+  }
+}
+
+async function doSignUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const business = document.getElementById('su-business').value.trim();
+  const email = document.getElementById('su-email').value.trim().toLowerCase();
+  const password = document.getElementById('su-password').value;
+  if (!name) { showAuthError('Please enter your full name.'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAuthError('Please enter a valid email address.'); return; }
+  if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
+  if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) { showAuthError('Password must include an uppercase letter and a number.'); return; }
+  setSignupLoading(true);
+  try {
+    const store = getAuthStore();
+    if (store.users.find(u => u.email === email)) { showAuthError('An account with that email already exists.'); return; }
+    const salt = generateSalt();
+    const passwordHash = await hashPassword(password, salt);
+    const user = { id: Date.now().toString(36), name, businessName: business || name + ' Photography', email, salt, passwordHash, createdAt: Date.now() };
+    store.users.push(user);
+    saveAuthStore(store);
+    saveSession(user);
+    launchApp(user);
+  } catch(e) {
+    showAuthError('Account creation failed. Please try again.');
+  } finally {
+    setSignupLoading(false);
+  }
+}
+function launchApp(user) {
+  document.getElementById('auth-screen').classList.add('hidden');
+  const data = getData();
+  if (!data.settings.ownerName) {
+    data.settings.ownerName = user.name;
+    data.settings.businessName = user.businessName || user.name;
+    data.settings.email = user.email;
+    saveData(data);
+  }
+  refreshUserUI(user, data.settings);
+  const planEl = document.querySelector('.plan-name');
+  const priceEl = document.querySelector('.plan-price');
+  if (user.role === 'founder') {
+    if (planEl) planEl.innerHTML = 'Pro <span style="background:var(--accent);color:white;font-size:0.6rem;padding:2px 6px;border-radius:10px;vertical-align:middle;margin-left:4px">FOUNDER</span>';
+    if (priceEl) priceEl.textContent = 'Free · Lifetime Access ♾';
+  }
+  navigate('dashboard');
+}
+function refreshUserUI(user, settings) {
+  const displayName = settings?.ownerName || user?.name || 'My Account';
+  const businessName = settings?.businessName || user?.businessName || 'ShootFlow';
+  const email = settings?.email || user?.email || '';
+  const initials = displayName.split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'SF';
+  const sn = document.getElementById('sidebar-user-name'); if(sn) sn.textContent = displayName;
+  const se = document.getElementById('sidebar-user-email'); if(se) se.textContent = email;
+  const si = document.getElementById('sidebar-avatar-initials'); if(si) si.textContent = initials;
+  const ta = document.getElementById('topbar-avatar'); if(ta) ta.textContent = initials;
+  const sb = document.getElementById('sidebar-business-name'); if(sb) sb.textContent = businessName;
+}
+function doSignOut() {
+  if (!confirm('Sign out of ShootFlow?')) return;
+  const emailEl = document.getElementById('si-email');
+  if (emailEl && emailEl.value) clearLockout(emailEl.value.trim().toLowerCase());
+  clearSession();
+  document.getElementById('auth-screen').classList.remove('hidden');
+  showAuthTab('signin');
+  document.getElementById('si-email').value = '';
+  document.getElementById('si-password').value = '';
+}
+
+// ── DATA LAYER ──
+const STORAGE_KEY = 'shootflow_v1';
+function getData() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
+  return { projects: [], clients: [], invoices: [], bookings: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1 };
+}
+function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateAutosaveChip(); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+// Cryptographically strong token for security-sensitive links (delivery, schedule)
+function secureToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+// XSS prevention: escape user-supplied text before inserting into innerHTML
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// Safe URL: block javascript: and data: URIs in user-provided links
+function safeUrl(url) {
+  if (!url) return '#';
+  const u = String(url).trim();
+  if (/^javascript:/i.test(u) || /^data:/i.test(u) || /^vbscript:/i.test(u)) return '#';
+  return u;
+}
+
+// ── NAVIGATION ──
+const PAGE_CONFIG = {
+  dashboard:    { title: 'Dashboard',     action: '+ New Project',     actionFn: 'openProjectModal' },
+  projects:     { title: 'Projects',      action: '+ New Project',     actionFn: 'openProjectModal' },
+  clients:      { title: 'Clients',       action: '+ New Client',      actionFn: 'openClientModal' },
+  invoices:     { title: 'Invoices',      action: '+ New Invoice',     actionFn: 'openInvoiceModal' },
+  bookings:     { title: 'Bookings',      action: '+ New Booking',     actionFn: 'openBookingModal' },
+  delivery:     { title: 'File Delivery', action: null },
+  integrations: { title: 'Integrations', action: 'Save Integrations', actionFn: 'saveIntegrations' },
+  settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
+};
+function navigate(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) el.classList.add('active');
+  const navItem = document.querySelector('[data-view="' + view + '"]');
+  if (navItem) navItem.classList.add('active');
+  const cfg = PAGE_CONFIG[view] || {};
+  document.getElementById('topbar-title').textContent = cfg.title || view;
+  const btn = document.getElementById('topbar-action-btn');
+  if (cfg.action) { btn.style.display = ''; btn.textContent = cfg.action; btn.dataset.fn = cfg.actionFn || ''; }
+  else { btn.style.display = 'none'; }
+  if (view === 'dashboard')    renderDashboard();
+  if (view === 'projects')     renderProjects();
+  if (view === 'clients')      renderClients();
+  if (view === 'invoices')     renderInvoices();
+  if (view === 'bookings')     renderBookings();
+  if (view === 'delivery')     renderDelivery();
+  if (view === 'integrations') loadIntegrations();
+  if (view === 'settings')     loadSettings();
+}
+function topbarAction() { const fn = document.getElementById('topbar-action-btn').dataset.fn; if (fn && window[fn]) window[fn](); }
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = '<span>' + (icons[type] || '•') + '</span> ' + msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── AUTOSAVE ──
+function updateAutosaveChip() {
+  const chip = document.getElementById('autosave-chip');
+  chip.textContent = '● Saved'; chip.style.background = '#ECFDF5'; chip.style.color = '#10B981';
+}
+
+// ── FORMATTERS ──
+function fmtCurrency(n) {
+  const data = getData();
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: data.settings.currency || 'USD' }).format(n || 0);
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function getMonthName(d) { if (!d) return ''; return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short' }).toUpperCase(); }
+function getDayNum(d) { if (!d) return ''; return new Date(d + 'T00:00:00').getDate(); }
+function clientName(id) { const data = getData(); const c = data.clients.find(c => c.id === id); return c ? c.name : '—'; }
+function projectName(id) { const data = getData(); const p = data.projects.find(p => p.id === id); return p ? p.name : '—'; }
+function statusBadge(status) { return '<span class="badge badge-' + status + '">' + status + '</span>'; }
+function statusColor(s) {
+  const map = { inquiry:'#94A3B8', booked:'#3B82F6', shot:'#8B5CF6', editing:'#F59E0B', delivered:'#059669', invoiced:'#EA580C', paid:'#10B981' };
+  return map[s] || '#94A3B8';
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const data = getData();
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const paidThisMonth = data.invoices.filter(i => i.status === 'paid' && i.paidAt && new Date(i.paidAt) >= monthStart).reduce((sum, i) => sum + (i.total || 0), 0);
+  const activeProjects = data.projects.filter(p => !['paid','delivered'].includes(p.status)).length;
+  const pendingInvoiceAmt = data.invoices.filter(i => ['sent','overdue'].includes(i.status)).reduce((s,i)=>s+(i.total||0),0);
+  const upcomingBookings = data.bookings.filter(b => b.status !== 'cancelled' && b.date >= now.toISOString().split('T')[0]).length;
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Revenue This Month</div><div class="stat-value">${fmtCurrency(paidThisMonth)}</div><div class="stat-sub">Paid invoices</div></div>
+    <div class="stat-card"><div class="stat-label">Active Projects</div><div class="stat-value">${activeProjects}</div><div class="stat-sub">In progress</div></div>
+    <div class="stat-card"><div class="stat-label">Needs Payment</div><div class="stat-value">${fmtCurrency(pendingInvoiceAmt)}</div><div class="stat-sub">Awaiting payment</div></div>
+    <div class="stat-card"><div class="stat-label">Upcoming Shoots</div><div class="stat-value">${upcomingBookings}</div><div class="stat-sub">Confirmed &amp; pending</div></div>`;
+  const recentProjects = [...data.projects].sort((a,b) => b.createdAt - a.createdAt).slice(0, 5);
+  document.getElementById('dash-projects').innerHTML = recentProjects.length
+    ? recentProjects.map(p => `<div class="activity-item"><div class="activity-dot" style="background:${statusColor(p.status)}"></div><div class="activity-text"><strong>${esc(p.name)}</strong><div class="text-muted" style="font-size:0.75rem">${clientName(p.clientId)} · ${fmtDate(p.shootDate)}</div></div><div>${statusBadge(p.status)}</div></div>`).join('')
+    : '<div class="text-muted" style="text-align:center;padding:20px;font-size:0.85rem">No projects yet</div>';
+  const upcoming = data.bookings.filter(b => b.status !== 'cancelled' && b.date >= now.toISOString().split('T')[0]).sort((a,b) => a.date.localeCompare(b.date)).slice(0, 3);
+  document.getElementById('dash-bookings').innerHTML = upcoming.length
+    ? upcoming.map(b => `<div class="activity-item"><div class="activity-dot" style="background:#3B82F6"></div><div class="activity-text"><strong>${esc(b.title)}</strong><div class="text-muted" style="font-size:0.75rem">${clientName(b.clientId)} · ${fmtDate(b.date)}${b.startTime ? ' @ ' + b.startTime : ''}</div></div>${statusBadge(b.status)}</div>`).join('')
+    : '<div class="text-muted" style="text-align:center;padding:20px;font-size:0.85rem">No upcoming shoots</div>';
+  const outstanding = data.invoices.filter(i => ['sent','overdue'].includes(i.status)).slice(0, 5);
+  document.getElementById('dash-invoices').innerHTML = outstanding.length
+    ? outstanding.map(i => `<div class="activity-item"><div class="activity-dot" style="background:${i.status==='overdue'?'#EF4444':'#F59E0B'}"></div><div class="activity-text"><strong>${i.invoiceNumber}</strong><div class="text-muted" style="font-size:0.75rem">${clientName(i.clientId)} · Due ${fmtDate(i.dueDate)}</div></div><div style="font-weight:700;font-size:0.9rem">${fmtCurrency(i.total)}</div></div>`).join('')
+    : '<div class="text-muted" style="text-align:center;padding:20px;font-size:0.85rem">No outstanding invoices</div>';
+  const recentClients = [...data.clients].sort((a,b) => b.createdAt - a.createdAt).slice(0, 5);
+  document.getElementById('dash-clients').innerHTML = recentClients.length
+    ? recentClients.map(c => { const pCount = data.projects.filter(p => p.clientId === c.id).length; return `<div class="activity-item"><div style="width:32px;height:32px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;color:var(--accent);flex-shrink:0">${c.name[0].toUpperCase()}</div><div class="activity-text"><strong>${esc(c.name)}</strong><div class="text-muted" style="font-size:0.75rem">${c.company || c.type} · ${pCount} project${pCount!==1?'s':''}</div></div></div>`; }).join('')
+    : '<div class="text-muted" style="text-align:center;padding:20px;font-size:0.85rem">No clients yet</div>';
+  const unpaid = data.invoices.filter(i => ['sent','overdue'].includes(i.status)).length;
+  const badge = document.getElementById('invoice-badge');
+  if (unpaid > 0) { badge.style.display = ''; badge.textContent = unpaid; } else badge.style.display = 'none';
+}
+
+// ── PROJECTS ──
+function openProjectModal(id) {
+  const data = getData();
+  const sel = document.getElementById('project-client');
+  sel.innerHTML = '<option value="">Select client...</option>' + data.clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  if (id) {
+    const p = data.projects.find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('project-modal-title').textContent = 'Edit Project';
+    document.getElementById('project-id').value = p.id;
+    document.getElementById('project-name').value = p.name;
+    document.getElementById('project-client').value = p.clientId || '';
+    document.getElementById('project-type').value = p.type || 'real-estate';
+    document.getElementById('project-status').value = p.status || 'inquiry';
+    document.getElementById('project-date').value = p.shootDate || '';
+    document.getElementById('project-amount').value = p.amount || '';
+    document.getElementById('project-location').value = p.location || '';
+    document.getElementById('project-notes').value = p.notes || '';
+  } else {
+    document.getElementById('project-modal-title').textContent = 'New Project';
+    ['project-id','project-name','project-location','project-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('project-client').value = '';
+    document.getElementById('project-type').value = 'real-estate';
+    document.getElementById('project-status').value = 'inquiry';
+    document.getElementById('project-date').value = '';
+    document.getElementById('project-amount').value = '';
+  }
+  openModal('project-modal');
+}
+function saveProject() {
+  const name = document.getElementById('project-name').value.trim();
+  if (!name) { toast('Project name is required', 'error'); return; }
+  const data = getData();
+  const id = document.getElementById('project-id').value;
+  const proj = {
+    id: id || uid(), name,
+    clientId: document.getElementById('project-client').value,
+    type: document.getElementById('project-type').value,
+    status: document.getElementById('project-status').value,
+    shootDate: document.getElementById('project-date').value,
+    amount: parseFloat(document.getElementById('project-amount').value) || 0,
+    location: document.getElementById('project-location').value.trim(),
+    notes: document.getElementById('project-notes').value.trim(),
+    createdAt: id ? (data.projects.find(p=>p.id===id)||{}).createdAt || Date.now() : Date.now(),
+    updatedAt: Date.now()
+  };
+  if (id) { const idx = data.projects.findIndex(p => p.id === id); if (idx >= 0) data.projects[idx] = proj; }
+  else { data.projects.unshift(proj); }
+  saveData(data); closeModal('project-modal'); renderProjects(); renderDashboard();
+  toast(id ? 'Project updated' : 'Project created');
+}
+function deleteProject(id) {
+  confirmDelete('Delete this project? This cannot be undone.', () => {
+    const data = getData(); data.projects = data.projects.filter(p => p.id !== id);
+    saveData(data); renderProjects(); renderDashboard(); toast('Project deleted');
+  });
+}
+function renderProjects() {
+  const data = getData();
+  const search = (document.getElementById('project-search')?.value || '').toLowerCase();
+  const statusF = document.getElementById('project-status-filter')?.value || '';
+  const typeF = document.getElementById('project-type-filter')?.value || '';
+  let projects = data.projects.filter(p => {
+    const cname = clientName(p.clientId).toLowerCase();
+    return (!search || p.name.toLowerCase().includes(search) || cname.includes(search) || (p.location||'').toLowerCase().includes(search))
+      && (!statusF || p.status === statusF) && (!typeF || p.type === typeF);
+  });
+  const tbody = document.getElementById('projects-tbody');
+  const empty = document.getElementById('projects-empty');
+  if (!projects.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = projects.map(p => {
+    const cname = p.clientId ? clientName(p.clientId) : null;
+    const initials = cname ? cname.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
+    return `<tr>
+      <td><div style="font-weight:600">${esc(p.name)}</div>${p.location ? `<div class="text-muted" style="font-size:0.75rem">📍 ${esc(p.location)}</div>` : ''}</td>
+      <td>${cname ? `<div class="avatar-wrap"><div class="avatar">${initials}</div><span>${cname}</span></div>` : '<span class="text-muted">—</span>'}</td>
+      <td><span class="tag">${p.type||'—'}</span></td>
+      <td>${fmtDate(p.shootDate)}</td>
+      <td style="font-weight:600">${p.amount ? fmtCurrency(p.amount) : '—'}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td><div class="table-actions" style="flex-wrap:wrap;gap:4px">
+        ${['inquiry','booked'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiClientIntake('${p.id}')" title="Generate client intake questions" style="font-size:0.75rem">✨ Intake</button>` : ''}
+        ${['booked','shot'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiShootPrepChecklist('${p.id}')" title="Generate shoot prep checklist" style="font-size:0.75rem">✨ Prep</button>` : ''}
+        ${p.status === 'delivered' ? `<button class="btn btn-ghost btn-sm" onclick="aiDeliveryMessage('${p.id}')" title="Draft delivery email" style="font-size:0.75rem">✨ Deliver</button>` : ''}
+        ${['delivered','paid'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiSocialCaption('${p.id}')" title="Generate social media caption" style="font-size:0.75rem">📱 Caption</button>` : ''}
+        ${p.status === 'paid' ? `<button class="btn btn-ghost btn-sm" onclick="aiTestimonialRequest('${p.id}')" title="Draft testimonial request" style="font-size:0.75rem">✨ Review</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="openMediaModal('${p.id}')">📁 Media</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openProjectModal('${p.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteProject('${p.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CLIENTS ──
+function openClientModal(id) {
+  if (id) {
+    const data = getData(); const c = data.clients.find(c => c.id === id); if (!c) return;
+    document.getElementById('client-modal-title').textContent = 'Edit Client';
+    document.getElementById('client-id').value = c.id;
+    document.getElementById('client-name').value = c.name;
+    document.getElementById('client-type').value = c.type || 'agent';
+    document.getElementById('client-email').value = c.email || '';
+    document.getElementById('client-phone').value = c.phone || '';
+    document.getElementById('client-company').value = c.company || '';
+    document.getElementById('client-notes').value = c.notes || '';
+  } else {
+    document.getElementById('client-modal-title').textContent = 'New Client';
+    ['client-id','client-name','client-email','client-phone','client-company','client-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('client-type').value = 'agent';
+  }
+  openModal('client-modal');
+}
+function saveClient() {
+  const name = document.getElementById('client-name').value.trim();
+  if (!name) { toast('Client name is required', 'error'); return; }
+  const data = getData(); const id = document.getElementById('client-id').value;
+  const client = {
+    id: id || uid(), name,
+    type: document.getElementById('client-type').value,
+    email: document.getElementById('client-email').value.trim(),
+    phone: document.getElementById('client-phone').value.trim(),
+    company: document.getElementById('client-company').value.trim(),
+    notes: document.getElementById('client-notes').value.trim(),
+    createdAt: id ? (data.clients.find(c=>c.id===id)||{}).createdAt || Date.now() : Date.now()
+  };
+  if (id) { const idx = data.clients.findIndex(c => c.id === id); if (idx >= 0) data.clients[idx] = client; }
+  else { data.clients.unshift(client); }
+  saveData(data); closeModal('client-modal'); renderClients(); renderDashboard();
+  toast(id ? 'Client updated' : 'Client added');
+}
+function deleteClient(id) {
+  confirmDelete('Delete this client?', () => {
+    const data = getData(); data.clients = data.clients.filter(c => c.id !== id);
+    saveData(data); renderClients(); renderDashboard(); toast('Client deleted');
+  });
+}
+function renderClients() {
+  const data = getData();
+  const search = (document.getElementById('client-search')?.value || '').toLowerCase();
+  const typeF = document.getElementById('client-type-filter')?.value || '';
+  let clients = data.clients.filter(c => (!search || c.name.toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search) || (c.company||'').toLowerCase().includes(search)) && (!typeF || c.type === typeF));
+  const tbody = document.getElementById('clients-tbody');
+  const empty = document.getElementById('clients-empty');
+  if (!clients.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = clients.map(c => {
+    const pCount = data.projects.filter(p => p.clientId === c.id).length;
+    const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `<tr>
+      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><div style="font-weight:600">${esc(c.name)}</div></div></td>
+      <td>${c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--accent)">${esc(c.email)}</a>` : '<span class="text-muted">—</span>'}</td>
+      <td>${c.phone || '<span class="text-muted">—</span>'}</td>
+      <td><span class="tag">${c.type||'—'}</span></td>
+      <td>${c.company || '<span class="text-muted">—</span>'}</td>
+      <td><span class="badge badge-booked">${pCount} project${pCount!==1?'s':''}</span></td>
+      <td><div class="table-actions" style="flex-wrap:wrap;gap:4px">
+        <button class="btn btn-ghost btn-sm" id="ai-email-btn-${c.id}" onclick="aiDraftEmail('${c.id}')" title="Draft follow-up email" style="font-size:0.75rem">✨ Email</button>
+        <button class="btn btn-ghost btn-sm" onclick="aiClientProfileSummary('${c.id}')" title="AI client profile summary" style="font-size:0.75rem">👤 Summary</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openClientModal('${c.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteClient('${c.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── INVOICES ──
+let lineItems = [];
+function openInvoiceModal(id) {
+  const data = getData();
+  document.getElementById('invoice-client').innerHTML = '<option value="">Select client...</option>' + data.clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('invoice-project').innerHTML = '<option value="">None</option>' + data.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  document.getElementById('invoice-tax').value = data.settings.taxRate || 0;
+  if (id) {
+    const inv = data.invoices.find(i => i.id === id); if (!inv) return;
+    document.getElementById('invoice-modal-title').textContent = 'Edit Invoice';
+    document.getElementById('invoice-id').value = inv.id;
+    document.getElementById('invoice-client').value = inv.clientId || '';
+    document.getElementById('invoice-project').value = inv.projectId || '';
+    document.getElementById('invoice-number').value = inv.invoiceNumber || '';
+    document.getElementById('invoice-due').value = inv.dueDate || '';
+    document.getElementById('invoice-status').value = inv.status || 'draft';
+    document.getElementById('invoice-tax').value = inv.taxRate || 0;
+    document.getElementById('invoice-notes').value = inv.notes || '';
+    lineItems = (inv.lineItems || []).map(li => ({...li}));
+  } else {
+    document.getElementById('invoice-modal-title').textContent = 'New Invoice';
+    document.getElementById('invoice-id').value = '';
+    document.getElementById('invoice-client').value = '';
+    document.getElementById('invoice-project').value = '';
+    const num = String(data.invoiceCounter || 1).padStart(3, '0');
+    document.getElementById('invoice-number').value = `INV-${num}`;
+    const due = new Date(); due.setDate(due.getDate() + 14);
+    document.getElementById('invoice-due').value = due.toISOString().split('T')[0];
+    document.getElementById('invoice-status').value = 'draft';
+    document.getElementById('invoice-notes').value = data.settings.invoiceNotes || '';
+    lineItems = [{ id: uid(), description: 'Photography Services', qty: 1, rate: 0, amount: 0 }];
+  }
+  renderLineItems(); calcInvoiceTotal(); openModal('invoice-modal');
+}
+function renderLineItems() {
+  document.getElementById('line-items-body').innerHTML = lineItems.map((li, i) => `
+    <tr>
+      <td><input value="${li.description}" onchange="lineItems[${i}].description=this.value" placeholder="Description"></td>
+      <td><input type="number" value="${li.qty}" min="0" step="0.5" onchange="lineItems[${i}].qty=parseFloat(this.value)||0;calcLineAmt(${i})" style="width:100%"></td>
+      <td><input type="number" value="${li.rate}" min="0" step="0.01" onchange="lineItems[${i}].rate=parseFloat(this.value)||0;calcLineAmt(${i})" style="width:100%"></td>
+      <td style="font-weight:600">${fmtCurrency(li.amount)}</td>
+      <td><button onclick="removeLineItem(${i})" style="background:none;border:none;cursor:pointer;color:#EF4444;font-size:1rem;padding:2px">✕</button></td>
+    </tr>`).join('');
+}
+function calcLineAmt(i) { lineItems[i].amount = (lineItems[i].qty || 0) * (lineItems[i].rate || 0); renderLineItems(); calcInvoiceTotal(); }
+function addLineItem() { lineItems.push({ id: uid(), description: '', qty: 1, rate: 0, amount: 0 }); renderLineItems(); calcInvoiceTotal(); }
+function removeLineItem(i) { lineItems.splice(i, 1); renderLineItems(); calcInvoiceTotal(); }
+function calcInvoiceTotal() {
+  const taxRate = parseFloat(document.getElementById('invoice-tax')?.value) || 0;
+  const subtotal = lineItems.reduce((s, li) => s + (li.amount || 0), 0);
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
+  document.getElementById('inv-subtotal').textContent = fmtCurrency(subtotal);
+  document.getElementById('inv-tax-label').textContent = taxRate;
+  document.getElementById('inv-tax-amount').textContent = fmtCurrency(tax);
+  document.getElementById('inv-total').textContent = fmtCurrency(total);
+}
+function saveInvoice() {
+  const clientId = document.getElementById('invoice-client').value;
+  if (!clientId) { toast('Please select a client', 'error'); return; }
+  const data = getData(); const id = document.getElementById('invoice-id').value;
+  const taxRate = parseFloat(document.getElementById('invoice-tax').value) || 0;
+  const subtotal = lineItems.reduce((s,li) => s+(li.amount||0), 0);
+  const taxAmt = subtotal * (taxRate/100); const total = subtotal + taxAmt;
+  const inv = {
+    id: id || uid(),
+    invoiceNumber: document.getElementById('invoice-number').value.trim(),
+    clientId, projectId: document.getElementById('invoice-project').value || '',
+    lineItems: lineItems.map(li => ({...li})),
+    subtotal, taxRate, taxAmount: taxAmt, total,
+    dueDate: document.getElementById('invoice-due').value,
+    status: document.getElementById('invoice-status').value,
+    notes: document.getElementById('invoice-notes').value.trim(),
+    paidAt: document.getElementById('invoice-status').value === 'paid' ? Date.now() : null,
+    createdAt: id ? (data.invoices.find(i=>i.id===id)||{}).createdAt || Date.now() : Date.now()
+  };
+  if (id) { const idx = data.invoices.findIndex(i => i.id === id); if (idx >= 0) data.invoices[idx] = inv; }
+  else { data.invoices.unshift(inv); data.invoiceCounter = (data.invoiceCounter || 1) + 1; }
+  saveData(data); closeModal('invoice-modal'); renderInvoices(); renderDashboard();
+  toast(id ? 'Invoice updated' : 'Invoice created');
+}
+function deleteInvoice(id) {
+  confirmDelete('Delete this invoice?', () => {
+    const data = getData(); data.invoices = data.invoices.filter(i => i.id !== id);
+    saveData(data); renderInvoices(); renderDashboard(); toast('Invoice deleted');
+  });
+}
+function markInvoicePaid(id) {
+  const data = getData(); const inv = data.invoices.find(i => i.id === id);
+  if (inv) { inv.status = 'paid'; inv.paidAt = Date.now(); }
+  saveData(data); unlockProjectDelivery(id); renderInvoices(); renderDashboard();
+  const linkedProj = data.projects?.find(p => p.id === inv?.projectId);
+  toast(linkedProj ? `Invoice paid ✓ — ${linkedProj.name} media unlocked 🔓` : 'Invoice marked as paid ✓', 'success');
+}
+function renderInvoices() {
+  const data = getData();
+  const search = (document.getElementById('invoice-search')?.value || '').toLowerCase();
+  const statusF = document.getElementById('invoice-status-filter')?.value || '';
+  let invoices = data.invoices.filter(i => {
+    const cname = clientName(i.clientId).toLowerCase();
+    return (!search || i.invoiceNumber.toLowerCase().includes(search) || cname.includes(search)) && (!statusF || i.status === statusF);
+  });
+  const tbody = document.getElementById('invoices-tbody');
+  const empty = document.getElementById('invoices-empty');
+  if (!invoices.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = invoices.map(i => {
+    const cname = clientName(i.clientId);
+    const initials = cname.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `<tr>
+      <td><span style="font-weight:700;font-family:monospace;font-size:0.82rem;color:var(--text-muted)">${i.invoiceNumber}</span></td>
+      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><span style="font-weight:600">${cname}</span></div></td>
+      <td>${i.projectId ? `<span class="text-muted" style="font-size:0.82rem">${projectName(i.projectId)}</span>` : '<span class="text-muted">—</span>'}</td>
+      <td style="font-weight:700">${fmtCurrency(i.total)}</td>
+      <td style="font-size:0.85rem">${fmtDate(i.dueDate)}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td><div class="table-actions">
+        ${i.status !== 'paid' ? `<button class="btn btn-primary btn-sm" onclick="requestPayment('${i.id}')">💰 Request</button><button class="btn btn-success btn-sm" onclick="markInvoicePaid('${i.id}')">✓ Paid</button>${i.status === 'overdue' ? `<button class="btn btn-ghost btn-sm" onclick="aiInvoiceNudge('${i.id}')" title="Draft payment reminder" style="font-size:0.75rem">✨ Nudge</button>` : ''}` : `<span class="badge badge-paid" style="padding:5px 10px">✓ Paid</span>`}
+        <button class="btn btn-secondary btn-sm" onclick="emailInvoice('${i.id}')">📧</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openInvoiceModal('${i.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteInvoice('${i.id}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  const unpaid = data.invoices.filter(i => ['sent','overdue'].includes(i.status)).length;
+  const badge = document.getElementById('invoice-badge');
+  if (unpaid > 0) { badge.style.display = ''; badge.textContent = unpaid; } else badge.style.display = 'none';
+}
+
+// ── BOOKINGS ──
+function openBookingModal(id) {
+  const data = getData();
+  document.getElementById('booking-client').innerHTML = '<option value="">Select client...</option>' + data.clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('booking-project').innerHTML = '<option value="">None</option>' + data.projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  if (id) {
+    const b = data.bookings.find(b => b.id === id); if (!b) return;
+    document.getElementById('booking-modal-title').textContent = 'Edit Booking';
+    document.getElementById('booking-id').value = b.id;
+    document.getElementById('booking-title').value = b.title;
+    document.getElementById('booking-client').value = b.clientId || '';
+    document.getElementById('booking-project').value = b.projectId || '';
+    document.getElementById('booking-date').value = b.date || '';
+    document.getElementById('booking-status').value = b.status || 'confirmed';
+    document.getElementById('booking-start').value = b.startTime || '';
+    document.getElementById('booking-end').value = b.endTime || '';
+    document.getElementById('booking-location').value = b.location || '';
+    document.getElementById('booking-notes').value = b.notes || '';
+  } else {
+    document.getElementById('booking-modal-title').textContent = 'New Booking';
+    document.getElementById('booking-id').value = '';
+    document.getElementById('booking-title').value = '';
+    document.getElementById('booking-client').value = '';
+    document.getElementById('booking-project').value = '';
+    document.getElementById('booking-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('booking-status').value = 'confirmed';
+    document.getElementById('booking-start').value = '09:00';
+    document.getElementById('booking-end').value = '11:00';
+    document.getElementById('booking-location').value = '';
+    document.getElementById('booking-notes').value = '';
+  }
+  openModal('booking-modal');
+}
+
+function saveBooking() {
+  const title = document.getElementById('booking-title').value.trim();
+  const clientId = document.getElementById('booking-client').value;
+  if (!title) { toast('Booking title is required', 'error'); return; }
+  if (!clientId) { toast('Please select a client', 'error'); return; }
+  const data = getData();
+  const id = document.getElementById('booking-id').value;
+  const existing = id ? data.bookings.find(b => b.id === id) : null;
+  const booking = {
+    id: id || uid(),
+    title, clientId,
+    projectId: document.getElementById('booking-project').value || '',
+    date: document.getElementById('booking-date').value,
+    status: document.getElementById('booking-status').value,
+    startTime: document.getElementById('booking-start').value,
+    endTime: document.getElementById('booking-end').value,
+    location: document.getElementById('booking-location').value.trim(),
+    notes: document.getElementById('booking-notes').value.trim(),
+    scheduleToken: existing?.scheduleToken || secureToken(),
+    clientConfirmed: existing?.clientConfirmed || false,
+    clientName: existing?.clientName || '',
+    clientEmail: existing?.clientEmail || '',
+    createdAt: id ? (existing?.createdAt || Date.now()) : Date.now()
+  };
+  if (id) { const idx = data.bookings.findIndex(b => b.id === id); if (idx >= 0) data.bookings[idx] = booking; }
+  else { data.bookings.unshift(booking); }
+  saveData(data); closeModal('booking-modal'); renderBookings(); renderDashboard();
+  toast(id ? 'Booking updated ✓' : 'Booking created! Add it to your calendar below.');
+  showPhotographerCalendarPrompt(booking);
+}
+
+function deleteBooking(id) {
+  confirmDelete('Delete this booking?', () => {
+    const data = getData(); data.bookings = data.bookings.filter(b => b.id !== id);
+    saveData(data); renderBookings(); renderDashboard(); toast('Booking deleted');
+  });
+}
+
+function renderBookings() {
+  const data = getData();
+  const search = (document.getElementById('booking-search')?.value || '').toLowerCase();
+  const statusF = document.getElementById('booking-status-filter')?.value || '';
+  let bookings = data.bookings.filter(b => {
+    const cname = clientName(b.clientId).toLowerCase();
+    return (!search || b.title.toLowerCase().includes(search) || cname.includes(search) || (b.location||'').toLowerCase().includes(search)) && (!statusF || b.status === statusF);
+  }).sort((a,b) => a.date.localeCompare(b.date));
+  const list = document.getElementById('bookings-list');
+  const empty = document.getElementById('bookings-empty');
+  if (!bookings.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = bookings.map(b => `
+    <div class="booking-card">
+      <div class="booking-date-block">
+        <div class="booking-month">${getMonthName(b.date)}</div>
+        <div class="booking-day">${getDayNum(b.date)}</div>
+      </div>
+      <div class="booking-info">
+        <div class="booking-title">${esc(b.title)}${b.clientConfirmed ? ' <span style="color:var(--success);font-size:0.7rem;font-weight:700;margin-left:6px">✓ Client confirmed</span>' : ''}</div>
+        <div class="booking-meta">
+          👤 ${clientName(b.clientId)}
+          ${b.startTime ? ` · ⏰ ${b.startTime}${b.endTime?'–'+b.endTime:''}` : ''}
+          ${b.location ? ` · 📍 ${esc(b.location)}` : ''}
+        </div>
+      </div>
+      ${statusBadge(b.status)}
+      <div class="table-actions">
+        <button class="btn btn-secondary btn-sm" onclick="addToCalendar('${b.id}')" title="Add to your calendar">📅 Cal</button>
+        <button class="btn btn-secondary btn-sm" onclick="shareScheduleLink('${b.id}')" title="Copy client booking link">📤 Share</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openBookingModal('${b.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteBooking('${b.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── DELIVERY ──
+function renderDelivery() {
+  const data = getData();
+  const list = document.getElementById('delivery-list');
+  if (!data.projects.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📤</div><div class="empty-title">No projects yet</div><div class="empty-sub">Create projects to generate delivery links</div></div>';
+    return;
+  }
+  list.innerHTML = data.projects.slice(0, 10).map(p => `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div style="font-weight:600;font-size:0.9rem">${esc(p.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${clientName(p.clientId)} · ${statusBadge(p.status)}</div></div>
+      <div class="delivery-link-box" style="flex:2">
+        <span class="delivery-link-url" id="dlv-${p.id}">${window.location.href.split('#')[0]}#deliver/${p.deliveryToken || p.id.substr(0,8)}</span>
+        <button class="btn btn-secondary btn-sm" onclick="copyProjectDeliveryLink('${p.id}')">📋</button>
+      </div>
+    </div>`).join('');
+}
+function copyProjectDeliveryLink(projectId) {
+  const data = getData();
+  const proj = data.projects.find(p => p.id === projectId);
+  if (!proj) return;
+  if (!proj.deliveryToken) { proj.deliveryToken = secureToken(); saveData(data); }
+  const url = window.location.href.split('#')[0] + '#deliver/' + proj.deliveryToken;
+  navigator.clipboard.writeText(url).then(() => toast('Delivery link copied!'));
+}
+
+// ── SETTINGS ──
+function loadSettings() {
+  const data = getData(); const s = data.settings;
+  document.getElementById('s-business-name').value = s.businessName || '';
+  document.getElementById('s-owner-name').value = s.ownerName || '';
+  document.getElementById('s-email').value = s.email || '';
+  document.getElementById('s-phone').value = s.phone || '';
+  document.getElementById('s-location').value = s.location || '';
+  document.getElementById('s-website').value = s.website || '';
+  document.getElementById('s-tax-rate').value = s.taxRate || 0;
+  document.getElementById('s-currency').value = s.currency || 'USD';
+  document.getElementById('s-payment-terms').value = s.paymentTerms || 'due-on-receipt';
+  document.getElementById('s-invoice-notes').value = s.invoiceNotes || '';
+}
+function saveSettings() {
+  const data = getData();
+  data.settings = {
+    businessName: document.getElementById('s-business-name').value.trim(),
+    ownerName: document.getElementById('s-owner-name').value.trim(),
+    email: document.getElementById('s-email').value.trim(),
+    phone: document.getElementById('s-phone').value.trim(),
+    location: document.getElementById('s-location').value.trim(),
+    website: document.getElementById('s-website').value.trim(),
+    taxRate: parseFloat(document.getElementById('s-tax-rate').value) || 0,
+    currency: document.getElementById('s-currency').value,
+    paymentTerms: document.getElementById('s-payment-terms').value,
+    invoiceNotes: document.getElementById('s-invoice-notes').value.trim()
+  };
+  saveData(data); refreshUserUI(getSession(), data.settings); toast('Settings saved');
+}
+
+// ── BACKUP & RESTORE ──
+function exportBackup() {
+  const data = getData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ShootFlow_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); toast('Backup downloaded');
+}
+function restoreBackup(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed.projects || !parsed.clients) throw new Error();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      toast('Backup restored successfully'); navigate('dashboard');
+    } catch { toast('Invalid backup file', 'error'); }
+  };
+  reader.readAsText(file); event.target.value = '';
+}
+function clearAllData() {
+  confirmDelete('This will permanently delete ALL your data. Are you absolutely sure?', () => {
+    localStorage.removeItem(STORAGE_KEY); toast('All data cleared'); navigate('dashboard');
+  });
+}
+
+// ── CONFIRM DELETE ──
+let confirmCallback = null;
+function confirmDelete(msg, cb) {
+  confirmCallback = cb;
+  document.getElementById('confirm-message').textContent = msg;
+  openModal('confirm-modal');
+  document.getElementById('confirm-ok-btn').onclick = () => {
+    closeModal('confirm-modal');
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+  };
+}
+
+// ── INTEGRATIONS ──
+function getIntegrations() { const data = getData(); return data.integrations || {}; }
+function loadIntegrations() {
+  const int = getIntegrations();
+  document.getElementById('int-stripe-enabled').checked  = int.stripe?.enabled || false;
+  document.getElementById('int-stripe-link').value       = int.stripe?.paymentLink || '';
+  document.getElementById('int-venmo-enabled').checked   = int.venmo?.enabled || false;
+  document.getElementById('int-venmo-username').value    = int.venmo?.username || '';
+  document.getElementById('int-paypal-enabled').checked  = int.paypal?.enabled || false;
+  document.getElementById('int-paypal-username').value   = int.paypal?.username || '';
+  document.getElementById('int-cashapp-enabled').checked = int.cashapp?.enabled || false;
+  document.getElementById('int-cashapp-cashtag').value   = int.cashapp?.cashtag || '';
+  document.getElementById('int-square-enabled').checked  = int.square?.enabled || false;
+  document.getElementById('int-square-link').value       = int.square?.paymentLink || '';
+  document.getElementById('int-chime-enabled').checked   = int.chime?.enabled || false;
+  document.getElementById('int-chime-contact').value     = int.chime?.contact || '';
+  document.getElementById('int-zelle-enabled').checked   = int.zelle?.enabled || false;
+  document.getElementById('int-zelle-contact').value     = int.zelle?.contact || '';
+  document.getElementById('int-email-provider').value    = int.emailProvider || 'default';
+  document.getElementById('int-calendar-provider').value = int.calendarProvider || 'ics';
+}
+function saveIntegrations() {
+  const data = getData();
+  data.integrations = {
+    stripe:   { enabled: document.getElementById('int-stripe-enabled').checked,  paymentLink: document.getElementById('int-stripe-link').value.trim() },
+    venmo:    { enabled: document.getElementById('int-venmo-enabled').checked,   username: document.getElementById('int-venmo-username').value.trim() },
+    paypal:   { enabled: document.getElementById('int-paypal-enabled').checked,  username: document.getElementById('int-paypal-username').value.trim() },
+    cashapp:  { enabled: document.getElementById('int-cashapp-enabled').checked, cashtag: document.getElementById('int-cashapp-cashtag').value.trim() },
+    square:   { enabled: document.getElementById('int-square-enabled').checked,  paymentLink: document.getElementById('int-square-link').value.trim() },
+    chime:    { enabled: document.getElementById('int-chime-enabled').checked,   contact: document.getElementById('int-chime-contact').value.trim() },
+    zelle:    { enabled: document.getElementById('int-zelle-enabled').checked,   contact: document.getElementById('int-zelle-contact').value.trim() },
+    emailProvider:    document.getElementById('int-email-provider').value,
+    calendarProvider: document.getElementById('int-calendar-provider').value
+  };
+  saveData(data); toast('Integrations saved ✓');
+}
+
+// ── MEDIA MANAGEMENT ──
+let _mediaProjectId = null;
+function openMediaModal(projectId) {
+  _mediaProjectId = projectId;
+  const data = getData();
+  const proj = data.projects.find(p => p.id === projectId);
+  if (!proj) return;
+  if (!proj.deliveryToken) { proj.deliveryToken = secureToken(); saveData(data); }
+  document.getElementById('media-modal-project-name').textContent = proj.name;
+  ['media-filename','media-link','media-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('media-filetype').value = 'photos';
+  const deliveryUrl = window.location.href.split('#')[0] + '#deliver/' + proj.deliveryToken;
+  document.getElementById('media-delivery-url').textContent = deliveryUrl;
+  const statusEl = document.getElementById('media-delivery-status');
+  statusEl.innerHTML = proj.deliveryUnlocked
+    ? '<div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:0.85rem;font-weight:600;color:var(--success)">✅ Payment received — client has access to all files</div>'
+    : '<div style="background:var(--warning-bg);border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#92400E">🔒 <span><strong>Locked</strong> — client cannot see files until invoice is paid.</span></div>';
+  renderMediaList(); openModal('media-modal');
+}
+function addMediaItem() {
+  const name = document.getElementById('media-filename').value.trim();
+  const link = document.getElementById('media-link').value.trim();
+  if (!name) { toast('Please enter a file name or description', 'error'); return; }
+  const data = getData(); const proj = data.projects.find(p => p.id === _mediaProjectId);
+  if (!proj) return;
+  if (!proj.media) proj.media = [];
+  proj.media.push({ id: uid(), name, type: document.getElementById('media-filetype').value, link, notes: document.getElementById('media-notes').value.trim(), addedAt: Date.now() });
+  saveData(data);
+  ['media-filename','media-link','media-notes'].forEach(id => document.getElementById(id).value = '');
+  renderMediaList(); toast('File added to project folder ✓');
+}
+function deleteMediaItem(mediaId) {
+  const data = getData(); const proj = data.projects.find(p => p.id === _mediaProjectId);
+  if (!proj || !proj.media) return;
+  proj.media = proj.media.filter(m => m.id !== mediaId);
+  saveData(data); renderMediaList(); toast('File removed');
+}
+function renderMediaList() {
+  const data = getData(); const proj = data.projects.find(p => p.id === _mediaProjectId);
+  const mediaList = document.getElementById('media-list');
+  if (!proj || !proj.media || !proj.media.length) {
+    mediaList.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:0.85rem;background:var(--bg);border-radius:8px;border:1px dashed var(--border)">No files added yet.</div>';
+    return;
+  }
+  const typeIcons = { photos:'📷', video:'🎬', raw:'📦', edits:'✨', other:'📄' };
+  mediaList.innerHTML = proj.media.map(m => `
+    <div class="media-item">
+      <div class="media-item-icon">${typeIcons[m.type] || '📄'}</div>
+      <div class="media-item-info">
+        <div class="media-item-name">${esc(m.name)}</div>
+        <div class="media-item-meta">${m.type.charAt(0).toUpperCase() + m.type.slice(1)}${m.link ? ` · <a href="${m.link}" target="_blank" style="color:var(--accent);font-weight:600">Open Link ↗</a>` : ''}${m.notes ? ` · <span style="font-style:italic">${esc(m.notes)}</span>` : ''}</div>
+      </div>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteMediaItem('${m.id}')">🗑</button>
+    </div>`).join('');
+}
+function copyDeliveryLink() {
+  const url = document.getElementById('media-delivery-url').textContent;
+  navigator.clipboard.writeText(url).then(() => toast('Delivery link copied!'));
+}
+
+// ── CLIENT DELIVERY PAGE ──
+function checkDeliveryHash() {
+  const hash = window.location.hash;
+  if (!hash.startsWith('#deliver/')) return;
+  showClientDeliveryView(hash.replace('#deliver/', ''));
+}
+function showClientDeliveryView(token) {
+  const data = getData();
+  const proj = data.projects.find(p => p.deliveryToken === token);
+  document.getElementById('client-delivery-view').style.display = 'block';
+  document.querySelector('.sidebar').style.display = 'none';
+  document.querySelector('.main').style.display = 'none';
+  if (!proj) {
+    document.getElementById('cdv-project-name').textContent = 'Delivery link not found';
+    document.getElementById('cdv-payment-wall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">This delivery link is invalid or has expired.</div>';
+    return;
+  }
+  document.getElementById('cdv-business-name').textContent = data.settings.businessName || 'Your Photographer';
+  document.getElementById('cdv-project-name').textContent = proj.name;
+  if (proj.deliveryUnlocked) {
+    document.getElementById('cdv-payment-wall').style.display = 'none';
+    document.getElementById('cdv-unlocked').style.display = 'block';
+    renderClientFiles(proj);
+  } else {
+    document.getElementById('cdv-payment-wall').style.display = 'block';
+    document.getElementById('cdv-unlocked').style.display = 'none';
+    const inv = data.invoices.find(i => i.projectId === proj.id && i.status !== 'paid');
+    document.getElementById('cdv-amount').textContent = inv ? fmtCurrency(inv.total) : 'See invoice';
+    const methods = buildPaymentLinks(inv ? inv.total : 0, data.integrations || {});
+    const pmEl = document.getElementById('cdv-payment-methods');
+    pmEl.innerHTML = methods.length
+      ? methods.map(m => `<a href="${safeUrl(m.url)}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;background:${m.bg};margin-bottom:8px;text-decoration:none;font-weight:600;font-size:0.88rem;color:${m.color}"><span style="width:32px;height:32px;border-radius:7px;background:${m.color};color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;flex-shrink:0">${m.icon}</span> Pay via ${esc(m.name)} <span style="margin-left:auto">→</span></a>`).join('')
+      : '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:12px">Contact your photographer for payment instructions.</div>';
+  }
+}
+function renderClientFiles(proj) {
+  const typeIcons = { photos:'📷', video:'🎬', raw:'📦', edits:'✨', other:'📄' };
+  const filesEl = document.getElementById('cdv-files');
+  if (!proj.media || !proj.media.length) {
+    filesEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);background:white;border-radius:10px;border:1px solid var(--border)">Your photographer has not uploaded files yet.</div>';
+    return;
+  }
+  filesEl.innerHTML = proj.media.map(m => `
+    <div class="cdv-file-card">
+      <div class="cdv-file-icon">${typeIcons[m.type] || '📄'}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:0.95rem">${m.name}</div>${m.notes ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(m.notes)}</div>` : ''}</div>
+      ${m.link ? `<a href="${safeUrl(m.link)}" target="_blank" style="background:var(--accent);color:white;padding:9px 16px;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none">⬇ Download</a>` : '<span style="color:var(--text-muted);font-size:0.8rem">Link coming soon</span>'}
+    </div>`).join('');
+}
+function unlockProjectDelivery(invoiceId) {
+  const data = getData(); const inv = data.invoices.find(i => i.id === invoiceId);
+  if (!inv || !inv.projectId) return;
+  const proj = data.projects.find(p => p.id === inv.projectId);
+  if (proj) { proj.deliveryUnlocked = true; saveData(data); }
+}
+
+// ── PAYMENT REQUEST ──
+let _prInvoiceId = null, _prInvoiceTotal = 0;
+function requestPayment(invoiceId) {
+  const data = getData(); const inv = data.invoices.find(i => i.id === invoiceId); if (!inv) return;
+  const client = data.clients.find(c => c.id === inv.clientId);
+  const int = data.integrations || {};
+  _prInvoiceId = invoiceId; _prInvoiceTotal = inv.total || 0;
+  document.getElementById('pr-inv-number').textContent  = inv.invoiceNumber;
+  document.getElementById('pr-inv-client').textContent  = client ? client.name : '—';
+  document.getElementById('pr-inv-total').textContent   = fmtCurrency(inv.total);
+  document.getElementById('pr-request-amount').textContent = fmtCurrency(inv.total);
+  const firstName = client ? client.name.split(' ')[0] : 'there';
+  const proj = data.projects?.find(p => p.id === inv.projectId);
+  const deliveryLine = proj?.deliveryToken ? `
+
+Your files will automatically unlock at:
+${window.location.href.split('#')[0]}#deliver/${proj.deliveryToken}` : '';
+  document.getElementById('pr-message').value = `Hi ${firstName},
+
+To receive your finished files, please complete payment for Invoice ${inv.invoiceNumber}.
+
+Amount Due: ${fmtCurrency(inv.total)}
+Due: ${fmtDate(inv.dueDate)}${deliveryLine}
+
+${data.settings.invoiceNotes || 'Thank you for your business!'}
+
+— ${data.settings.businessName || data.settings.ownerName || 'Your Photographer'}`;
+  renderPRPaymentMethods(inv.total, int);
+  openModal('payment-request-modal');
+}
+function getPRAmount() { return _prInvoiceTotal; }
+function renderPRPaymentMethods(amount, int) {
+  const methods = [
+    { key:'stripe',  name:'Stripe',   icon:'S', color:'#635BFF', getUrl: i => i.stripe?.paymentLink,  handle: i => i.stripe?.paymentLink ? 'Payment Link' : null },
+    { key:'paypal',  name:'PayPal',   icon:'P', color:'#0070BA', getUrl: i => `https://paypal.me/${(i.paypal?.username||'').replace('@','')}/${amount}`, handle: i => i.paypal?.username },
+    { key:'venmo',   name:'Venmo',    icon:'V', color:'#3D95CE', getUrl: i => `https://venmo.com/${(i.venmo?.username||'').replace('@','')}?txn=pay&amount=${amount}`, handle: i => i.venmo?.username },
+    { key:'cashapp', name:'Cash App', icon:'$', color:'#00D64F', getUrl: i => `https://cash.app/${i.cashapp?.cashtag}/${amount}`, handle: i => i.cashapp?.cashtag },
+    { key:'square',  name:'Square',   icon:'◼', color:'#3D4EAC', getUrl: i => i.square?.paymentLink,  handle: i => i.square?.paymentLink ? 'Link' : null },
+    { key:'chime',   name:'Chime',    icon:'C', color:'#6EC177', getUrl: i => 'https://chime.com/',  handle: i => i.chime?.contact },
+    { key:'zelle',   name:'Zelle',    icon:'Z', color:'#6D1ED4', getUrl: i => 'https://enroll.zellepay.com/', handle: i => i.zelle?.contact },
+  ];
+  const enabled = methods.filter(m => int[m.key]?.enabled && m.handle(int));
+  const container = document.getElementById('pr-payment-methods');
+  if (!enabled.length) {
+    container.innerHTML = '<div style="background:var(--warning-bg);border:1px solid #FDE68A;border-radius:8px;padding:12px 14px;font-size:0.82rem;color:#92400E">⚠️ No payment integrations enabled. <a onclick="closeModal(\'payment-request-modal\');navigate(\'integrations\')" style="color:var(--accent);cursor:pointer;font-weight:600">Set them up in Integrations →</a></div>';
+    return;
+  }
+  container.innerHTML = enabled.map(m => `<div class="pr-method-row"><div class="pr-method-logo" style="background:${m.color}">${m.icon}</div><div class="pr-method-info"><div class="pr-method-name">${esc(m.name)}</div><div class="pr-method-handle">${esc(m.handle(int))}</div></div><a href="${m.getUrl(int)}" target="_blank" class="pr-method-link">Open ${m.name} →</a></div>`).join('');
+}
+function sendPaymentRequest() {
+  const data = getData(); const inv = data.invoices.find(i => i.id === _prInvoiceId); if (!inv) return;
+  const client = data.clients.find(c => c.id === inv.clientId);
+  const int = data.integrations || {}; const provider = int.emailProvider || 'default';
+  const to = client?.email || ''; const amt = getPRAmount();
+  const subject = `Payment Request — ${inv.invoiceNumber} (${fmtCurrency(amt)})`;
+  const msg = document.getElementById('pr-message').value;
+  const body = msg;
+  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
+  closeModal('payment-request-modal'); toast('Payment request sent ✓');
+}
+function copyPaymentRequest() {
+  const msg = document.getElementById('pr-message').value;
+  navigator.clipboard.writeText(msg).then(() => toast('Payment request copied!'));
+}
+function emailInvoice(id) {
+  const data = getData(); const inv = data.invoices.find(i => i.id === id); if (!inv) return;
+  const client = data.clients.find(c => c.id === inv.clientId);
+  const provider = data.integrations?.emailProvider || 'default';
+  const to = client?.email || '';
+  const subject = `Invoice ${inv.invoiceNumber} — ${fmtCurrency(inv.total)}`;
+  const int = data.integrations || {};
+  const payLines = [];
+  if (int.stripe?.enabled && int.stripe?.paymentLink)   payLines.push(`Stripe: ${int.stripe.paymentLink}`);
+  if (int.paypal?.enabled && int.paypal?.username)       payLines.push(`PayPal: https://paypal.me/${int.paypal.username}/${inv.total}`);
+  if (int.venmo?.enabled && int.venmo?.username)         payLines.push(`Venmo: ${int.venmo.username}`);
+  if (int.cashapp?.enabled && int.cashapp?.cashtag)      payLines.push(`Cash App: ${int.cashapp.cashtag}`);
+  if (int.square?.enabled && int.square?.paymentLink)    payLines.push(`Square: ${int.square.paymentLink}`);
+  if (int.chime?.enabled && int.chime?.contact)          payLines.push(`Chime: ${int.chime.contact}`);
+  if (int.zelle?.enabled && int.zelle?.contact)          payLines.push(`Zelle: ${int.zelle.contact}`);
+  const paySection = payLines.length ? `
+
+How to Pay:
+${payLines.join('\n')}` : '';
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},
+
+Please find your invoice ${inv.invoiceNumber} for ${fmtCurrency(inv.total)}, due ${fmtDate(inv.dueDate)}.${paySection}
+
+${data.settings.invoiceNotes || 'Thank you!'}
+
+${data.settings.businessName || 'Your Photographer'}
+${data.settings.phone || ''}`;
+  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
+  toast('Opening email compose...');
+}
+
+// ── PAYMENT LINKS HELPER ──
+function buildPaymentLinks(amount, int) {
+  const links = [];
+  if (int.stripe?.enabled && int.stripe?.paymentLink)   links.push({ name:'Stripe',   icon:'S', color:'#635BFF', bg:'#F5F5FF', url: int.stripe.paymentLink });
+  if (int.paypal?.enabled && int.paypal?.username)       links.push({ name:'PayPal',   icon:'P', color:'#0070BA', bg:'#F0F7FF', url: `https://paypal.me/${int.paypal.username.replace('@','')}/${amount}` });
+  if (int.venmo?.enabled && int.venmo?.username)         links.push({ name:'Venmo',    icon:'V', color:'#3D95CE', bg:'#F0F7FF', url: `https://venmo.com/${int.venmo.username.replace('@','')}?txn=pay&amount=${amount}` });
+  if (int.cashapp?.enabled && int.cashapp?.cashtag)      links.push({ name:'Cash App', icon:'$', color:'#00D64F', bg:'#F0FFF5', url: `https://cash.app/${int.cashapp.cashtag}/${amount}` });
+  if (int.square?.enabled && int.square?.paymentLink)    links.push({ name:'Square',   icon:'◼', color:'#3D4EAC', bg:'#F0F3FF', url: int.square.paymentLink });
+  if (int.chime?.enabled && int.chime?.contact)          links.push({ name:'Chime',    icon:'C', color:'#6EC177', bg:'#F0FFF1', url: 'https://chime.com/' });
+  if (int.zelle?.enabled && int.zelle?.contact)          links.push({ name:'Zelle',    icon:'Z', color:'#6D1ED4', bg:'#F5F0FF', url: 'https://enroll.zellepay.com/' });
+  return links;
+}
+
+// ── CALENDAR ──
+function addToCalendar(id) {
+  const data = getData();
+  const provider = data.integrations?.calendarProvider || 'ics';
+  if (provider === 'google') { addToGoogleCalendar(id); } else { exportBookingICS(id); }
+}
+function addToGoogleCalendar(id) {
+  const data = getData(); const b = data.bookings.find(b => b.id === id); if (!b) return;
+  const fmt = (dateStr, timeStr) => { const d = new Date(`${dateStr}T${timeStr || '09:00'}:00`); return d.toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z'; };
+  const params = new URLSearchParams({ action:'TEMPLATE', text:b.title, dates:`${fmt(b.date,b.startTime)}/${fmt(b.date,b.endTime||b.startTime||'10:00')}`, details:`Client: ${clientName(b.clientId)}${b.notes?'\n\n'+b.notes:''}`, location:b.location||'' });
+  window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, '_blank');
+  toast('Opening Google Calendar...');
+}
+function exportBookingICS(id) {
+  const data = getData(); const b = data.bookings.find(b => b.id === id); if (!b) return;
+  const cname = clientName(b.clientId);
+  const fmt = (dateStr, timeStr) => { const d = new Date(`${dateStr}T${timeStr || '09:00'}:00`); return d.toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z'; };
+  const dtstart = fmt(b.date, b.startTime);
+  const dtend   = fmt(b.date, b.endTime || b.startTime || '10:00');
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ShootFlow//Photography Platform//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    `DTSTART:${dtstart}`,`DTEND:${dtend}`,`SUMMARY:${b.title}`,
+    `DESCRIPTION:Client: ${cname}${b.notes ? '\\n\\n' + b.notes.replace(/\n/g,'\\n') : ''}`,
+    b.location ? `LOCATION:${b.location}` : null,
+    `UID:${b.id}@shootflow.app`,
+    `STATUS:${b.status === 'confirmed' ? 'CONFIRMED' : b.status === 'cancelled' ? 'CANCELLED' : 'TENTATIVE'}`,
+    'END:VEVENT','END:VCALENDAR'].filter(Boolean).join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `shoot-${b.date}-${b.title.replace(/\s+/g,'-').toLowerCase()}.ics`;
+  a.click(); toast('Calendar event downloaded — open .ics to add to your calendar');
+}
+
+// ── ACCOUNTING EXPORT ──
+function exportAccounting(platform) {
+  const data = getData(); let headers, rows;
+  if (platform === 'quickbooks') {
+    headers = ['InvoiceNo','Customer','InvoiceDate','DueDate','Item','Quantity','Rate','Amount','TaxCode','Status'];
+    rows = [];
+    data.invoices.forEach(inv => {
+      const cname = clientName(inv.clientId);
+      const date = inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('en-US') : '';
+      (inv.lineItems || [{ description: 'Photography Services', qty: 1, rate: inv.total, amount: inv.total }]).forEach(li => {
+        rows.push([inv.invoiceNumber, cname, date, inv.dueDate||'', li.description, li.qty||1, (li.rate||0).toFixed(2), (li.amount||0).toFixed(2), inv.taxRate > 0 ? 'TAX' : 'NON', inv.status]);
+      });
+    });
+  } else {
+    headers = ['Invoice Number','Customer','Date','Due Date','Description','Amount (excl. tax)','Tax','Total','Status'];
+    rows = data.invoices.map(inv => {
+      const cname = clientName(inv.clientId);
+      const date = inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('en-US') : '';
+      return [inv.invoiceNumber, cname, date, inv.dueDate||'', 'Photography/Video Services', (inv.subtotal||0).toFixed(2), (inv.taxAmount||0).toFixed(2), (inv.total||0).toFixed(2), inv.status];
+    });
+  }
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ShootFlow_${platform}_export_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); toast(`${platform.charAt(0).toUpperCase() + platform.slice(1)} export downloaded`);
+}
+
+// ── CLIENT SCHEDULING FEATURE ──
+let _schedToken = null, _schedBooking = null;
+
+function generateScheduleToken(bookingId) {
+  const data = getData(); const booking = data.bookings.find(b => b.id === bookingId);
+  if (!booking) return null;
+  if (!booking.scheduleToken) { booking.scheduleToken = secureToken(); saveData(data); }
+  return booking.scheduleToken;
+}
+function shareScheduleLink(bookingId) {
+  const token = generateScheduleToken(bookingId);
+  if (!token) { toast('Booking not found', 'error'); return; }
+  const url = window.location.href.split('#')[0] + '#schedule/' + token;
+  navigator.clipboard.writeText(url).then(() => toast('📤 Schedule link copied! Share with your client to confirm the booking.'));
+}
+function checkScheduleHash() {
+  const hash = window.location.hash;
+  if (!hash.startsWith('#schedule/')) return;
+  showClientSchedulingPage(hash.replace('#schedule/', ''));
+}
+function showClientSchedulingPage(token) {
+  _schedToken = token;
+  const data = getData(); const booking = data.bookings.find(b => b.scheduleToken === token);
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('schedule-screen').classList.remove('hidden');
+  const sidebarEl = document.querySelector('.sidebar'); if (sidebarEl) sidebarEl.style.display = 'none';
+  const mainEl = document.querySelector('.main'); if (mainEl) mainEl.style.display = 'none';
+  const bizName = data.settings.businessName || 'ShootFlow';
+  document.getElementById('sched-biz-name').textContent = bizName;
+  document.getElementById('sched-biz-sub').textContent = data.settings.ownerName ? 'with ' + data.settings.ownerName : 'Photography & Video';
+  if (!booking) {
+    document.getElementById('sched-appt-card').style.display = 'none';
+    document.getElementById('sched-form-card').style.display = 'none';
+    document.getElementById('sched-confirmed-section').style.display = 'none';
+    document.getElementById('sched-not-found').style.display = 'block';
+    return;
+  }
+  _schedBooking = booking;
+  document.getElementById('sched-title').textContent = booking.title;
+  document.getElementById('sched-appt-card').style.display = 'block';
+  const details = [];
+  if (booking.date)      details.push({ icon:'📅', label:'Date',         value: fmtDate(booking.date) });
+  if (booking.startTime) details.push({ icon:'⏰', label:'Time',         value: booking.startTime + (booking.endTime ? ' – ' + booking.endTime : '') });
+  if (booking.location)  details.push({ icon:'📍', label:'Location',     value: booking.location });
+  details.push({ icon:'📸', label:'Photographer', value: data.settings.ownerName || bizName });
+  document.getElementById('sched-details').innerHTML = details.map(d => `<div class="sched-detail"><div class="sched-detail-icon">${d.icon}</div><div><div class="sched-detail-label">${d.label}</div><div class="sched-detail-value">${esc(d.value)}</div></div></div>`).join('');
+  if (booking.clientConfirmed) { showScheduleConfirmed(booking); }
+  else {
+    const client = data.clients.find(c => c.id === booking.clientId);
+    if (client) { document.getElementById('sched-client-name').value = client.name || ''; document.getElementById('sched-client-email').value = client.email || ''; }
+    document.getElementById('sched-form-card').style.display = 'block';
+    document.getElementById('sched-confirmed-section').style.display = 'none';
+  }
+}
+function showScheduleConfirmed(booking) {
+  document.getElementById('sched-form-card').style.display = 'none';
+  document.getElementById('sched-confirmed-section').style.display = 'block';
+  const data = getData();
+  document.getElementById('sched-confirmed-msg').textContent = 'Your appointment with ' + (data.settings.businessName || 'your photographer') + ' is confirmed! Add it to your calendar below.';
+  document.getElementById('sched-cal-btns').innerHTML = buildClientCalendarButtons(booking);
+}
+function confirmClientSchedule() {
+  const name = document.getElementById('sched-client-name').value.trim();
+  const email = document.getElementById('sched-client-email').value.trim();
+  const errEl = document.getElementById('sched-error');
+  if (!name)  { errEl.textContent = 'Please enter your name.';  errEl.classList.add('show'); return; }
+  if (!email) { errEl.textContent = 'Please enter your email.'; errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  if (!_schedBooking) return;
+  const data = getData(); const booking = data.bookings.find(b => b.id === _schedBooking.id);
+  if (booking) {
+    booking.clientConfirmed = true; booking.clientName = name; booking.clientEmail = email;
+    booking.clientNotes = document.getElementById('sched-client-notes').value.trim();
+    booking.confirmedAt = Date.now();
+    if (booking.status === 'pending') booking.status = 'confirmed';
+    saveData(data); _schedBooking = booking;
+  }
+  showScheduleConfirmed(_schedBooking);
+}
+function buildClientCalendarButtons(booking) {
+  if (!booking) return '';
+  const title    = encodeURIComponent(booking.title);
+  const location = encodeURIComponent(booking.location || '');
+  const desc     = encodeURIComponent('Appointment confirmed. Location: ' + (booking.location || 'TBD'));
+  const fmtCal   = (dateStr, timeStr) => { const d = new Date(dateStr + 'T' + (timeStr || '09:00') + ':00'); return d.toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z'; };
+  const start = fmtCal(booking.date, booking.startTime);
+  const end   = fmtCal(booking.date, booking.endTime || booking.startTime || '10:00');
+  const googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + start + '/' + end + '&details=' + desc + '&location=' + location;
+  const startISO  = new Date(booking.date + 'T' + (booking.startTime || '09:00') + ':00').toISOString();
+  const endISO    = new Date(booking.date + 'T' + (booking.endTime   || '10:00') + ':00').toISOString();
+  const outlookUrl = 'https://outlook.live.com/calendar/0/deeplink/compose?subject=' + title + '&startdt=' + encodeURIComponent(startISO) + '&enddt=' + encodeURIComponent(endISO) + '&location=' + location + '&body=' + desc;
+  return '<a href="' + googleUrl + '" target="_blank" class="cal-btn cal-btn-google"><span class="cal-btn-icon">📅</span><span>Google Calendar</span></a>'
+    + '<button onclick="downloadScheduleICS()" class="cal-btn cal-btn-apple"><span class="cal-btn-icon">🍎</span><span>Apple Calendar</span></button>'
+    + '<a href="' + outlookUrl + '" target="_blank" class="cal-btn cal-btn-outlook"><span class="cal-btn-icon">📧</span><span>Outlook Online</span></a>'
+    + '<button onclick="downloadScheduleICS()" class="cal-btn cal-btn-ics"><span class="cal-btn-icon">📥</span><span>Download .ics</span></button>';
+}
+function downloadScheduleICS() { if (_schedBooking) exportBookingICS(_schedBooking.id); }
+
+// ── PHOTOGRAPHER CALENDAR PROMPT ──
+function showPhotographerCalendarPrompt(booking) {
+  const modal = document.getElementById('photographer-cal-modal'); if (!modal) return;
+  const titleEl = document.getElementById('phot-cal-title'); if (titleEl) titleEl.textContent = booking.title;
+  const dateEl = document.getElementById('phot-cal-date'); if (dateEl) dateEl.textContent = fmtDate(booking.date) + (booking.startTime ? ' @ ' + booking.startTime : '');
+  const title    = encodeURIComponent(booking.title);
+  const location = encodeURIComponent(booking.location || '');
+  const desc     = encodeURIComponent('Client: ' + clientName(booking.clientId) + (booking.notes ? '\n\n' + booking.notes : ''));
+  const fmtCal   = (dateStr, timeStr) => { const d = new Date(dateStr + 'T' + (timeStr || '09:00') + ':00'); return d.toISOString().replace(/[-:.]/g,'').slice(0,15) + 'Z'; };
+  const start = fmtCal(booking.date, booking.startTime);
+  const end   = fmtCal(booking.date, booking.endTime || booking.startTime || '10:00');
+  const googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + start + '/' + end + '&details=' + desc + '&location=' + location;
+  const startISO  = new Date(booking.date + 'T' + (booking.startTime || '09:00') + ':00').toISOString();
+  const endISO    = new Date(booking.date + 'T' + (booking.endTime   || '10:00') + ':00').toISOString();
+  const outlookUrl = 'https://outlook.live.com/calendar/0/deeplink/compose?subject=' + title + '&startdt=' + encodeURIComponent(startISO) + '&enddt=' + encodeURIComponent(endISO) + '&location=' + location + '&body=' + desc;
+  const btns = document.getElementById('phot-cal-btns');
+  if (btns) btns.innerHTML =
+    '<a href="' + googleUrl + '" target="_blank" class="cal-btn cal-btn-google" onclick="closeModal(\'photographer-cal-modal\')"><span class="cal-btn-icon">📅</span><span>Google Calendar</span></a>'
+    + '<button onclick="exportBookingICS(\'' + booking.id + '\');closeModal(\'photographer-cal-modal\')" class="cal-btn cal-btn-apple"><span class="cal-btn-icon">🍎</span><span>Apple Calendar</span></button>'
+    + '<a href="' + outlookUrl + '" target="_blank" class="cal-btn cal-btn-outlook" onclick="closeModal(\'photographer-cal-modal\')"><span class="cal-btn-icon">📧</span><span>Outlook Online</span></a>'
+    + '<button onclick="exportBookingICS(\'' + booking.id + '\');closeModal(\'photographer-cal-modal\')" class="cal-btn cal-btn-ics"><span class="cal-btn-icon">📥</span><span>Download .ics</span></button>';
+  openModal('photographer-cal-modal');
+}
+
+// ── INIT ──
+async function init() {
+  await ensureFounderAccount();
+  // Client scheduling page — bypass auth
+  if (window.location.hash.startsWith('#schedule/')) {
+    document.getElementById('auth-screen').classList.add('hidden');
+    checkScheduleHash();
+    return;
+  }
+  // Client delivery page — bypass auth
+  if (window.location.hash.startsWith('#deliver/')) {
+    document.getElementById('auth-screen').classList.add('hidden');
+    checkDeliveryHash();
+    return;
+  }
+  const session = getSession();
+  if (session) {
+    document.getElementById('auth-screen').classList.add('hidden');
+    const data = getData();
+    refreshUserUI(session, data.settings);
+    navigate('dashboard');
+  } else {
+    document.getElementById('auth-screen').classList.remove('hidden');
+    setTimeout(() => { const el = document.getElementById('si-email'); if(el) el.focus(); }, 100);
+  }
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash.startsWith('#schedule/')) {
+      document.getElementById('auth-screen').classList.add('hidden');
+      checkScheduleHash();
+    } else if (window.location.hash.startsWith('#deliver/')) {
+      document.getElementById('auth-screen').classList.add('hidden');
+      checkDeliveryHash();
+    }
+  });
+  setInterval(() => { updateAutosaveChip(); }, 60000);
+}
+init();
+
+// ── AI ASSISTANT ──────────────────────────────────────────────────
+const AI_KEY_STORE = 'sf_ai_key_v1';
+
+function getAiKey() { return localStorage.getItem(AI_KEY_STORE) || ''; }
+
+function saveAiKey() {
+  const key = document.getElementById('s-ai-key').value.trim();
+  if (!key) { setAiKeyStatus('Key cleared.', 'var(--text-muted)'); localStorage.removeItem(AI_KEY_STORE); return; }
+  if (!key.startsWith('sk-ant-')) { setAiKeyStatus('That does not look like an Anthropic key. It should start with sk-ant-', 'var(--danger)'); return; }
+  localStorage.setItem(AI_KEY_STORE, key);
+  setAiKeyStatus('Key saved to this device.', 'var(--success)');
+  toast('AI key saved');
+}
+
+function setAiKeyStatus(msg, color) {
+  const el = document.getElementById('ai-key-status');
+  if (el) { el.textContent = msg; el.style.color = color; }
+}
+
+async function testAiKey() {
+  const key = document.getElementById('s-ai-key').value.trim() || getAiKey();
+  if (!key) { setAiKeyStatus('Enter a key first.', 'var(--danger)'); return; }
+  const btn = document.getElementById('ai-test-btn');
+  btn.disabled = true; btn.textContent = 'Testing...';
+  setAiKeyStatus('Connecting to Anthropic...', 'var(--text-muted)');
+  try {
+    const result = await askClaude('Reply with exactly: OK', key);
+    if (result) {
+      setAiKeyStatus('Key works! AI features are active.', 'var(--success)');
+      localStorage.setItem(AI_KEY_STORE, key);
+      toast('AI key verified');
+    } else {
+      setAiKeyStatus('Key test failed — check the key and try again.', 'var(--danger)');
+    }
+  } catch(e) {
+    setAiKeyStatus('Error: ' + e.message, 'var(--danger)');
+  }
+  btn.disabled = false; btn.textContent = 'Test Key';
+}
+
+async function askClaude(prompt, keyOverride) {
+  const key = keyOverride || getAiKey();
+  if (!key) {
+    toast('Add your Anthropic API key in Settings → AI Assistant', 'error');
+    return null;
+  }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API error ' + resp.status);
+  }
+  const data = await resp.json();
+  return data.content?.[0]?.text ?? null;
+}
+
+// ── AI OUTPUT MODAL ──────────────────────────────────────────────
+function showAiModal(title, content, onUse) {
+  document.getElementById('ai-modal-title').textContent = title;
+  const body = document.getElementById('ai-modal-body');
+  body.value = content;
+  const useBtn = document.getElementById('ai-modal-use-btn');
+  if (onUse) {
+    useBtn.style.display = '';
+    useBtn.onclick = () => { onUse(body.value); closeModal('ai-modal'); };
+  } else {
+    useBtn.style.display = 'none';
+  }
+  openModal('ai-modal');
+}
+
+function copyAiOutput() {
+  const text = document.getElementById('ai-modal-body').value;
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
+}
+
+// ── AI DRAFT: CONTRACT ───────────────────────────────────────────
+async function aiDraftContract() {
+  const name = document.getElementById('project-name').value.trim();
+  const clientId = document.getElementById('project-client').value;
+  const type = document.getElementById('project-type').value;
+  const date = document.getElementById('project-date').value;
+  const amount = document.getElementById('project-amount').value;
+  const location = document.getElementById('project-location').value.trim();
+  const data = getData();
+  const settings = data.settings;
+  const client = data.clients.find(c => c.id === clientId);
+  const clientNameStr = client ? client.name : 'Client';
+
+  if (!name) { toast('Fill in the project name first', 'error'); return; }
+
+  const btn = document.getElementById('ai-contract-btn');
+  btn.disabled = true; btn.textContent = '✨ Drafting...';
+
+  const prompt = `Write a professional photography services contract for the following job:
+
+Photographer / Business: ${settings.businessName || 'Photographer'}
+Photographer Contact: ${settings.email || ''}
+Client Name: ${clientNameStr}
+Project / Event: ${name}
+Shoot Type: ${type}
+Shoot Date: ${date || 'TBD'}
+Location: ${location || 'TBD'}
+Total Fee: ${amount ? '$' + parseFloat(amount).toFixed(2) : 'TBD'}
+
+Include these sections:
+1. Services — describe what is covered for this shoot type
+2. Payment — 50% deposit due on signing, remainder due on delivery; mention late fee after 14 days
+3. Image Delivery — final edited images delivered within 4 weeks via online gallery
+4. Cancellation Policy — 72-hour notice required; deposit non-refundable after 48 hours
+5. Copyright & Usage — photographer retains copyright; client receives personal-use license
+6. Liability — photographer liability limited to fee paid
+7. Signatures — two signature lines (Photographer and Client) with date
+
+Write in plain, professional English. No legal jargon. Keep it concise but complete. Do not include any placeholder brackets — use the actual information provided above.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) {
+      showAiModal('AI Draft Contract', result, (text) => {
+        const notes = document.getElementById('project-notes');
+        if (notes) { notes.value = text; toast('Contract added to project notes'); }
+      });
+    }
+  } catch(e) {
+    toast('AI error: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '✨ Draft Contract';
+}
+
+// ── AI DRAFT: CLIENT EMAIL ───────────────────────────────────────
+async function aiDraftEmail(clientId) {
+  const data = getData();
+  const client = data.clients.find(c => c.id === clientId);
+  if (!client) return;
+  const settings = data.settings;
+  const projects = data.projects.filter(p => p.clientId === clientId);
+  const lastProject = projects.sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+
+  const btn = document.getElementById('ai-email-btn-' + clientId);
+  if (btn) { btn.disabled = true; btn.textContent = '✨ Writing...'; }
+
+  const prompt = `Write a short, friendly and professional follow-up email from a photographer to a client.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Business: ${settings.businessName || ''}
+Client Name: ${client.name}
+${lastProject ? 'Last shoot: ' + lastProject.name + ' (' + lastProject.type + ')' + (lastProject.date ? ' on ' + lastProject.date : '') : 'No previous shoots on record.'}
+${client.notes ? 'Client notes: ' + client.notes : ''}
+
+Goals: Check in, express appreciation, ask if they need anything, and gently invite them to book again or refer a friend.
+Tone: Warm, personal, not salesy.
+Length: 4-6 sentences. Sign off with the photographer name.
+Do not use placeholder text — write the actual email.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) {
+      showAiModal('AI Draft Email — ' + client.name, result, null);
+    }
+  } catch(e) {
+    toast('AI error: ' + e.message, 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '✨ Draft Email'; }
+}
+
+// ── AI DRAFT: INVOICE NOTES ──────────────────────────────────────
+async function aiDraftInvoiceNotes() {
+  const clientId = document.getElementById('invoice-client').value;
+  const projId = document.getElementById('invoice-project').value;
+  const data = getData();
+  const client = data.clients.find(c => c.id === clientId);
+  const proj = data.projects.find(p => p.id === projId);
+  const settings = data.settings;
+
+  const btn = document.getElementById('ai-inv-notes-btn');
+  btn.disabled = true; btn.textContent = '✨ Writing...';
+
+  const prompt = `Write a short, professional invoice note / thank-you message for a photography invoice.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Client: ${client ? client.name : 'Valued Client'}
+Project: ${proj ? proj.name + ' (' + proj.type + ')' : 'Photography Services'}
+${proj && proj.date ? 'Shoot Date: ' + proj.date : ''}
+
+Write 2-3 sentences that:
+- Thank the client for choosing the photographer
+- Briefly note what the invoice covers
+- Mention the payment terms (e.g., due within 14 days)
+- Optionally invite them to reach out with questions
+
+Keep it warm and professional. No brackets or placeholders.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) {
+      showAiModal('AI Invoice Note', result, (text) => {
+        const notes = document.getElementById('invoice-notes');
+        if (notes) { notes.value = text; toast('Note added to invoice'); }
+      });
+    }
+  } catch(e) {
+    toast('AI error: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '✨ Draft Note';
+}
+
+// ── AI: WEEKLY BRIEFING ──────────────────────────────────────────
+async function aiWeeklyBriefing() {
+  const data = getData();
+  const settings = data.settings;
+  const active = data.projects.filter(p => !['paid','delivered'].includes(p.status));
+  const overdue = data.invoices.filter(i => i.status === 'overdue');
+  const upcoming = data.bookings.filter(b => b.date >= new Date().toISOString().slice(0,10)).slice(0,5);
+
+  const projectLines = active.map(p => `- ${p.name} (${p.type}, status: ${p.status}${p.shootDate ? ', shoot: ' + p.shootDate : ''}${p.amount ? ', $' + p.amount : ''})`).join('\n') || 'None';
+  const overdueLines = overdue.map(i => `- Invoice ${i.invoiceNumber} for ${clientName(i.clientId)}: $${i.total} overdue`).join('\n') || 'None';
+  const upcomingLines = upcoming.map(b => `- ${b.title} on ${b.date}${b.time ? ' at ' + b.time : ''}`).join('\n') || 'None';
+
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+
+  const prompt = `You are a business assistant for a photography business called "${settings.businessName || 'this photography business'}".
+
+Write a concise, friendly Monday morning business briefing based on the following data:
+
+ACTIVE PROJECTS:
+${projectLines}
+
+OVERDUE INVOICES:
+${overdueLines}
+
+UPCOMING SHOOTS THIS WEEK:
+${upcomingLines}
+
+Format the briefing with:
+1. A one-sentence overall status
+2. Top 3 priorities for the week
+3. Any financial flags (overdue invoices)
+4. One encouraging closing line
+
+Keep it under 200 words. Tone: professional but warm, like a trusted assistant.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Weekly Business Briefing', result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.textContent = '📋 Weekly Briefing';
+}
+
+// ── AI: SHOOT PREP CHECKLIST ─────────────────────────────────────
+async function aiShootPrepChecklist(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const settings = data.settings;
+
+  const prompt = `Create a detailed shoot preparation checklist for a photographer.
+
+Project: ${p.name}
+Shoot Type: ${p.type}
+Date: ${p.shootDate || 'TBD'}
+Location: ${p.location || 'TBD'}
+Client: ${client ? client.name : 'Unknown'}
+Notes: ${p.notes || 'None'}
+Photographer location: ${settings.location || 'Unknown'}
+
+Generate a practical checklist with these sections:
+1. Gear & Equipment (specific to this shoot type)
+2. Camera Settings to Pre-configure
+3. Shot List (key shots to capture)
+4. Client Communication (what to confirm beforehand)
+5. Day-of Logistics (arrival time, parking, backup plans)
+
+Be specific and practical. For a real estate shoot the list looks very different from a wedding. Use the shoot type and notes to tailor it.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Shoot Prep Checklist — ' + p.name, result, (text) => {
+      const notes = document.getElementById('project-notes');
+      if (notes) { notes.value = (notes.value ? notes.value + '\n\n---\n' : '') + text; toast('Checklist added to project notes'); }
+    });
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: CLIENT INTAKE QUESTIONNAIRE ─────────────────────────────
+async function aiClientIntake(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const settings = data.settings;
+
+  const prompt = `Write a professional client intake questionnaire for a photographer to send to a new client.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Client: ${client ? client.name : 'Client'}
+Project: ${p.name}
+Shoot Type: ${p.type}
+Shoot Date: ${p.shootDate || 'TBD'}
+Location: ${p.location || 'TBD'}
+
+Write 8-12 questions tailored specifically to this shoot type. For example:
+- Real estate: property size, special features, twilight shots needed, staging complete?
+- Wedding: venue, timeline, must-have shots, bridal party size
+- Portrait: mood/style preferences, wardrobe, location preferences
+- Commercial: brand guidelines, intended use, deadline
+
+Format as a friendly email with a brief intro, numbered questions, and a warm sign-off. Sign with the photographer name.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Client Intake — ' + (client ? client.name : p.name), result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: DELIVERY MESSAGE ─────────────────────────────────────────
+async function aiDeliveryMessage(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const settings = data.settings;
+
+  const prompt = `Write a warm, personalized gallery delivery email from a photographer to their client.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Client: ${client ? client.name : 'Client'}
+Project: ${p.name}
+Shoot Type: ${p.type}
+Shoot Date: ${p.shootDate || 'recently'}
+${p.notes ? 'Shoot notes: ' + p.notes : ''}
+
+The email should:
+- Greet the client by first name
+- Express genuine excitement about sharing the photos
+- Briefly mention a highlight or moment from the shoot (invent one based on the shoot type if no notes)
+- Explain that the gallery link is below (write [GALLERY LINK HERE] as a placeholder)
+- Mention download instructions and the link expiry (30 days)
+- Invite them to reach out if they want any changes
+- Ask them to share or tag on social media
+- Close warmly with the photographer name
+
+Tone: enthusiastic, personal, not generic. Under 150 words.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Delivery Message — ' + p.name, result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: OVERDUE INVOICE NUDGE ────────────────────────────────────
+async function aiInvoiceNudge(invoiceId) {
+  const data = getData();
+  const inv = data.invoices.find(i => i.id === invoiceId); if (!inv) return;
+  const client = data.clients.find(c => c.id === inv.clientId);
+  const settings = data.settings;
+
+  const prompt = `Write a professional but friendly overdue payment reminder email.
+
+Photographer / Sender: ${settings.ownerName || settings.businessName || 'Photographer'}
+Client: ${client ? client.name : 'Client'}
+Invoice Number: ${inv.invoiceNumber}
+Amount Due: $${inv.total}
+Due Date: ${inv.dueDate || 'as agreed'}
+
+Tone: Polite, professional, not aggressive. Assume positive intent (they may have just forgotten).
+Include:
+- Reference to the invoice number and amount
+- Gentle reminder that the due date has passed
+- Clear call to action (pay now or reach out if there is an issue)
+- Offer to resend the invoice if needed
+- Professional sign-off
+
+Keep it under 100 words.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Payment Reminder — ' + inv.invoiceNumber, result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: TESTIMONIAL REQUEST ──────────────────────────────────────
+async function aiTestimonialRequest(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const settings = data.settings;
+
+  const prompt = `Write a warm, personalized message asking a photography client to leave a review.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Business: ${settings.businessName || ''}
+Client: ${client ? client.name : 'Client'}
+Project: ${p.name}
+Shoot Type: ${p.type}
+${p.shootDate ? 'Shoot Date: ' + p.shootDate : ''}
+
+The message should:
+- Thank them genuinely for choosing the photographer
+- Reference the specific shoot briefly
+- Ask them to share a quick review (mention Google and Instagram as options, write [REVIEW LINK] as placeholder)
+- Mention it helps other clients find the business
+- Offer to refer them if they have friends needing photography
+- Be warm and conversational, not pushy
+- Under 120 words`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Testimonial Request — ' + p.name, result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: PRICING SUGGESTION ───────────────────────────────────────
+async function aiPricingSuggestion() {
+  const data = getData();
+  const settings = data.settings;
+  const projects = data.projects.filter(p => p.amount > 0);
+
+  if (projects.length < 3) { toast('Add at least 3 projects with amounts for a pricing analysis', 'error'); return; }
+
+  const byType = {};
+  projects.forEach(p => {
+    if (!byType[p.type]) byType[p.type] = [];
+    byType[p.type].push(parseFloat(p.amount));
+  });
+  const summary = Object.entries(byType).map(([type, amounts]) => {
+    const avg = (amounts.reduce((a,b)=>a+b,0)/amounts.length).toFixed(0);
+    const min = Math.min(...amounts).toFixed(0);
+    const max = Math.max(...amounts).toFixed(0);
+    return `${type}: ${amounts.length} jobs, avg $${avg}, range $${min}-$${max}`;
+  }).join('\n');
+
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+
+  const prompt = `You are a photography business advisor. Analyze the following pricing data and give actionable advice.
+
+Business: ${settings.businessName || 'Photography Business'}
+Location: ${settings.location || 'Unknown'}
+Total projects: ${projects.length}
+
+PRICING BY SHOOT TYPE:
+${summary}
+
+Provide:
+1. A brief assessment of their current pricing (are rates consistent? Any outliers?)
+2. For each shoot type, is the average rate competitive? (Use general market knowledge for photography)
+3. Where they likely have room to charge more
+4. One specific recommendation (e.g., "Consider a minimum of $X for real estate shoots")
+5. A packaging or upsell idea relevant to their most common shoot type
+
+Be direct and specific. This is business advice, not generic tips. Under 300 words.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Pricing Analysis', result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+  btn.disabled = false; btn.textContent = '💡 Pricing Analysis';
+}
+
+// ── AI: CLIENT PROFILE SUMMARY ───────────────────────────────────
+async function aiClientProfileSummary(clientId) {
+  const data = getData();
+  const client = data.clients.find(c => c.id === clientId); if (!client) return;
+  const settings = data.settings;
+  const projects = data.projects.filter(p => p.clientId === clientId);
+  const invoices = data.invoices.filter(i => i.clientId === clientId);
+  const totalSpent = invoices.filter(i => i.status === 'paid').reduce((s,i) => s + (parseFloat(i.total)||0), 0);
+  const outstanding = invoices.filter(i => ['sent','overdue'].includes(i.status)).reduce((s,i) => s + (parseFloat(i.total)||0), 0);
+  const lastProject = projects.sort((a,b) => (b.shootDate||'').localeCompare(a.shootDate||''))[0];
+
+  const projectLines = projects.map(p => `- ${p.name} (${p.type}, ${p.status}${p.shootDate ? ', ' + p.shootDate : ''})`).join('\n') || 'No projects yet';
+
+  const prompt = `Write a concise client relationship summary for a photographer's CRM.
+
+Photographer: ${settings.ownerName || settings.businessName}
+Client: ${client.name}
+Type: ${client.type || 'unknown'}
+Company: ${client.company || 'N/A'}
+Total projects: ${projects.length}
+Total spent (paid): $${totalSpent.toFixed(2)}
+Outstanding balance: $${outstanding.toFixed(2)}
+Last shoot: ${lastProject ? lastProject.name + ' on ' + (lastProject.shootDate || 'unknown date') : 'None'}
+Client notes: ${client.notes || 'None'}
+
+Projects:
+${projectLines}
+
+Write a 3-4 sentence professional summary covering:
+- Their history with the business
+- Their value as a client
+- Any flags (outstanding balance, long gap since last shoot)
+- A suggested next action (reach out to rebook, send a follow-up, etc.)
+
+Tone: like a CRM assistant briefing a salesperson.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Client Profile — ' + client.name, result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: SOCIAL MEDIA CAPTION ─────────────────────────────────────
+async function aiSocialCaption(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const settings = data.settings;
+
+  const prompt = `Write 3 Instagram caption options for a photographer sharing images from a shoot.
+
+Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
+Business handle (use as @handle if known): ${settings.businessName ? '@' + settings.businessName.toLowerCase().replace(/\s+/g,'') : '@yourbusiness'}
+Shoot Type: ${p.type}
+Project: ${p.name}
+Location: ${p.location || settings.location || ''}
+${p.notes ? 'Shoot notes: ' + p.notes : ''}
+
+Write 3 caption options:
+1. SHORT (1-2 lines + hashtags) — punchy and visual
+2. STORYTELLING (3-5 lines) — behind the scenes or emotional angle
+3. ENGAGEMENT (ends with a question to prompt comments)
+
+Each caption should include 8-12 relevant hashtags at the end.
+Tone: authentic, not corporate. Real photographer voice.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Social Captions — ' + p.name, result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── AI: PHOTOGRAPHER BIO ─────────────────────────────────────────
+async function aiPhotographerBio() {
+  const data = getData();
+  const s = data.settings;
+
+  if (!s.businessName && !s.ownerName) { toast('Fill in your business info in Settings first', 'error'); return; }
+
+  const projects = data.projects;
+  const shootTypes = [...new Set(projects.map(p => p.type))].join(', ') || 'various types';
+  const totalShots = projects.length;
+
+  const prompt = `Write a professional photographer bio based on the following information.
+
+Name: ${s.ownerName || s.businessName}
+Business: ${s.businessName || ''}
+Location: ${s.location || ''}
+Website: ${s.website || ''}
+Specialties (based on shoot history): ${shootTypes}
+Total shoots on record: ${totalShots}
+
+Write TWO versions:
+1. SHORT BIO (2-3 sentences) — for social media profiles, email signatures
+2. FULL BIO (1 paragraph, ~100 words) — for website About page or press kit
+
+Both should sound human, not generic. Emphasize the specialty shoot types. If location is provided, mention it. Do not use buzzwords like "passionate" or "dedicated" — write like a real person describing themselves.`;
+
+  try {
+    const result = await askClaude(prompt);
+    if (result) showAiModal('Photographer Bio', result, null);
+  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+}
+
+// ── LOAD AI KEY ON SETTINGS OPEN ────────────────────────────────
+const _origLoadSettings = loadSettings;
+loadSettings = function() {
+  _origLoadSettings();
+  const key = getAiKey();
+  const el = document.getElementById('s-ai-key');
+  if (el && key) {
+    el.value = key;
+    setAiKeyStatus('Key loaded from this device.', 'var(--success)');
+  }
+};
+</script>
+
+<!-- AI OUTPUT MODAL -->
+<div class="modal-overlay" id="ai-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title" id="ai-modal-title">AI Draft</div>
+      <button class="modal-close" onclick="closeModal('ai-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">Review and edit the AI draft below before using it.</p>
+      <textarea id="ai-modal-body" class="form-control" rows="16" style="font-size:0.85rem;line-height:1.6;font-family:inherit"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="copyAiOutput()">📋 Copy</button>
+      <button class="btn btn-secondary" onclick="closeModal('ai-modal')">Close</button>
+      <button class="btn btn-primary" id="ai-modal-use-btn">Use This</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
