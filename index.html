@@ -1331,8 +1331,8 @@ async function verifyPassword(password, salt, storedHash) {
 
 // ── FOUNDER ACCOUNT (no plaintext password in source) ──
 const FOUNDER_ID = 'founder_sg';
-const FOUNDER_EMAIL = '';
-const FOUNDER_META = { id: FOUNDER_ID, name: '', businessName: '', email: FOUNDER_EMAIL, role: 'founder', plan: 'lifetime', createdAt: 0 };
+const FOUNDER_EMAIL = 'seangreeleyphotography@gmail.com';
+const FOUNDER_META = { id: FOUNDER_ID, name: 'Sean Greeley', businessName: 'Sean Greeley Photography', email: FOUNDER_EMAIL, role: 'founder', plan: 'lifetime', createdAt: 0 };
 
 async function ensureFounderAccount() {
   const store = getAuthStore();
