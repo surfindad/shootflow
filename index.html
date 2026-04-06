@@ -428,6 +428,41 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .prop-section { margin-top:12px; border-top:1px solid var(--border); padding-top:12px; }
 .prop-toggle { background:none; border:none; color:var(--accent); font-size:0.82rem; cursor:pointer; padding:0; font-family:inherit; font-weight:600; }
 @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+/* ── ORDER PAGE ── */
+#order-screen { position:fixed; inset:0; z-index:9500; background:#F1F5F9; overflow-y:auto; display:flex; align-items:flex-start; justify-content:center; padding:0 0 60px; }
+#order-screen.hidden { display:none; }
+.op-wrap { max-width:680px; width:100%; }
+.op-hero { background:linear-gradient(135deg,#E5325A 0%,#B51E3F 100%); padding:36px 28px; text-align:center; }
+.op-biz-logo { width:56px; height:56px; border-radius:14px; background:rgba(255,255,255,0.2); color:white; font-size:1.4rem; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.op-biz-name { color:white; font-size:1.3rem; font-weight:800; }
+.op-tagline { color:rgba(255,255,255,0.8); font-size:0.88rem; margin-top:6px; }
+.op-body { padding:24px 20px; }
+.op-card { background:white; border-radius:14px; border:1px solid #E2E8F0; margin-bottom:16px; overflow:hidden; }
+.op-card-header { padding:16px 20px 12px; border-bottom:1px solid #F1F5F9; }
+.op-card-title { font-weight:800; font-size:0.95rem; color:#1E293B; }
+.op-card-body { padding:16px 20px; }
+.op-service { display:flex; align-items:flex-start; gap:14px; padding:12px 0; border-bottom:1px solid #F1F5F9; cursor:pointer; }
+.op-service:last-child { border-bottom:none; }
+.op-service-check { width:22px; height:22px; border-radius:6px; border:2px solid #CBD5E1; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:1px; transition:all 0.15s; }
+.op-service-check.checked { background:#E5325A; border-color:#E5325A; color:white; }
+.op-service-info { flex:1; }
+.op-service-name { font-weight:700; font-size:0.9rem; color:#1E293B; }
+.op-service-desc { font-size:0.78rem; color:#64748B; margin-top:2px; }
+.op-service-price { font-weight:800; font-size:0.95rem; color:#E5325A; white-space:nowrap; }
+.op-total-bar { background:#1E293B; border-radius:10px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.op-total-label { color:#94A3B8; font-size:0.82rem; font-weight:600; }
+.op-total-amount { color:white; font-size:1.4rem; font-weight:900; }
+.op-submit-btn { width:100%; padding:16px; background:#E5325A; color:white; border:none; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer; font-family:inherit; transition:background 0.15s; }
+.op-submit-btn:hover { background:#C42B4E; }
+.op-submit-btn:disabled { background:#CBD5E1; cursor:not-allowed; }
+.op-success { text-align:center; padding:48px 20px; }
+/* ── MARKETING KIT ── */
+.mk-platform { background:var(--bg); border-radius:10px; border:1px solid var(--border); padding:16px; margin-bottom:12px; }
+.mk-platform-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.mk-platform-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:800; color:white; flex-shrink:0; }
+.mk-platform-name { font-weight:700; font-size:0.88rem; }
+.mk-caption-box { background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:12px; font-size:0.82rem; line-height:1.7; color:var(--text); white-space:pre-wrap; min-height:80px; }
+.mk-copy-btn { margin-top:8px; font-size:0.75rem; padding:4px 12px; }
 /* ── AI DROPDOWN MENU ── */
 .ai-dropdown { position:fixed; z-index:99999; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.35); min-width:220px; overflow:hidden; }
 .ai-dropdown-item { display:block; width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:var(--text); font-size:0.85rem; cursor:pointer; font-family:inherit; transition:background 0.12s; }
@@ -590,6 +625,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   <div class="sidebar-section">
     <div class="sidebar-section-label">Delivery</div>
     <div class="nav-item" onclick="navigate('delivery')" data-view="delivery"><span class="nav-icon">📤</span> File Delivery</div>
+    <div class="nav-item" onclick="navigate('marketing')" data-view="marketing"><span class="nav-icon">🎨</span> Marketing Kits</div>
+    <div class="nav-item" onclick="navigate('order-pages')" data-view="order-pages"><span class="nav-icon">🛒</span> Order Pages</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
@@ -872,6 +909,53 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <div class="card">
         <div class="table-wrap"><table><thead><tr><th>Contract</th><th>Client</th><th>Project</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody id="contracts-tbody"></tbody></table></div>
         <div id="contracts-empty" style="display:none"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">No contracts yet</div><div class="empty-sub">Create a contract and send the link for digital signature</div><button class="btn btn-primary" onclick="openContractModal()">+ New Contract</button></div></div>
+      </div>
+    </div>
+    <!-- MARKETING KITS -->
+    <div class="view" id="view-marketing">
+      <div class="section-header">
+        <div><div class="section-title">Marketing Kits</div><div class="section-sub">AI-generated social captions, email blasts, and listing copy for any project</div></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">Generate a Marketing Kit</div></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Select Project</label><select class="form-control" id="mk-project-select"><option value="">Choose a project...</option></select></div>
+            <div class="form-group"><label class="form-label">Kit Type</label><select class="form-control" id="mk-type-select">
+              <option value="social">Social Media Pack (Instagram, Facebook, LinkedIn)</option>
+              <option value="listing">Listing Announcement Email</option>
+              <option value="just-listed">Just Listed Post</option>
+              <option value="open-house">Open House Promotion</option>
+              <option value="just-sold">Just Sold Announcement</option>
+              <option value="behind-scenes">Behind the Scenes Story</option>
+            </select></div>
+          </div>
+          <div class="form-group"><label class="form-label">Extra Notes (optional)</label><input class="form-control" id="mk-notes" placeholder="e.g. highlight the pool, mention school district, open house Saturday 1–4pm..."></div>
+          <button class="btn btn-primary" onclick="generateMarketingKit()">🤖 Generate Kit</button>
+        </div>
+      </div>
+      <div id="mk-output" style="display:none"></div>
+    </div>
+    <!-- ORDER PAGES -->
+    <div class="view" id="view-order-pages">
+      <div class="section-header">
+        <div><div class="section-title">Order Pages</div><div class="section-sub">Public booking pages where clients select services and submit orders</div></div>
+        <button class="btn btn-primary" onclick="openOrderPageModal()">+ New Order Page</button>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">💡 How Order Pages Work</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">🛒</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Build Your Menu</div><div style="font-size:0.75rem;color:var(--text-muted)">Add services with prices, descriptions, and optional add-ons</div></div>
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">🔗</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Share the Link</div><div style="font-size:0.75rem;color:var(--text-muted)">Send the unique link to any client — no login required</div></div>
+            <div style="background:var(--bg);border-radius:8px;padding:14px;text-align:center"><div style="font-size:1.4rem;margin-bottom:6px">📬</div><div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">Orders Come In</div><div style="font-size:0.75rem;color:var(--text-muted)">Orders appear in your dashboard as new projects automatically</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Your Order Pages</div></div>
+        <div id="order-pages-list" style="padding:0 20px 20px"></div>
+        <div id="order-pages-empty" style="display:none"><div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">No order pages yet</div><div class="empty-sub">Create a page and share it with clients to start taking online orders</div><button class="btn btn-primary" onclick="openOrderPageModal()">+ New Order Page</button></div></div>
       </div>
     </div>
     <!-- INTEGRATIONS -->
@@ -1473,7 +1557,7 @@ function doSignOut() {
 const STORAGE_KEY = 'shootflow_v1';
 function getData() {
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
-  return { projects: [], clients: [], invoices: [], bookings: [], leads: [], expenses: [], timeLogs: [], contracts: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1, contractCounter: 1 };
+  return { projects: [], clients: [], invoices: [], bookings: [], leads: [], expenses: [], timeLogs: [], contracts: [], orderPages: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1, contractCounter: 1 };
 }
 function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateAutosaveChip(); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
@@ -1506,6 +1590,8 @@ const PAGE_CONFIG = {
   expenses:     { title: 'Expenses',       action: '+ Log Expense',     actionFn: 'openExpenseModal' },
   time:         { title: 'Time Tracking',  action: '+ Log Time',        actionFn: 'openTimeModal' },
   contracts:    { title: 'Contracts',      action: '+ New Contract',    actionFn: 'openContractModal' },
+  marketing:    { title: 'Marketing Kits', action: null },
+  'order-pages':{ title: 'Order Pages',   action: '+ New Order Page',  actionFn: 'openOrderPageModal' },
   integrations: { title: 'Integrations', action: 'Save Integrations', actionFn: 'saveIntegrations' },
   settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
 };
@@ -1531,6 +1617,8 @@ function navigate(view) {
   if (view === 'expenses')     renderExpenses();
   if (view === 'time')         renderTimeView();
   if (view === 'contracts')    renderContracts();
+  if (view === 'marketing')    renderMarketingView();
+  if (view === 'order-pages')  renderOrderPages();
   if (view === 'integrations') loadIntegrations();
   if (view === 'settings')     loadSettings();
 }
@@ -2615,6 +2703,368 @@ function showPhotographerCalendarPrompt(booking) {
   openModal('photographer-cal-modal');
 }
 
+// ── ORDER PAGES ──
+let _opServices = []; // module-level service list for modal
+
+function openOrderPageModal(id) {
+  const data = getData();
+  _opServices = [];
+  if (id) {
+    const op = (data.orderPages||[]).find(p => p.id === id);
+    if (!op) return;
+    document.getElementById('op-modal-title').textContent = 'Edit Order Page';
+    document.getElementById('op-id').value = op.id;
+    document.getElementById('op-name').value = op.name || '';
+    document.getElementById('op-tagline').value = op.tagline || '';
+    document.getElementById('op-welcome').value = op.welcome || '';
+    document.getElementById('op-active').checked = op.active !== false;
+    _opServices = (op.services || []).map(s => ({...s}));
+  } else {
+    document.getElementById('op-modal-title').textContent = 'New Order Page';
+    ['op-id','op-name','op-tagline','op-welcome'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('op-active').checked = true;
+    _opServices = [];
+  }
+  renderOpServices();
+  openModal('order-page-modal');
+}
+
+function renderOpServices() {
+  const el = document.getElementById('op-services-list');
+  if (!_opServices.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.85rem;background:var(--bg);border-radius:8px">No services yet. Click "+ Add Service" to add one.</div>';
+    return;
+  }
+  el.innerHTML = _opServices.map((s, i) => `
+    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--border)">
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <input class="form-control" placeholder="Service name *" value="${esc(s.name||'')}" oninput="_opServices[${i}].name=this.value" style="flex:2">
+        <input class="form-control" placeholder="Price $" type="number" min="0" step="0.01" value="${s.price||''}" oninput="_opServices[${i}].price=parseFloat(this.value)||0" style="flex:1">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="_opServices.splice(${i},1);renderOpServices()" style="flex-shrink:0">🗑</button>
+      </div>
+      <input class="form-control" placeholder="Short description (optional)" value="${esc(s.description||'')}" oninput="_opServices[${i}].description=this.value">
+    </div>`).join('');
+}
+
+function addOpService() {
+  _opServices.push({ id: uid(), name: '', price: 0, description: '' });
+  renderOpServices();
+  // focus last name input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#op-services-list input[placeholder="Service name *"]');
+    if (inputs.length) inputs[inputs.length-1].focus();
+  }, 50);
+}
+
+function saveOrderPage() {
+  const name = document.getElementById('op-name').value.trim();
+  if (!name) { toast('Page name is required', 'error'); return; }
+  const services = _opServices.filter(s => s.name.trim());
+  if (!services.length) { toast('Add at least one service', 'error'); return; }
+  const data = getData();
+  if (!data.orderPages) data.orderPages = [];
+  const id = document.getElementById('op-id').value;
+  const existing = id ? data.orderPages.find(p => p.id === id) : null;
+  const page = {
+    id: id || uid(),
+    name,
+    tagline: document.getElementById('op-tagline').value.trim(),
+    welcome: document.getElementById('op-welcome').value.trim(),
+    active: document.getElementById('op-active').checked,
+    services: services.map(s => ({ ...s, id: s.id || uid() })),
+    token: existing?.token || secureToken(),
+    createdAt: existing?.createdAt || Date.now()
+  };
+  if (id) { const idx = data.orderPages.findIndex(p => p.id === id); if (idx >= 0) data.orderPages[idx] = page; }
+  else { data.orderPages.unshift(page); }
+  saveData(data); closeModal('order-page-modal'); renderOrderPages();
+  toast(id ? 'Order page updated' : 'Order page created');
+}
+
+function deleteOrderPage(id) {
+  confirmDelete('Delete this order page? The link will stop working.', () => {
+    const data = getData();
+    data.orderPages = (data.orderPages||[]).filter(p => p.id !== id);
+    saveData(data); renderOrderPages(); toast('Order page deleted');
+  });
+}
+
+function copyOrderPageLink(id) {
+  const data = getData();
+  const page = (data.orderPages||[]).find(p => p.id === id);
+  if (!page) return;
+  const url = window.location.origin + window.location.pathname + '#order/' + page.token;
+  navigator.clipboard.writeText(url).then(() => toast('Order page link copied!')).catch(() => prompt('Copy this link:', url));
+}
+
+function renderOrderPages() {
+  const data = getData();
+  const pages = data.orderPages || [];
+  const listEl = document.getElementById('order-pages-list');
+  const emptyEl = document.getElementById('order-pages-empty');
+  if (!pages.length) { listEl.innerHTML = ''; emptyEl.style.display = ''; return; }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = pages.map(p => {
+    const url = window.location.origin + window.location.pathname + '#order/' + p.token;
+    const total = (p.services||[]).reduce((s, svc) => s + svc.price, 0);
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--bg)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:0.95rem">${esc(p.name)} <span style="font-size:0.7rem;padding:2px 8px;border-radius:10px;font-weight:700;${p.active?'background:#D1FAE5;color:#065F46':'background:#FEE2E2;color:#991B1B'}">${p.active?'Active':'Inactive'}</span></div>
+          ${p.tagline ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(p.tagline)}</div>` : ''}
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px">${(p.services||[]).length} service${(p.services||[]).length!==1?'s':''} &middot; Starting from ${fmtCurrency(Math.min(...(p.services||[{price:0}]).map(s=>s.price)))}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="copyOrderPageLink('${p.id}')">🔗 Copy Link</button>
+          <a href="#order/${p.token}" target="_blank" class="btn btn-secondary btn-sm">👁 Preview</a>
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="openOrderPageModal('${p.id}')">✏️</button>
+          <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteOrderPage('${p.id}')">🗑</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:0.75rem;color:var(--text-muted);background:var(--card-bg);border-radius:6px;padding:6px 10px;word-break:break-all">${url}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ORDER PAGE PUBLIC VIEW ──
+function showOrderPage(token) {
+  const screen = document.getElementById('order-screen');
+  const inner = document.getElementById('order-screen-inner');
+  const data = getData();
+  const page = (data.orderPages||[]).find(p => p.token === token);
+  if (!page || !page.active) {
+    inner.innerHTML = `<div style="padding:60px 20px;text-align:center;color:#94A3B8"><div style="font-size:3rem;margin-bottom:16px">🔒</div><div style="font-size:1.1rem;font-weight:700;color:#CBD5E1;margin-bottom:8px">${page ? 'This page is not currently active' : 'Order page not found'}</div><div style="font-size:0.85rem">Please contact the photographer directly.</div></div>`;
+    screen.classList.remove('hidden');
+    return;
+  }
+  const s = data.settings || {};
+  const biz = esc(s.businessName || 'Your Photographer');
+  const bizInit = (s.businessName||'SF').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const selected = {};
+  (page.services||[]).forEach(svc => { selected[svc.id] = false; });
+
+  function calcTotal() {
+    return (page.services||[]).filter(svc => selected[svc.id]).reduce((sum, svc) => sum + svc.price, 0);
+  }
+
+  function renderPage(submitted) {
+    if (submitted) {
+      inner.innerHTML = `
+        <div class="op-hero"><div class="op-biz-logo">${bizInit}</div><div class="op-biz-name">${biz}</div></div>
+        <div class="op-body"><div class="op-success">
+          <div style="font-size:3rem;margin-bottom:16px">✅</div>
+          <div style="font-size:1.3rem;font-weight:800;color:#1E293B;margin-bottom:8px">Order Received!</div>
+          <div style="font-size:0.9rem;color:#64748B;line-height:1.6">Thank you! Your order has been submitted. ${esc(s.ownerName||'We')} will be in touch shortly to confirm your booking details.</div>
+          ${s.email ? `<div style="margin-top:16px;font-size:0.82rem;color:#94A3B8">Questions? Email <a href="mailto:${esc(s.email)}" style="color:#E5325A">${esc(s.email)}</a></div>` : ''}
+        </div></div>`;
+      return;
+    }
+    inner.innerHTML = `
+      <div class="op-hero">
+        <div class="op-biz-logo">${bizInit}</div>
+        <div class="op-biz-name">${biz}</div>
+        <div class="op-tagline">${esc(page.tagline || 'Book your session online')}</div>
+      </div>
+      <div class="op-body">
+        ${page.welcome ? `<div style="background:#EFF6FF;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:0.85rem;color:#1E40AF;line-height:1.6">${esc(page.welcome)}</div>` : ''}
+        <div class="op-card">
+          <div class="op-card-header"><div class="op-card-title">📋 ${esc(page.name)}</div></div>
+          <div class="op-card-body" id="op-services-select">
+            ${(page.services||[]).map(svc => `
+              <div class="op-service" onclick="opToggle('${svc.id}')">
+                <div class="op-service-check ${selected[svc.id]?'checked':'}" id="op-check-${svc.id}">${selected[svc.id]?'✓':''}</div>
+                <div class="op-service-info">
+                  <div class="op-service-name">${esc(svc.name)}</div>
+                  ${svc.description ? `<div class="op-service-desc">${esc(svc.description)}</div>` : ''}
+                </div>
+                <div class="op-service-price">${fmtCurrency(svc.price)}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="op-card">
+          <div class="op-card-header"><div class="op-card-title">📝 Your Details</div></div>
+          <div class="op-card-body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Your Name <span>*</span></label><input class="form-control" id="op-client-name" placeholder="Jane Smith"></div>
+              <div class="form-group"><label class="form-label">Email <span>*</span></label><input class="form-control" id="op-client-email" type="email" placeholder="jane@email.com"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="op-client-phone" placeholder="(555) 000-0000"></div>
+              <div class="form-group"><label class="form-label">Preferred Date</label><input class="form-control" id="op-shoot-date" type="date"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Property / Location</label><input class="form-control" id="op-location" placeholder="123 Main St, Sacramento, CA"></div>
+            <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="op-client-notes" rows="2" placeholder="Anything we should know..."></textarea></div>
+          </div>
+        </div>
+        <div class="op-total-bar">
+          <div><div class="op-total-label">Order Total</div><div class="op-total-amount" id="op-running-total">${fmtCurrency(0)}</div></div>
+          <div style="color:#94A3B8;font-size:0.75rem">Select services above</div>
+        </div>
+        <button class="op-submit-btn" id="op-submit-btn" onclick="submitOrderPage('${page.id}','${token}')" disabled>Submit Order Request</button>
+        <div style="text-align:center;color:#94A3B8;font-size:0.72rem;margin-top:10px">By submitting you agree to be contacted to confirm your booking. No payment required now.</div>
+      </div>`;
+  }
+
+  window.opToggle = function(svcId) {
+    selected[svcId] = !selected[svcId];
+    const chk = document.getElementById('op-check-' + svcId);
+    if (chk) { chk.classList.toggle('checked', selected[svcId]); chk.textContent = selected[svcId] ? '✓' : ''; }
+    const total = calcTotal();
+    const totalEl = document.getElementById('op-running-total');
+    if (totalEl) totalEl.textContent = fmtCurrency(total);
+    const btn = document.getElementById('op-submit-btn');
+    if (btn) btn.disabled = total === 0;
+  };
+
+  window.submitOrderPage = function(pageId, tok) {
+    const clientName = document.getElementById('op-client-name').value.trim();
+    const clientEmail = document.getElementById('op-client-email').value.trim();
+    if (!clientName || !clientEmail) { alert('Please enter your name and email.'); return; }
+    const chosenServices = (page.services||[]).filter(svc => selected[svc.id]);
+    if (!chosenServices.length) { alert('Please select at least one service.'); return; }
+    const btn = document.getElementById('op-submit-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    // Save as a new lead + project in photographer's data
+    const freshData = getData();
+    if (!freshData.leads) freshData.leads = [];
+    if (!freshData.projects) freshData.projects = [];
+    const leadId = uid();
+    const serviceNames = chosenServices.map(s => s.name).join(', ');
+    const total = chosenServices.reduce((s, svc) => s + svc.price, 0);
+    // Create lead
+    freshData.leads.unshift({
+      id: leadId,
+      name: clientName,
+      email: clientEmail,
+      phone: document.getElementById('op-client-phone').value.trim(),
+      stage: 'new',
+      type: 'real-estate',
+      value: total,
+      notes: `Order page inquiry: ${serviceNames}. Date: ${document.getElementById('op-shoot-date').value||'TBD'}. Location: ${document.getElementById('op-location').value||'TBD'}. Notes: ${document.getElementById('op-client-notes').value||'—'}`,
+      createdAt: Date.now(), updatedAt: Date.now()
+    });
+    // Create project
+    freshData.projects.unshift({
+      id: uid(),
+      name: `${clientName} — ${chosenServices[0].name}${chosenServices.length>1?' + more':''}`,
+      clientId: '',
+      type: 'real-estate',
+      status: 'inquiry',
+      shootDate: document.getElementById('op-shoot-date').value || '',
+      amount: total,
+      location: document.getElementById('op-location').value.trim(),
+      notes: `Order page submission\nClient: ${clientName} | ${clientEmail}\nServices: ${serviceNames}\nClient notes: ${document.getElementById('op-client-notes').value||'—'}`,
+      createdAt: Date.now(), updatedAt: Date.now()
+    });
+    saveData(freshData);
+    renderPage(true);
+  };
+
+  renderPage(false);
+  screen.classList.remove('hidden');
+}
+
+// ── MARKETING KITS ──
+function renderMarketingView() {
+  const data = getData();
+  const sel = document.getElementById('mk-project-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">Choose a project...</option>' +
+      (data.projects||[]).map(p => `<option value="${esc(p.id)}">${esc(p.name)}${p.shootDate?' ('+fmtDate(p.shootDate)+')':''}</option>`).join('');
+  }
+  document.getElementById('mk-output').style.display = 'none';
+}
+
+async function generateMarketingKit() {
+  const projectId = document.getElementById('mk-project-select').value;
+  const kitType = document.getElementById('mk-type-select').value;
+  const notes = document.getElementById('mk-notes').value.trim();
+  if (!projectId) { toast('Please select a project first', 'error'); return; }
+  const data = getData();
+  const p = (data.projects||[]).find(p => p.id === projectId);
+  if (!p) return;
+  const client = p.clientId ? (data.clients||[]).find(c => c.id === p.clientId) : null;
+  const s = data.settings || {};
+
+  const kitDescriptions = {
+    social: 'three separate social media captions: one for Instagram (engaging, with relevant hashtags), one for Facebook (conversational, slightly longer), and one for LinkedIn (professional tone). Label each one clearly.',
+    listing: 'a listing announcement email an agent can send to their sphere of influence. Include a compelling subject line, 2-3 paragraphs highlighting the property, and a clear call-to-action.',
+    'just-listed': 'a "Just Listed" social media post with a punchy headline, key property highlights as bullet points, and 10-15 relevant real estate hashtags.',
+    'open-house': 'an open house promotion: a social media post announcing the event, plus a short email blast agents can send to invite clients. Include the date/time as [DATE] [TIME] placeholders.',
+    'just-sold': 'a "Just Sold" announcement celebrating the sale — one social post and one short email. Highlight what made it special and thank the clients.',
+    'behind-scenes': 'a behind-the-scenes story post about the photography session — what the shoot was like, what gear/techniques were used, and why great photos matter for listings. Conversational and authentic.'
+  };
+
+  const prompt = `You are a real estate marketing expert helping a photographer create marketing content.
+
+Photographer/Business: ${s.businessName||'My Photography Business'} (${s.ownerName||''})
+Project: ${p.name}
+Property: ${p.location||'beautiful property'}
+Type: ${p.type||'real estate'}
+${p.beds ? `Beds: ${p.beds} | Baths: ${p.baths} | Sqft: ${p.sqft}` : ''}
+${p.listingPrice ? `Listing Price: $${p.listingPrice.toLocaleString()}` : ''}
+${client ? `Agent/Client: ${client.name}${client.company?' ('+client.company+')':''}` : ''}
+${notes ? `Extra notes: ${notes}` : ''}
+
+Generate ${kitDescriptions[kitType]||kitDescriptions.social}
+
+Be specific, compelling, and professional. Use the actual property details provided. Keep it ready to copy-paste.`;
+
+  const outputEl = document.getElementById('mk-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-muted)"><div style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block">⚙️</div><div style="margin-top:12px">Generating your marketing kit...</div></div>`;
+
+  try {
+    const result = await askClaude(prompt);
+    // Split into sections if multiple platforms
+    const platforms = {
+      social: [
+        { name: 'Instagram', icon: '📸', color: '#E1306C' },
+        { name: 'Facebook',  icon: '👍', color: '#1877F2' },
+        { name: 'LinkedIn',  icon: '💼', color: '#0A66C2' }
+      ],
+      listing:       [{ name: 'Listing Email',        icon: '📧', color: '#059669' }],
+      'just-listed': [{ name: 'Just Listed Post',     icon: '🏠', color: '#E5325A' }],
+      'open-house':  [{ name: 'Open House Promo',     icon: '🚪', color: '#D97706' }],
+      'just-sold':   [{ name: 'Just Sold',            icon: '🎉', color: '#7C3AED' }],
+      'behind-scenes':[{ name: 'Behind the Scenes',  icon: '📷', color: '#0891B2' }]
+    };
+    const plats = platforms[kitType] || platforms.social;
+    outputEl.innerHTML = `
+      <div class="card">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div class="card-title">🎨 Marketing Kit — ${esc(p.name)}</div>
+          <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('mk-full-text').value).then(()=>toast('Full kit copied!'))">📋 Copy All</button>
+        </div>
+        <div class="card-body">
+          <textarea id="mk-full-text" style="display:none">${esc(result)}</textarea>
+          ${plats.map((pl, i) => `
+            <div class="mk-platform">
+              <div class="mk-platform-header">
+                <div class="mk-platform-icon" style="background:${pl.color}">${pl.icon}</div>
+                <div class="mk-platform-name">${pl.name}</div>
+              </div>
+              <div class="mk-caption-box" id="mk-caption-${i}">${esc(result)}</div>
+              <button class="btn btn-secondary btn-sm mk-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('mk-caption-${i}').textContent).then(()=>toast('Copied!'))">📋 Copy</button>
+            </div>`).join('')}
+          <div style="margin-top:8px;font-size:0.75rem;color:var(--text-muted)">Review and edit before posting. Click any "Copy" button to copy that section.</div>
+        </div>
+      </div>`;
+    // For social kit, try to split by platform
+    if (kitType === 'social') {
+      const parts = result.split(/instagram|facebook|linkedin/i).filter(p => p.trim().length > 20);
+      if (parts.length >= 3) {
+        for (let i = 0; i < 3; i++) {
+          const el = document.getElementById('mk-caption-'+i);
+          if (el && parts[i+1]) el.textContent = parts[i+1].replace(/^[\s:\-–—]+/,'').trim();
+        }
+      }
+    }
+  } catch(e) {
+    outputEl.innerHTML = `<div class="card"><div class="card-body" style="color:var(--danger)">❌ ${esc(e.message)}<br><span style="font-size:0.8rem;color:var(--text-muted)">Check your API key in Settings → AI Assistant</span></div></div>`;
+  }
+}
+
 // ── AI DROPDOWN MENUS ──
 function closeAllAiDropdowns() { document.querySelectorAll('.ai-dropdown').forEach(d => d.remove()); }
 document.addEventListener('click', e => { if (!e.target.closest('.ai-dropdown') && !e.target.closest('[onclick*="AiMenu"]')) closeAllAiDropdowns(); });
@@ -3393,6 +3843,7 @@ async function init() {
   if (window.location.hash.startsWith('#quote/'))          { document.getElementById('auth-screen').classList.add('hidden'); showClientQuotePage(window.location.hash.slice(7)); return; }
   if (window.location.hash.startsWith('#client-portal/'))  { document.getElementById('auth-screen').classList.add('hidden'); showClientPortal(window.location.hash.slice(15)); return; }
   if (window.location.hash.startsWith('#contract/'))       { document.getElementById('auth-screen').classList.add('hidden'); showContractPage(window.location.hash.slice(10)); return; }
+  if (window.location.hash.startsWith('#order/'))          { document.getElementById('auth-screen').classList.add('hidden'); showOrderPage(window.location.hash.slice(7)); return; }
   const session = getSession();
   if (session) {
     document.getElementById('auth-screen').classList.add('hidden');
@@ -3414,6 +3865,7 @@ async function init() {
     } else if (h.startsWith('#quote/'))          { document.getElementById('auth-screen').classList.add('hidden'); showClientQuotePage(h.slice(7)); }
     else if (h.startsWith('#client-portal/'))  { document.getElementById('auth-screen').classList.add('hidden'); showClientPortal(h.slice(15)); }
     else if (h.startsWith('#contract/'))       { document.getElementById('auth-screen').classList.add('hidden'); showContractPage(h.slice(10)); }
+    else if (h.startsWith('#order/'))          { document.getElementById('auth-screen').classList.add('hidden'); showOrderPage(h.slice(7)); }
   });
   setInterval(() => { updateAutosaveChip(); }, 60000);
 }
@@ -4017,6 +4469,38 @@ loadSettings = function() {
       <button class="btn btn-secondary" onclick="copyAiResult()">📋 Copy</button>
       <button class="btn btn-primary" id="ai-apply-btn" style="display:none" onclick="applyAiResult()">Apply</button>
     </div>
+  </div>
+</div>
+
+<!-- ORDER PAGE SCREEN (public) -->
+<div id="order-screen" class="hidden">
+  <div class="op-wrap" id="order-screen-inner"></div>
+</div>
+
+<!-- ORDER PAGE MODAL (builder) -->
+<div class="modal-overlay" id="order-page-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="op-modal-title">New Order Page</div><button class="modal-close" onclick="closeModal('order-page-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="op-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Page Name <span>*</span></label><input class="form-control" id="op-name" placeholder="e.g. Real Estate Photography Menu"></div>
+        <div class="form-group"><label class="form-label">Tagline</label><input class="form-control" id="op-tagline" placeholder="e.g. Fast turnaround. Professional results."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Welcome Message (optional)</label><textarea class="form-control" id="op-welcome" rows="2" placeholder="Tell clients what to expect when they book..."></textarea></div>
+      <div class="form-group" style="margin-top:4px;display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="op-active" style="width:16px;height:16px;cursor:pointer" checked>
+        <label for="op-active" class="form-label" style="margin:0;cursor:pointer">Page is active (clients can place orders)</label>
+      </div>
+      <div style="margin-top:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="form-label" style="margin:0;font-weight:700">Services on this page</div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addOpService()">+ Add Service</button>
+        </div>
+        <div id="op-services-list"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('order-page-modal')">Cancel</button><button class="btn btn-primary" onclick="saveOrderPage()">Save Page</button></div>
   </div>
 </div>
 
