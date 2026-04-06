@@ -401,6 +401,38 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .cal-btn-outlook:hover { background: #E5F2FB; color: #0072C6; border-color: #0072C6; }
 .cal-btn-ics     { border-color: var(--success); }
 .cal-btn-ics:hover     { background: #ECFDF5; color: var(--success); border-color: var(--success); }
+/* ── LEAD PIPELINE ── */
+.ls-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+.ls-new { background:#374151; color:#F9FAFB; } .ls-contacted { background:#1D4ED8; color:white; }
+.ls-quoted { background:#D97706; color:white; } .ls-booked { background:#059669; color:white; }
+.ls-lost { background:#7F1D1D; color:#FCA5A5; }
+.lead-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; }
+.lead-card-info { flex:1; }
+.lead-card-name { font-weight:700; font-size:0.95rem; }
+.lead-card-meta { font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+.lead-card-actions { display:flex; gap:8px; align-items:center; }
+/* ── EXPENSE ── */
+.exp-cat { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.7rem; font-weight:600; background:#1E293B; color:#94A3B8; border:1px solid #334155; }
+/* ── TIME TRACKING ── */
+.timer-display { font-size:2rem; font-weight:800; letter-spacing:0.08em; color:var(--accent); font-variant-numeric:tabular-nums; }
+/* ── CONTRACT PUBLIC ── */
+#contract-screen { position:fixed; inset:0; z-index:9500; background:#0F172A; overflow-y:auto; display:flex; align-items:flex-start; justify-content:center; padding:40px 16px 60px; }
+#contract-screen.hidden { display:none; }
+.contract-inner { max-width:700px; width:100%; background:#1E293B; border-radius:16px; overflow:hidden; }
+.contract-hero { background:linear-gradient(135deg,#E5325A 0%,#B51E3F 100%); padding:32px 28px; }
+.contract-body-text { padding:28px; color:#CBD5E1; font-size:0.9rem; line-height:1.8; white-space:pre-wrap; }
+.contract-sign-box { padding:24px 28px; border-top:1px solid #334155; }
+/* ── RECURRING CLIENT ── */
+.badge-recurring { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.68rem; font-weight:700; background:#7C3AED22; color:#A78BFA; border:1px solid #7C3AED44; margin-left:6px; }
+/* ── PROPERTY FIELDS ── */
+.prop-section { margin-top:12px; border-top:1px solid var(--border); padding-top:12px; }
+.prop-toggle { background:none; border:none; color:var(--accent); font-size:0.82rem; cursor:pointer; padding:0; font-family:inherit; font-weight:600; }
+@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+/* ── AI DROPDOWN MENU ── */
+.ai-dropdown { position:fixed; z-index:99999; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.35); min-width:220px; overflow:hidden; }
+.ai-dropdown-item { display:block; width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:var(--text); font-size:0.85rem; cursor:pointer; font-family:inherit; transition:background 0.12s; }
+.ai-dropdown-item:hover { background:var(--bg); }
+.ai-dropdown-label { padding:8px 16px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
 </style>
 </head>
 <body>
@@ -542,6 +574,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div class="nav-item active" onclick="navigate('dashboard')" data-view="dashboard"><span class="nav-icon">📊</span> Dashboard</div>
     <div class="nav-item" onclick="navigate('projects')" data-view="projects"><span class="nav-icon">📁</span> Projects</div>
     <div class="nav-item" onclick="navigate('clients')" data-view="clients"><span class="nav-icon">👤</span> Clients</div>
+    <div class="nav-item" onclick="navigate('leads')" data-view="leads"><span class="nav-icon">🎯</span> Leads</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Billing</div>
@@ -557,6 +590,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   <div class="sidebar-section">
     <div class="sidebar-section-label">Delivery</div>
     <div class="nav-item" onclick="navigate('delivery')" data-view="delivery"><span class="nav-icon">📤</span> File Delivery</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <div class="nav-item" onclick="navigate('expenses')" data-view="expenses"><span class="nav-icon">💰</span> Expenses</div>
+    <div class="nav-item" onclick="navigate('time')" data-view="time"><span class="nav-icon">⏱</span> Time Tracking</div>
+    <div class="nav-item" onclick="navigate('contracts')" data-view="contracts"><span class="nav-icon">📄</span> Contracts</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Account</div>
@@ -618,12 +657,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="card-body" id="dash-clients"></div>
         </div>
       </div>
-      <div class="dash-grid mt-16">
-        <div class="card" style="grid-column:1/-1">
-          <div class="card-header"><div class="card-title">✨ AI Tools</div><span style="font-size:0.78rem;color:var(--text-muted)">Powered by your Anthropic key — Settings → AI Assistant</span></div>
-          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:10px;padding:16px">
-            <button class="btn btn-secondary" onclick="aiWeeklyBriefing()">📋 Weekly Briefing</button>
-            <button class="btn btn-secondary" onclick="aiPricingSuggestion()">💡 Pricing Analysis</button>
+      <div class="card" style="margin-top:16px">
+        <div class="card-header"><div class="card-title">🤖 AI Tools</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" onclick="aiMonthlyNewsletter()">📰 Monthly Newsletter</button>
+            <button class="btn btn-secondary btn-sm" onclick="aiBlogPostOutline()">✍️ Blog Post Outline</button>
+            <button class="btn btn-secondary btn-sm" onclick="aiWebsiteCopy()">🌐 Website Copy</button>
+            <button class="btn btn-secondary btn-sm" onclick="aiColdOutreach()">🏠 Cold Outreach</button>
+            <button class="btn btn-secondary btn-sm" onclick="aiYearInReview()">🎉 Year in Review</button>
           </div>
         </div>
       </div>
@@ -748,6 +790,90 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div class="card-body"><div id="delivery-list"></div></div>
       </div>
     </div>
+    <!-- LEADS -->
+    <div class="view" id="view-leads">
+      <div class="section-header">
+        <div><div class="section-title">Lead Pipeline</div><div class="section-sub">Track potential clients from inquiry to booked</div></div>
+        <button class="btn btn-primary" onclick="openLeadModal()">+ New Lead</button>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="lead-search" placeholder="Search leads..." oninput="renderLeads()"></div>
+        <select class="filter-select" id="lead-stage-filter" onchange="renderLeads()">
+          <option value="">All Stages</option><option value="new">New</option><option value="contacted">Contacted</option>
+          <option value="quoted">Quoted</option><option value="booked">Booked</option><option value="lost">Lost</option>
+        </select>
+      </div>
+      <div id="leads-list"></div>
+      <div id="leads-empty" style="display:none"><div class="card"><div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">No leads yet</div><div class="empty-sub">Track potential clients and follow-ups</div><button class="btn btn-primary" onclick="openLeadModal()">+ New Lead</button></div></div></div>
+    </div>
+    <!-- EXPENSES -->
+    <div class="view" id="view-expenses">
+      <div class="section-header">
+        <div><div class="section-title">Expenses</div><div class="section-sub">Track business costs and deductions</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="aiExpenseTaxSummary()">🤖 Tax Summary</button>
+          <button class="btn btn-primary" onclick="openExpenseModal()">+ Log Expense</button>
+        </div>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><input class="search-input" type="text" id="expense-search" placeholder="Search expenses..." oninput="renderExpenses()"></div>
+        <select class="filter-select" id="expense-cat-filter" onchange="renderExpenses()">
+          <option value="">All Categories</option><option value="gear">Gear</option><option value="travel">Travel</option>
+          <option value="software">Software</option><option value="marketing">Marketing</option>
+          <option value="education">Education</option><option value="meals">Meals</option>
+          <option value="office">Office</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div id="expenses-kpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px"></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Project</th><th>Amount</th><th></th></tr></thead>
+          <tbody id="expenses-tbody"></tbody></table>
+        </div>
+        <div id="expenses-empty" style="display:none"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No expenses logged</div><div class="empty-sub">Track business costs and deductions</div><button class="btn btn-primary" onclick="openExpenseModal()">+ Log Expense</button></div></div>
+      </div>
+    </div>
+    <!-- TIME TRACKING -->
+    <div class="view" id="view-time">
+      <div class="section-header">
+        <div><div class="section-title">Time Tracking</div><div class="section-sub">Log hours per project for billing and insights</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="aiTimeSummary()">🤖 Time Summary</button>
+          <button class="btn btn-primary" onclick="openTimeModal()">+ Log Time</button>
+        </div>
+      </div>
+      <div id="time-kpis" class="analytics-kpi-grid" style="margin-bottom:16px"></div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between"><div class="card-title">Active Timer</div><div id="timer-display" class="timer-display">00:00:00</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <select class="form-control" id="timer-project" style="flex:1;min-width:160px"><option value="">Select project...</option></select>
+            <input class="form-control" id="timer-desc" placeholder="What are you working on?" style="flex:2;min-width:160px">
+            <button class="btn btn-primary" id="timer-start-btn" onclick="startTimer()">&#9654; Start</button>
+            <button class="btn btn-secondary" id="timer-stop-btn" onclick="stopTimer()" style="display:none">&#9646; Stop &amp; Log</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div class="card-title">Time Log</div>
+          <select class="filter-select" id="time-project-filter" onchange="renderTimeLogs()" style="min-width:140px"><option value="">All Projects</option></select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Project</th><th>Description</th><th>Hours</th><th></th></tr></thead><tbody id="time-tbody"></tbody></table></div>
+        <div id="time-empty" style="display:none"><div class="empty-state"><div class="empty-icon">⏱</div><div class="empty-title">No time logged</div><div class="empty-sub">Start the timer or log time manually</div></div></div>
+      </div>
+    </div>
+    <!-- CONTRACTS -->
+    <div class="view" id="view-contracts">
+      <div class="section-header">
+        <div><div class="section-title">Contracts</div><div class="section-sub">Create and send contracts for digital signature</div></div>
+        <button class="btn btn-primary" onclick="openContractModal()">+ New Contract</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table><thead><tr><th>Contract</th><th>Client</th><th>Project</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody id="contracts-tbody"></tbody></table></div>
+        <div id="contracts-empty" style="display:none"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">No contracts yet</div><div class="empty-sub">Create a contract and send the link for digital signature</div><button class="btn btn-primary" onclick="openContractModal()">+ New Contract</button></div></div>
+      </div>
+    </div>
     <!-- INTEGRATIONS -->
     <div class="view" id="view-integrations">
       <div class="section-header">
@@ -764,6 +890,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#3D4EAC;color:white">◼</div><div class="int-name">Square</div><label class="toggle"><input type="checkbox" id="int-square-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Square Payment Link</label><input class="form-control" id="int-square-link" placeholder="https://square.link/u/..."><div class="form-hint">Generate a payment link from Square</div></div></div>
           <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#6EC177;color:white">C</div><div class="int-name">Chime</div><label class="toggle"><input type="checkbox" id="int-chime-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Chime Pay Link or Phone</label><input class="form-control" id="int-chime-contact" placeholder="your@email.com or (555) 000-0000"><div class="form-hint">Clients pay via Chime using your linked info</div></div></div>
           <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#6D1ED4;color:white">Z</div><div class="int-name">Zelle</div><label class="toggle"><input type="checkbox" id="int-zelle-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Zelle Email or Phone</label><input class="form-control" id="int-zelle-contact" placeholder="your@email.com or (555) 000-0000"><div class="form-hint">Your Zelle-linked email or phone number</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#000000;color:white">AP</div><div class="int-name">Apple Cash</div><label class="toggle"><input type="checkbox" id="int-applepay-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Phone or Email</label><input class="form-control" id="int-applepay-contact" placeholder="(555) 000-0000 or you@icloud.com"><div class="form-hint">Your Apple Cash-linked phone or email</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#4285F4;color:white">GP</div><div class="int-name">Google Pay</div><label class="toggle"><input type="checkbox" id="int-gpay-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Phone or Email</label><input class="form-control" id="int-gpay-contact" placeholder="(555) 000-0000 or you@gmail.com"><div class="form-hint">Your Google Pay-linked phone or Gmail</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#00B9FF;color:white">W</div><div class="int-name">Wise</div><label class="toggle"><input type="checkbox" id="int-wise-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Wise.me Link</label><input class="form-control" id="int-wise-link" placeholder="https://wise.com/pay/me/..."><div class="form-hint">Your Wise payment link (great for international clients)</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#FF5A00;color:white">AP</div><div class="int-name">Afterpay</div><label class="toggle"><input type="checkbox" id="int-afterpay-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Afterpay Merchant Link</label><input class="form-control" id="int-afterpay-link" placeholder="https://portal.afterpay.com/..."><div class="form-hint">Buy-now-pay-later in 4 installments (sign up at afterpay.com/business)</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#FFB3C7;color:#1A0033">K</div><div class="int-name">Klarna</div><label class="toggle"><input type="checkbox" id="int-klarna-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Klarna Payment Link</label><input class="form-control" id="int-klarna-link" placeholder="https://app.klarna.com/..."><div class="form-hint">Buy-now-pay-later option for larger bookings (sign up at klarna.com/business)</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#0055CC;color:white">R</div><div class="int-name">Revolut</div><label class="toggle"><input type="checkbox" id="int-revolut-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Revolut.me Link</label><input class="form-control" id="int-revolut-link" placeholder="https://revolut.me/yourusername"><div class="form-hint">Your Revolut payment link</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#1A1A2E;color:white">ACH</div><div class="int-name">Bank Transfer</div><label class="toggle"><input type="checkbox" id="int-ach-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Bank / Instructions</label><textarea class="form-control" id="int-ach-instructions" rows="2" placeholder="e.g. Wells Fargo — Routing: 121042882 — Account: xxxxxxx"></textarea><div class="form-hint">Shown on invoice as wire/ACH instructions. Do not share sensitive details publicly.</div></div></div>
+          <div class="int-card"><div class="int-card-top"><div class="int-logo" style="background:#374151;color:white">+</div><div class="int-name">Custom Method</div><label class="toggle"><input type="checkbox" id="int-custom-enabled"><span class="toggle-slider"></span></label></div><div class="form-group mt-8"><label class="form-label">Method Name &amp; Instructions</label><input class="form-control" id="int-custom-name" placeholder="e.g. HoneyBook, Melio, Check..." style="margin-bottom:6px"><textarea class="form-control" id="int-custom-instructions" rows="2" placeholder="Payment instructions shown to client..."></textarea></div></div>
         </div>
       </div>
       <div class="int-section">
@@ -825,26 +959,21 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-title">✨ AI Assistant</div>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">Add your own Anthropic API key to unlock AI features: contract drafting, client emails, and invoice notes. Your key is stored only on this device and never shared.</p>
-        <div class="settings-grid">
-          <div class="form-group" style="grid-column:1/-1">
-            <label class="form-label">Anthropic API Key</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input class="form-control" id="s-ai-key" type="password" placeholder="sk-ant-api03-..." autocomplete="off" style="flex:1">
-              <button class="btn btn-secondary" onclick="testAiKey()" id="ai-test-btn">Test Key</button>
-              <button class="btn btn-primary" onclick="saveAiKey()">Save</button>
-            </div>
-            <div id="ai-key-status" style="font-size:0.8rem;margin-top:6px;color:var(--text-muted)">
-              Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>
-            </div>
-          </div>
-          <div class="form-group" style="grid-column:1/-1">
-            <label class="form-label">Photographer Bio</label>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">Generate a professional bio from your business info above. Useful for your website, social profiles, and proposals.</p>
-            <button class="btn btn-secondary" onclick="aiPhotographerBio()">✨ Generate Bio</button>
-          </div>
+        <div class="settings-section-title">📦 Service Packages</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Preset packages that can be added to any quote or invoice in one click.</p>
+        <div id="packages-list"></div>
+        <button class="btn btn-secondary" onclick="openPackageModal()" style="margin-top:8px">+ Add Package</button>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">🤖 AI Assistant</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.6">ShootFlow uses Claude AI to draft emails, contracts, proposals, and more. Enter your Anthropic API key below — it stays in your browser and is never sent to our servers. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>.</p>
+        <div class="form-group" style="max-width:480px">
+          <label class="form-label">Anthropic API Key</label>
+          <input class="form-control" id="s-ai-key" type="password" placeholder="sk-ant-...">
+          <div class="form-hint">Stored locally in your browser. Uses claude-haiku-4-5-20251001 (very affordable).</div>
         </div>
+        <button class="btn btn-secondary" onclick="saveAiKey()">Save API Key</button>
+        <button class="btn btn-ghost btn-sm" onclick="testAiKey()" style="margin-left:8px">Test Connection</button>
       </div>
       <div class="settings-section">
         <div class="settings-section-title">💾 Data Management</div>
@@ -878,6 +1007,24 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="project-location" placeholder="e.g. 123 Main St, Sacramento, CA"></div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="project-notes" placeholder="Shoot details, special requests..."></textarea></div>
+      <div class="prop-section">
+        <button type="button" class="prop-toggle" onclick="var pf=document.getElementById('prop-fields');pf.style.display=pf.style.display==='none'?'block':'none'">▼ Property Details (Real Estate)</button>
+        <div id="prop-fields" style="display:none;margin-top:12px">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">MLS Number</label><input class="form-control" id="project-mls" placeholder="e.g. MLS-123456"></div>
+            <div class="form-group"><label class="form-label">Listing Price ($)</label><input class="form-control" id="project-listing-price" type="number" min="0" placeholder="750000"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Beds</label><input class="form-control" id="project-beds" type="number" min="0" placeholder="3"></div>
+            <div class="form-group"><label class="form-label">Baths</label><input class="form-control" id="project-baths" type="number" min="0" step="0.5" placeholder="2"></div>
+            <div class="form-group"><label class="form-label">Sqft</label><input class="form-control" id="project-sqft" type="number" min="0" placeholder="1800"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Property Type</label><select class="form-control" id="project-prop-type"><option value="">Select...</option><option value="residential">Residential</option><option value="condo">Condo/Townhome</option><option value="multi-family">Multi-Family</option><option value="commercial">Commercial</option><option value="land">Land</option><option value="luxury">Luxury</option></select></div>
+            <div class="form-group"><label class="form-label">Listing Agent</label><input class="form-control" id="project-agent" placeholder="Agent name (if not client)"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('project-modal')">Cancel</button><button class="btn btn-secondary" id="ai-contract-btn" onclick="aiDraftContract()" title="Generate a contract draft with AI">✨ Draft Contract</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div>
   </div>
@@ -899,6 +1046,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group"><label class="form-label">Company / Brokerage</label><input class="form-control" id="client-company" placeholder="e.g. Coldwell Banker"></div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="client-notes" placeholder="Preferences, referral source..."></textarea></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <input type="checkbox" id="client-recurring" style="width:16px;height:16px;cursor:pointer">
+        <label for="client-recurring" class="form-label" style="margin:0;cursor:pointer">Mark as recurring client</label>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Save Client</button></div>
   </div>
@@ -1322,7 +1473,7 @@ function doSignOut() {
 const STORAGE_KEY = 'shootflow_v1';
 function getData() {
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
-  return { projects: [], clients: [], invoices: [], bookings: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1 };
+  return { projects: [], clients: [], invoices: [], bookings: [], leads: [], expenses: [], timeLogs: [], contracts: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1, contractCounter: 1 };
 }
 function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateAutosaveChip(); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
@@ -1351,6 +1502,10 @@ const PAGE_CONFIG = {
   invoices:     { title: 'Invoices',      action: '+ New Invoice',     actionFn: 'openInvoiceModal' },
   bookings:     { title: 'Bookings',      action: '+ New Booking',     actionFn: 'openBookingModal' },
   delivery:     { title: 'File Delivery', action: null },
+  leads:        { title: 'Lead Pipeline',  action: '+ New Lead',        actionFn: 'openLeadModal' },
+  expenses:     { title: 'Expenses',       action: '+ Log Expense',     actionFn: 'openExpenseModal' },
+  time:         { title: 'Time Tracking',  action: '+ Log Time',        actionFn: 'openTimeModal' },
+  contracts:    { title: 'Contracts',      action: '+ New Contract',    actionFn: 'openContractModal' },
   integrations: { title: 'Integrations', action: 'Save Integrations', actionFn: 'saveIntegrations' },
   settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
 };
@@ -1372,6 +1527,10 @@ function navigate(view) {
   if (view === 'invoices')     renderInvoices();
   if (view === 'bookings')     renderBookings();
   if (view === 'delivery')     renderDelivery();
+  if (view === 'leads')        renderLeads();
+  if (view === 'expenses')     renderExpenses();
+  if (view === 'time')         renderTimeView();
+  if (view === 'contracts')    renderContracts();
   if (view === 'integrations') loadIntegrations();
   if (view === 'settings')     loadSettings();
 }
@@ -1473,14 +1632,24 @@ function openProjectModal(id) {
     document.getElementById('project-amount').value = p.amount || '';
     document.getElementById('project-location').value = p.location || '';
     document.getElementById('project-notes').value = p.notes || '';
+    document.getElementById('project-mls').value = p.mls || '';
+    document.getElementById('project-listing-price').value = p.listingPrice || '';
+    document.getElementById('project-beds').value = p.beds || '';
+    document.getElementById('project-baths').value = p.baths || '';
+    document.getElementById('project-sqft').value = p.sqft || '';
+    document.getElementById('project-prop-type').value = p.propertyType || '';
+    document.getElementById('project-agent').value = p.agent || '';
+    if (p.mls || p.beds || p.listingPrice) document.getElementById('prop-fields').style.display = 'block';
   } else {
     document.getElementById('project-modal-title').textContent = 'New Project';
-    ['project-id','project-name','project-location','project-notes'].forEach(id => document.getElementById(id).value = '');
+    ['project-id','project-name','project-location','project-notes','project-mls','project-listing-price','project-beds','project-baths','project-sqft','project-agent'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('project-client').value = '';
     document.getElementById('project-type').value = 'real-estate';
     document.getElementById('project-status').value = 'inquiry';
     document.getElementById('project-date').value = '';
     document.getElementById('project-amount').value = '';
+    document.getElementById('project-prop-type').value = '';
+    document.getElementById('prop-fields').style.display = 'none';
   }
   openModal('project-modal');
 }
@@ -1498,6 +1667,13 @@ function saveProject() {
     amount: parseFloat(document.getElementById('project-amount').value) || 0,
     location: document.getElementById('project-location').value.trim(),
     notes: document.getElementById('project-notes').value.trim(),
+    mls: document.getElementById('project-mls').value.trim(),
+    listingPrice: parseFloat(document.getElementById('project-listing-price').value) || 0,
+    beds: parseFloat(document.getElementById('project-beds').value) || 0,
+    baths: parseFloat(document.getElementById('project-baths').value) || 0,
+    sqft: parseFloat(document.getElementById('project-sqft').value) || 0,
+    propertyType: document.getElementById('project-prop-type').value,
+    agent: document.getElementById('project-agent').value.trim(),
     createdAt: id ? (data.projects.find(p=>p.id===id)||{}).createdAt || Date.now() : Date.now(),
     updatedAt: Date.now()
   };
@@ -1542,6 +1718,7 @@ function renderProjects() {
         ${p.status === 'delivered' ? `<button class="btn btn-ghost btn-sm" onclick="aiDeliveryMessage('${p.id}')" title="Draft delivery email" style="font-size:0.75rem">✨ Deliver</button>` : ''}
         ${['delivered','paid'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiSocialCaption('${p.id}')" title="Generate social media caption" style="font-size:0.75rem">📱 Caption</button>` : ''}
         ${p.status === 'paid' ? `<button class="btn btn-ghost btn-sm" onclick="aiTestimonialRequest('${p.id}')" title="Draft testimonial request" style="font-size:0.75rem">✨ Review</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="showProjectAiMenu('${p.id}',this)">🤖 AI</button>
         <button class="btn btn-secondary btn-sm" onclick="openMediaModal('${p.id}')">📁 Media</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openProjectModal('${p.id}')">✏️</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteProject('${p.id}')">🗑</button>
@@ -1562,10 +1739,12 @@ function openClientModal(id) {
     document.getElementById('client-phone').value = c.phone || '';
     document.getElementById('client-company').value = c.company || '';
     document.getElementById('client-notes').value = c.notes || '';
+    document.getElementById('client-recurring').checked = !!c.isRecurring;
   } else {
     document.getElementById('client-modal-title').textContent = 'New Client';
     ['client-id','client-name','client-email','client-phone','client-company','client-notes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('client-type').value = 'agent';
+    document.getElementById('client-recurring').checked = false;
   }
   openModal('client-modal');
 }
@@ -1580,6 +1759,7 @@ function saveClient() {
     phone: document.getElementById('client-phone').value.trim(),
     company: document.getElementById('client-company').value.trim(),
     notes: document.getElementById('client-notes').value.trim(),
+    isRecurring: document.getElementById('client-recurring').checked,
     createdAt: id ? (data.clients.find(c=>c.id===id)||{}).createdAt || Date.now() : Date.now()
   };
   if (id) { const idx = data.clients.findIndex(c => c.id === id); if (idx >= 0) data.clients[idx] = client; }
@@ -1606,13 +1786,14 @@ function renderClients() {
     const pCount = data.projects.filter(p => p.clientId === c.id).length;
     const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     return `<tr>
-      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><div style="font-weight:600">${esc(c.name)}</div></div></td>
+      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><div style="font-weight:600">${esc(c.name)}${c.isRecurring?'<span class="badge-recurring">⭐ Recurring</span>':''}</div></div></td>
       <td>${c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--accent)">${esc(c.email)}</a>` : '<span class="text-muted">—</span>'}</td>
       <td>${c.phone || '<span class="text-muted">—</span>'}</td>
       <td><span class="tag">${c.type||'—'}</span></td>
       <td>${c.company || '<span class="text-muted">—</span>'}</td>
       <td><span class="badge badge-booked">${pCount} project${pCount!==1?'s':''}</span></td>
       <td><div class="table-actions" style="flex-wrap:wrap;gap:4px">
+        <button class="btn btn-secondary btn-sm" onclick="showClientAiMenu('${c.id}',this)">🤖 AI</button>
         <button class="btn btn-ghost btn-sm" id="ai-email-btn-${c.id}" onclick="aiDraftEmail('${c.id}')" title="Draft follow-up email" style="font-size:0.75rem">✨ Email</button>
         <button class="btn btn-ghost btn-sm" onclick="aiClientProfileSummary('${c.id}')" title="AI client profile summary" style="font-size:0.75rem">👤 Summary</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openClientModal('${c.id}')">✏️</button>
@@ -1851,6 +2032,7 @@ function renderBookings() {
       </div>
       ${statusBadge(b.status)}
       <div class="table-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showBookingAiMenu('${b.id}',this)">🤖 AI</button>
         <button class="btn btn-secondary btn-sm" onclick="addToCalendar('${b.id}')" title="Add to your calendar">📅 Cal</button>
         <button class="btn btn-secondary btn-sm" onclick="shareScheduleLink('${b.id}')" title="Copy client booking link">📤 Share</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openBookingModal('${b.id}')">✏️</button>
@@ -1975,6 +2157,23 @@ function loadIntegrations() {
   document.getElementById('int-chime-contact').value     = int.chime?.contact || '';
   document.getElementById('int-zelle-enabled').checked   = int.zelle?.enabled || false;
   document.getElementById('int-zelle-contact').value     = int.zelle?.contact || '';
+  document.getElementById('int-applepay-enabled').checked   = int.applepay?.enabled || false;
+  document.getElementById('int-applepay-contact').value     = int.applepay?.contact || '';
+  document.getElementById('int-gpay-enabled').checked       = int.gpay?.enabled || false;
+  document.getElementById('int-gpay-contact').value         = int.gpay?.contact || '';
+  document.getElementById('int-wise-enabled').checked       = int.wise?.enabled || false;
+  document.getElementById('int-wise-link').value            = int.wise?.link || '';
+  document.getElementById('int-afterpay-enabled').checked   = int.afterpay?.enabled || false;
+  document.getElementById('int-afterpay-link').value        = int.afterpay?.link || '';
+  document.getElementById('int-klarna-enabled').checked     = int.klarna?.enabled || false;
+  document.getElementById('int-klarna-link').value          = int.klarna?.link || '';
+  document.getElementById('int-revolut-enabled').checked    = int.revolut?.enabled || false;
+  document.getElementById('int-revolut-link').value         = int.revolut?.link || '';
+  document.getElementById('int-ach-enabled').checked        = int.ach?.enabled || false;
+  document.getElementById('int-ach-instructions').value     = int.ach?.instructions || '';
+  document.getElementById('int-custom-enabled').checked     = int.custom?.enabled || false;
+  document.getElementById('int-custom-name').value          = int.custom?.name || '';
+  document.getElementById('int-custom-instructions').value  = int.custom?.instructions || '';
   document.getElementById('int-email-provider').value    = int.emailProvider || 'default';
   document.getElementById('int-calendar-provider').value = int.calendarProvider || 'ics';
 }
@@ -1988,6 +2187,14 @@ function saveIntegrations() {
     square:   { enabled: document.getElementById('int-square-enabled').checked,  paymentLink: document.getElementById('int-square-link').value.trim() },
     chime:    { enabled: document.getElementById('int-chime-enabled').checked,   contact: document.getElementById('int-chime-contact').value.trim() },
     zelle:    { enabled: document.getElementById('int-zelle-enabled').checked,   contact: document.getElementById('int-zelle-contact').value.trim() },
+    applepay: { enabled: document.getElementById('int-applepay-enabled').checked, contact: document.getElementById('int-applepay-contact').value.trim() },
+    gpay:     { enabled: document.getElementById('int-gpay-enabled').checked,     contact: document.getElementById('int-gpay-contact').value.trim() },
+    wise:     { enabled: document.getElementById('int-wise-enabled').checked,     link: document.getElementById('int-wise-link').value.trim() },
+    afterpay: { enabled: document.getElementById('int-afterpay-enabled').checked, link: document.getElementById('int-afterpay-link').value.trim() },
+    klarna:   { enabled: document.getElementById('int-klarna-enabled').checked,   link: document.getElementById('int-klarna-link').value.trim() },
+    revolut:  { enabled: document.getElementById('int-revolut-enabled').checked,  link: document.getElementById('int-revolut-link').value.trim() },
+    ach:      { enabled: document.getElementById('int-ach-enabled').checked,      instructions: document.getElementById('int-ach-instructions').value.trim() },
+    custom:   { enabled: document.getElementById('int-custom-enabled').checked,   name: document.getElementById('int-custom-name').value.trim(), instructions: document.getElementById('int-custom-instructions').value.trim() },
     emailProvider:    document.getElementById('int-email-provider').value,
     calendarProvider: document.getElementById('int-calendar-provider').value
   };
@@ -2408,6 +2615,766 @@ function showPhotographerCalendarPrompt(booking) {
   openModal('photographer-cal-modal');
 }
 
+// ── AI DROPDOWN MENUS ──
+function closeAllAiDropdowns() { document.querySelectorAll('.ai-dropdown').forEach(d => d.remove()); }
+document.addEventListener('click', e => { if (!e.target.closest('.ai-dropdown') && !e.target.closest('[onclick*="AiMenu"]')) closeAllAiDropdowns(); });
+
+function openAiDropdown(btn, items) {
+  closeAllAiDropdowns();
+  const rect = btn.getBoundingClientRect();
+  const dd = document.createElement('div');
+  dd.className = 'ai-dropdown';
+  dd.style.top = (rect.bottom + 4) + 'px';
+  dd.style.left = Math.min(rect.left, window.innerWidth - 240) + 'px';
+  dd.innerHTML = '<div class="ai-dropdown-label">🤖 AI Actions</div>' +
+    items.map(it => `<button class="ai-dropdown-item" onclick="closeAllAiDropdowns();${it.fn}">${it.label}</button>`).join('');
+  document.body.appendChild(dd);
+}
+
+function showProjectAiMenu(id, btn) {
+  const data = getData(); const p = data.projects.find(x => x.id === id); if (!p) return;
+  openAiDropdown(btn, [
+    { label: '✨ Shoot Prep Checklist',  fn: `aiShootPrepChecklist('${id}')` },
+    { label: '✨ Client Intake Form',    fn: `aiClientIntake('${id}')` },
+    { label: '📧 Delivery Message',      fn: `aiDeliveryMessage('${id}')` },
+    { label: '📱 Social Caption',        fn: `aiSocialCaption('${id}')` },
+    { label: '📝 Project Proposal',      fn: `aiProjectProposal('${id}')` },
+    { label: '⭐ Testimonial Request',   fn: `aiTestimonialRequest('${id}')` },
+  ]);
+}
+
+function showBookingAiMenu(id, btn) {
+  openAiDropdown(btn, [
+    { label: '✅ Booking Confirmation',  fn: `aiBookingConfirmation('${id}')` },
+    { label: '🔄 Reschedule Message',    fn: `aiRescheduleMessage('${id}')` },
+    { label: '⚠️ No-Show Message',       fn: `aiNoShowMessage('${id}')` },
+    { label: '📋 Post-Shoot Survey',     fn: `aiPostShootSurvey('${id}')` },
+  ]);
+}
+
+function showClientAiMenu(id, btn) {
+  openAiDropdown(btn, [
+    { label: '📧 Follow-up Email',       fn: `aiDraftEmail('${id}')` },
+    { label: '👤 Client Summary',        fn: `aiClientProfileSummary('${id}')` },
+    { label: '💰 Price Increase Notice', fn: `aiPriceIncreaseNotice('${id}')` },
+    { label: '🌱 Lead Nurture Email',    fn: `aiLeadNurture('${id}')` },
+  ]);
+}
+
+function showLeadAiMenu(id, btn) {
+  openAiDropdown(btn, [
+    { label: '📧 Lead Response',         fn: `aiLeadResponse('${id}')` },
+    { label: '🌱 Nurture Sequence',      fn: `aiLeadNurture('${id}')` },
+  ]);
+}
+
+// ── AI INFRASTRUCTURE ──
+const AI_KEY_STORAGE = 'sf_ai_key_v1';
+function getAiKey() { return localStorage.getItem(AI_KEY_STORAGE) || ''; }
+function loadAiKeyIntoSettings() {
+  const key = getAiKey();
+  const el = document.getElementById('s-ai-key');
+  if (el && key) el.value = key;
+}
+function showAiModal(title, applyFn) {
+  document.getElementById('ai-modal-title').textContent = title;
+  document.getElementById('ai-loading').style.display = 'block';
+  document.getElementById('ai-result-wrap').style.display = 'none';
+  const applyBtn = document.getElementById('ai-apply-btn');
+  if (applyFn) { applyBtn.style.display = ''; applyBtn._applyFn = applyFn; } else { applyBtn.style.display = 'none'; }
+  openModal('ai-modal');
+}
+function showAiResult(text) {
+  document.getElementById('ai-loading').style.display = 'none';
+  document.getElementById('ai-result-wrap').style.display = 'block';
+  document.getElementById('ai-result').value = text;
+}
+function showAiError(msg) {
+  document.getElementById('ai-loading').style.display = 'none';
+  document.getElementById('ai-result-wrap').style.display = 'block';
+  document.getElementById('ai-result').value = '⚠️ ' + msg;
+}
+function copyAiResult() {
+  const text = document.getElementById('ai-result').value;
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
+}
+function applyAiResult() {
+  const btn = document.getElementById('ai-apply-btn');
+  if (btn._applyFn) btn._applyFn(document.getElementById('ai-result').value);
+  closeModal('ai-modal');
+}
+
+// ── AI FEATURES ──
+async function aiProjectProposal(projectId) {
+  const data = getData(); const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId); const s = data.settings;
+  showAiModal('Project Proposal — ' + p.name);
+  try {
+    const result = await askClaude(`Write a professional photography project proposal for:\nBusiness: ${s.businessName||'Photographer'}\nClient: ${client?client.name:'Client'}\nProject: ${p.name}\nType: ${p.type}\nDate: ${p.shootDate||'TBD'}\nLocation: ${p.location||'TBD'}\nFee: ${p.amount?'$'+p.amount:'TBD'}\n\nInclude: overview, deliverables, timeline, investment, and next steps. Professional tone, under 300 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiLeadResponse(leadId) {
+  const data = getData(); const lead = (data.leads||[]).find(l => l.id === leadId); if (!lead) return;
+  const s = data.settings;
+  showAiModal('Lead Response — ' + lead.name);
+  try {
+    const result = await askClaude(`Write a warm, professional response to a new photography inquiry.\nPhotographer: ${s.ownerName||s.businessName||'Photographer'}\nLead Name: ${lead.name}\nJob Type: ${lead.type||'photography'}\nEst. Value: ${lead.value?'$'+lead.value:'Unknown'}\nNotes: ${lead.notes||'None'}\n\nResponse should: thank them for reaching out, express enthusiasm, ask 2-3 qualifying questions, mention availability. Under 150 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiPriceIncreaseNotice(clientId) {
+  const data = getData(); const client = data.clients.find(c => c.id === clientId); if (!client) return;
+  const s = data.settings;
+  showAiModal('Price Increase Notice — ' + client.name);
+  try {
+    const result = await askClaude(`Write a professional, empathetic price increase notice from a photographer to a client.\nPhotographer: ${s.ownerName||s.businessName}\nClient: ${client.name}\n\nThe email should: acknowledge the relationship, explain the increase is due to rising costs and improved service, give 30 days notice, thank them for their loyalty. Warm tone. Under 120 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiBookingConfirmation(bookingId) {
+  const data = getData(); const b = data.bookings.find(x => x.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId); const s = data.settings;
+  showAiModal('Booking Confirmation — ' + b.title);
+  try {
+    const result = await askClaude(`Write a booking confirmation email from a photographer.\nPhotographer: ${s.ownerName||s.businessName}\nClient: ${client?client.name:'Client'}\nBooking: ${b.title}\nDate: ${b.date}\nTime: ${b.startTime||'TBD'}\nLocation: ${b.location||'TBD'}\n\nInclude: confirmation, what to expect, preparation tips, contact info. Friendly tone. Under 150 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiRescheduleMessage(bookingId) {
+  const data = getData(); const b = data.bookings.find(x => x.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId); const s = data.settings;
+  showAiModal('Reschedule Message — ' + b.title);
+  try {
+    const result = await askClaude(`Write a polite reschedule request email from a photographer.\nPhotographer: ${s.ownerName||s.businessName}\nClient: ${client?client.name:'Client'}\nOriginal Booking: ${b.title} on ${b.date}\n\nApologize for the inconvenience, offer flexibility on new dates, keep it brief and professional. Under 100 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiNoShowMessage(bookingId) {
+  const data = getData(); const b = data.bookings.find(x => x.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId); const s = data.settings;
+  showAiModal('No-Show Message — ' + b.title);
+  try {
+    const result = await askClaude(`Write a professional but firm no-show follow-up message from a photographer.\nPhotographer: ${s.ownerName||s.businessName}\nClient: ${client?client.name:'Client'}\nMissed Booking: ${b.title} on ${b.date}\n\nMention the missed appointment, any cancellation/no-show fee policy, and offer to reschedule. Professional, not aggressive. Under 100 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiPostShootSurvey(bookingId) {
+  const data = getData(); const b = data.bookings.find(x => x.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId); const s = data.settings;
+  showAiModal('Post-Shoot Survey — ' + b.title);
+  try {
+    const result = await askClaude(`Write a post-shoot feedback survey email from a photographer.\nPhotographer: ${s.ownerName||s.businessName}\nClient: ${client?client.name:'Client'}\nShoot: ${b.title}\n\nInclude 4-5 short survey questions covering: overall experience, communication, results, likelihood to rebook, and one open-ended question. Friendly and brief intro. Under 150 words total.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiModelRelease(projectId) {
+  const data = getData(); const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId); const s = data.settings;
+  showAiModal('Model Release — ' + p.name);
+  try {
+    const result = await askClaude(`Draft a simple model release form for a photography shoot.\nPhotographer/Business: ${s.businessName||'Photographer'}\nSubject/Client: ${client?client.name:'[Subject Name]'}\nProject: ${p.name}\nDate: ${p.shootDate||'[Date]'}\n\nInclude: grant of rights, permitted uses (portfolio, social media, marketing), compensation (if any), governing law line, and two signature blocks. Plain English, no excessive legal jargon.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiPropertyRelease(projectId) {
+  const data = getData(); const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const s = data.settings;
+  showAiModal('Property Release — ' + p.name);
+  try {
+    const result = await askClaude(`Draft a simple property/location release form for a photography shoot.\nPhotographer/Business: ${s.businessName||'Photographer'}\nProperty: ${p.location||'[Property Address]'}\nProject: ${p.name}\nDate: ${p.shootDate||'[Date]'}\n\nInclude: permission to photograph the property, permitted uses, property owner signature block, and photographer signature block. Plain English.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiYearInReview() {
+  const data = getData(); const s = data.settings;
+  const year = new Date().getFullYear();
+  const projects = data.projects.filter(p => (p.shootDate||'').startsWith(year));
+  const revenue = data.invoices.filter(i => i.status==='paid' && (i.createdAt||0) > new Date(year+'-01-01').getTime()).reduce((a,i)=>a+(parseFloat(i.total)||0),0);
+  showAiModal('Year in Review ' + year);
+  try {
+    const result = await askClaude(`Write a warm year-in-review summary for a photography business newsletter.\nBusiness: ${s.businessName||'Photography Business'}\nPhotographer: ${s.ownerName||''}\nYear: ${year}\nProjects completed: ${projects.length}\nRevenue (paid invoices): $${revenue.toFixed(0)}\nShoot types: ${[...new Set(projects.map(p=>p.type))].join(', ')||'various'}\n\nWrite 3-4 paragraphs: reflect on the year, highlight growth, thank clients, tease what's coming next year. Warm, personal tone. No placeholder brackets.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiBestClientReport() {
+  const data = getData(); const s = data.settings;
+  const clientRevenue = {};
+  data.invoices.filter(i=>i.status==='paid').forEach(i=>{ clientRevenue[i.clientId]=(clientRevenue[i.clientId]||0)+(parseFloat(i.total)||0); });
+  const top = Object.entries(clientRevenue).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,rev])=>({ name: (data.clients.find(c=>c.id===id)||{}).name||'Unknown', revenue: rev }));
+  showAiModal('Best Client Report');
+  try {
+    const result = await askClaude(`Write a brief best-client analysis for a photography business.\nBusiness: ${s.businessName}\nTop clients by revenue:\n${top.map((c,i)=>`${i+1}. ${c.name}: $${c.revenue.toFixed(0)}`).join('\n')||'No paid invoices yet'}\n\nProvide: a 2-3 sentence overview of client concentration, a suggestion for VIP treatment or loyalty program, and one actionable idea to increase repeat bookings. Under 200 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiSeasonalTrends() {
+  const data = getData(); const s = data.settings;
+  const byMonth = {};
+  data.projects.forEach(p => { if (p.shootDate) { const m = p.shootDate.slice(0,7); byMonth[m]=(byMonth[m]||0)+1; } });
+  const summary = Object.entries(byMonth).sort().map(([m,c])=>`${m}: ${c} shoots`).join('\n')||'No shoot dates recorded';
+  showAiModal('Seasonal Trends Analysis');
+  try {
+    const result = await askClaude(`Analyze seasonal booking trends for a photography business.\nBusiness: ${s.businessName}\nMonthly shoot counts:\n${summary}\n\nIdentify: peak months, slow periods, and give 2-3 actionable marketing suggestions to fill slow months or capitalize on busy seasons. Under 200 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiMonthlyNewsletter() {
+  const data = getData(); const s = data.settings;
+  const month = new Date().toLocaleString('en-US',{month:'long'});
+  showAiModal('Monthly Newsletter — ' + month);
+  try {
+    const result = await askClaude(`Write a monthly email newsletter for a photography business.\nBusiness: ${s.businessName||'Photography Business'}\nPhotographer: ${s.ownerName||''}\nMonth: ${month}\nLocation: ${s.location||''}\nSpecialties: ${[...new Set(data.projects.map(p=>p.type))].slice(0,3).join(', ')||'photography'}\n\nInclude: a warm personal update (2-3 sentences), a seasonal photography tip, a featured service or promotion idea, and a call to book. 200-250 words. No placeholder brackets.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiColdOutreach() {
+  const data = getData(); const s = data.settings;
+  showAiModal('Cold Outreach Email');
+  try {
+    const result = await askClaude(`Write a cold outreach email from a real estate photographer to a real estate agent.\nPhotographer: ${s.ownerName||s.businessName||'Photographer'}\nBusiness: ${s.businessName||''}\nLocation: ${s.location||''}\nWebsite: ${s.website||''}\n\nThe email should: introduce the photographer, mention how professional photos sell homes faster and for more, offer a free first shoot or discounted trial, and end with a clear call to action. Confident but not pushy. Under 150 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiBlogPostOutline() {
+  const data = getData(); const s = data.settings;
+  const types = [...new Set(data.projects.map(p=>p.type))];
+  showAiModal('Blog Post Outline');
+  try {
+    const result = await askClaude(`Create a blog post outline for a photography business website.\nBusiness: ${s.businessName||'Photography Business'}\nLocation: ${s.location||''}\nSpecialties: ${types.join(', ')||'real estate photography'}\n\nWrite an outline for a practical, SEO-friendly blog post that would attract potential clients. Include: a catchy title, 5-7 section headings with 2-3 bullet points each, and a suggested call-to-action at the end. Pick the most relevant specialty.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiWebsiteCopy() {
+  const data = getData(); const s = data.settings;
+  showAiModal('Website Copy');
+  try {
+    const result = await askClaude(`Write homepage website copy for a photography business.\nBusiness: ${s.businessName||'Photography Business'}\nPhotographer: ${s.ownerName||''}\nLocation: ${s.location||''}\nSpecialties: ${[...new Set(data.projects.map(p=>p.type))].join(', ')||'photography'}\nWebsite: ${s.website||''}\n\nWrite: a hero headline (max 8 words), a subheadline (1 sentence), a 3-item services section (each with a name and 1-sentence description), and a short About paragraph (3 sentences). Confident, modern tone. No placeholder brackets.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiContractDraft(projectId) {
+  const data = getData(); const p = data.projects.find(x=>x.id===projectId); if(!p) return;
+  const client = data.clients.find(c=>c.id===p.clientId); const s = data.settings;
+  showAiModal('Contract Draft — ' + p.name, (text) => {
+    const el = document.getElementById('contract-body'); if(el) el.value = text;
+  });
+  try {
+    const result = await askClaude(`Write a professional photography services contract.\nPhotographer: ${s.businessName||'Photographer'}\nClient: ${client?client.name:'Client'}\nProject: ${p.name}\nType: ${p.type}\nDate: ${p.shootDate||'TBD'}\nLocation: ${p.location||'TBD'}\nFee: ${p.amount?'$'+p.amount:'TBD'}\n\nSections: Services, Payment (50% deposit), Delivery (4 weeks), Cancellation (72hr notice), Copyright (photographer retains), Liability (limited to fee), Signatures. Plain English, concise.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiExpenseTaxSummary() {
+  const data = getData(); const s = data.settings;
+  const expenses = data.expenses || [];
+  if (!expenses.length) { toast('No expenses logged yet', 'error'); return; }
+  const byCategory = {};
+  expenses.forEach(e => { byCategory[e.category]=(byCategory[e.category]||0)+(parseFloat(e.amount)||0); });
+  const total = Object.values(byCategory).reduce((a,b)=>a+b,0);
+  showAiModal('Expense Tax Summary');
+  try {
+    const result = await askClaude(`Summarize business expenses for a photography business for tax purposes.\nBusiness: ${s.businessName}\nYear: ${new Date().getFullYear()}\nExpense breakdown:\n${Object.entries(byCategory).map(([c,a])=>`${c}: $${a.toFixed(2)}`).join('\n')}\nTotal: $${total.toFixed(2)}\n\nProvide: a brief summary of deductible categories, notes on which are fully vs. partially deductible for a photography business, and 2-3 tax tips. Note: not legal/tax advice. Under 250 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiLeadNurture(leadOrClientId) {
+  const data = getData();
+  const lead = (data.leads||[]).find(l=>l.id===leadOrClientId);
+  const client = data.clients.find(c=>c.id===leadOrClientId);
+  const name = lead ? lead.name : (client ? client.name : 'Contact');
+  const s = data.settings;
+  showAiModal('Lead Nurture Email — ' + name);
+  try {
+    const result = await askClaude(`Write a lead nurture email from a photographer to a potential client who has not yet booked.\nPhotographer: ${s.ownerName||s.businessName}\nContact: ${name}\nBusiness: ${s.businessName}\n\nThe email should: check in warmly, offer value (a tip or insight), gently remind them of the photographer's availability, and include a soft call to action. Not pushy. Under 120 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+async function aiTimeSummary() {
+  const data = getData(); const s = data.settings;
+  const logs = data.timeLogs || [];
+  if (!logs.length) { toast('No time logged yet', 'error'); return; }
+  const byProject = {};
+  logs.forEach(l => { const name = l.projectId ? projectName(l.projectId) : 'General'; byProject[name]=(byProject[name]||0)+(parseFloat(l.minutes)||0); });
+  const totalHrs = Object.values(byProject).reduce((a,b)=>a+b,0)/60;
+  showAiModal('Time Summary');
+  try {
+    const result = await askClaude(`Summarize time tracking data for a photography business.\nBusiness: ${s.businessName}\nTotal hours logged: ${totalHrs.toFixed(1)}\nBy project:\n${Object.entries(byProject).map(([n,m])=>`${n}: ${(m/60).toFixed(1)}h`).join('\n')}\n\nProvide: a brief overview of where time is being spent, which projects took the most time, and 2 suggestions for improving time efficiency. Under 200 words.`);
+    showAiResult(result || 'No result returned.');
+  } catch(e) { showAiError(e.message); }
+}
+
+// ── LEADS CRUD ──
+function openLeadModal(id) {
+  const data = getData();
+  if (id) {
+    const lead = (data.leads||[]).find(l=>l.id===id); if (!lead) return;
+    document.getElementById('lead-modal-title').textContent = 'Edit Lead';
+    document.getElementById('lead-id').value = lead.id;
+    document.getElementById('lead-name').value = lead.name || '';
+    document.getElementById('lead-stage').value = lead.stage || 'new';
+    document.getElementById('lead-email').value = lead.email || '';
+    document.getElementById('lead-phone').value = lead.phone || '';
+    document.getElementById('lead-type').value = lead.type || 'real-estate';
+    document.getElementById('lead-value').value = lead.value || '';
+    document.getElementById('lead-notes').value = lead.notes || '';
+  } else {
+    document.getElementById('lead-modal-title').textContent = 'New Lead';
+    document.getElementById('lead-id').value = '';
+    ['lead-name','lead-email','lead-phone','lead-value','lead-notes'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('lead-stage').value = 'new';
+    document.getElementById('lead-type').value = 'real-estate';
+  }
+  openModal('lead-modal');
+}
+
+function saveLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  if (!name) { toast('Lead name is required','error'); return; }
+  const data = getData(); if (!data.leads) data.leads = [];
+  const id = document.getElementById('lead-id').value;
+  const lead = {
+    id: id || uid(), name,
+    stage: document.getElementById('lead-stage').value,
+    email: document.getElementById('lead-email').value.trim(),
+    phone: document.getElementById('lead-phone').value.trim(),
+    type: document.getElementById('lead-type').value,
+    value: parseFloat(document.getElementById('lead-value').value)||0,
+    notes: document.getElementById('lead-notes').value.trim(),
+    createdAt: id ? ((data.leads.find(l=>l.id===id)||{}).createdAt||Date.now()) : Date.now()
+  };
+  if (id) { const idx=data.leads.findIndex(l=>l.id===id); if(idx>=0) data.leads[idx]=lead; }
+  else { data.leads.unshift(lead); }
+  saveData(data); closeModal('lead-modal'); renderLeads(); toast(id?'Lead updated':'Lead added');
+}
+
+function advanceLead(id) {
+  const data = getData(); if (!data.leads) return;
+  const stages = ['new','contacted','quoted','booked','lost'];
+  const lead = data.leads.find(l=>l.id===id); if (!lead) return;
+  const idx = stages.indexOf(lead.stage);
+  if (idx < stages.length-2) { lead.stage = stages[idx+1]; saveData(data); renderLeads(); toast('Lead advanced to '+lead.stage); }
+}
+
+function deleteLead(id) {
+  confirmDelete('Delete this lead?', () => {
+    const data = getData(); data.leads = (data.leads||[]).filter(l=>l.id!==id);
+    saveData(data); renderLeads(); toast('Lead deleted');
+  });
+}
+
+function leadStageBadge(stage) {
+  return `<span class="ls-badge ls-${stage||'new'}">${stage||'new'}</span>`;
+}
+
+function renderLeads() {
+  const data = getData(); const leads = data.leads || [];
+  const search = (document.getElementById('lead-search')?.value||'').toLowerCase();
+  const stageF = document.getElementById('lead-stage-filter')?.value||'';
+  const filtered = leads.filter(l =>
+    (!search || l.name.toLowerCase().includes(search) || (l.email||'').toLowerCase().includes(search) || (l.notes||'').toLowerCase().includes(search))
+    && (!stageF || l.stage===stageF)
+  );
+  const list = document.getElementById('leads-list');
+  const empty = document.getElementById('leads-empty');
+  if (!filtered.length) { list.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  list.innerHTML = filtered.map(l => `
+    <div class="lead-card">
+      <div>${leadStageBadge(l.stage)}</div>
+      <div class="lead-card-info">
+        <div class="lead-card-name">${esc(l.name)}</div>
+        <div class="lead-card-meta">${l.type||''}${l.email?' · '+esc(l.email):''}${l.value?' · Est. $'+l.value:''}</div>
+      </div>
+      <div class="lead-card-actions">
+        <button class="btn btn-secondary btn-sm" onclick="showLeadAiMenu('${l.id}',this)">🤖 AI</button>
+        <button class="btn btn-secondary btn-sm" onclick="advanceLead('${l.id}')">→ Advance</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openLeadModal('${l.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteLead('${l.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── EXPENSES CRUD ──
+function openExpenseModal(id) {
+  const data = getData();
+  const sel = document.getElementById('expense-project');
+  sel.innerHTML = '<option value="">None</option>' + data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  if (id) {
+    const exp = (data.expenses||[]).find(e=>e.id===id); if(!exp) return;
+    document.getElementById('expense-modal-title').textContent = 'Edit Expense';
+    document.getElementById('expense-id').value = exp.id;
+    document.getElementById('expense-desc').value = exp.description||'';
+    document.getElementById('expense-amount').value = exp.amount||'';
+    document.getElementById('expense-category').value = exp.category||'other';
+    document.getElementById('expense-date').value = exp.date||'';
+    document.getElementById('expense-project').value = exp.projectId||'';
+  } else {
+    document.getElementById('expense-modal-title').textContent = 'Log Expense';
+    document.getElementById('expense-id').value = '';
+    ['expense-desc','expense-amount'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('expense-category').value = 'gear';
+    document.getElementById('expense-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('expense-project').value = '';
+  }
+  openModal('expense-modal');
+}
+
+function openTimeModal() {
+  const data = getData();
+  const sel = document.getElementById('tlog-project');
+  sel.innerHTML = '<option value="">None</option>' + data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  document.getElementById('tlog-id').value = '';
+  document.getElementById('tlog-date').value = new Date().toISOString().slice(0,10);
+  ['tlog-hours','tlog-minutes','tlog-desc'].forEach(i=>document.getElementById(i).value='');
+  openModal('time-log-modal');
+}
+
+function saveExpense() {
+  const desc = document.getElementById('expense-desc').value.trim();
+  const amount = parseFloat(document.getElementById('expense-amount').value);
+  if (!desc) { toast('Description is required','error'); return; }
+  if (!amount || amount<=0) { toast('Valid amount is required','error'); return; }
+  const data = getData(); if (!data.expenses) data.expenses = [];
+  const id = document.getElementById('expense-id').value;
+  const exp = {
+    id: id||uid(), description: desc, amount,
+    category: document.getElementById('expense-category').value,
+    date: document.getElementById('expense-date').value,
+    projectId: document.getElementById('expense-project').value,
+    createdAt: id?((data.expenses.find(e=>e.id===id)||{}).createdAt||Date.now()):Date.now()
+  };
+  if (id) { const idx=data.expenses.findIndex(e=>e.id===id); if(idx>=0) data.expenses[idx]=exp; }
+  else { data.expenses.unshift(exp); }
+  saveData(data); closeModal('expense-modal'); renderExpenses(); toast(id?'Expense updated':'Expense logged');
+}
+
+function deleteExpense(id) {
+  confirmDelete('Delete this expense?', () => {
+    const data = getData(); data.expenses=(data.expenses||[]).filter(e=>e.id!==id);
+    saveData(data); renderExpenses(); toast('Expense deleted');
+  });
+}
+
+function renderExpenses() {
+  const data = getData(); const expenses = data.expenses||[];
+  const search = (document.getElementById('expense-search')?.value||'').toLowerCase();
+  const catF = document.getElementById('expense-cat-filter')?.value||'';
+  const filtered = expenses.filter(e=>
+    (!search||(e.description||'').toLowerCase().includes(search))
+    && (!catF||e.category===catF)
+  ).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const tbody = document.getElementById('expenses-tbody');
+  const empty = document.getElementById('expenses-empty');
+  const total = filtered.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+  const kpis = document.getElementById('expenses-kpis');
+  if (kpis) kpis.innerHTML = [
+    {label:'Total Expenses',value:fmtCurrency(expenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0))},
+    {label:'Filtered Total',value:fmtCurrency(total)},
+    {label:'# Entries',value:filtered.length}
+  ].map(k=>`<div class="stat-card"><div class="stat-label">${k.label}</div><div class="stat-value" style="font-size:1.4rem">${k.value}</div></div>`).join('');
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  tbody.innerHTML = filtered.map(e=>`<tr>
+    <td>${fmtDate(e.date)}</td>
+    <td>${esc(e.description)}</td>
+    <td><span class="exp-cat">${e.category||'other'}</span></td>
+    <td>${e.projectId?esc(projectName(e.projectId)):'<span class="text-muted">—</span>'}</td>
+    <td style="font-weight:600">${fmtCurrency(e.amount)}</td>
+    <td><div class="table-actions">
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="openExpenseModal('${e.id}')">✏️</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteExpense('${e.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ── TIME TRACKING ──
+let timerInterval = null;
+let timerStartTs = null;
+
+function startTimer() {
+  if (timerInterval) return;
+  timerStartTs = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now()-timerStartTs)/1000);
+    const h=Math.floor(elapsed/3600), m=Math.floor((elapsed%3600)/60), s=elapsed%60;
+    document.getElementById('timer-display').textContent =
+      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }, 1000);
+  document.getElementById('timer-start-btn').style.display='none';
+  document.getElementById('timer-stop-btn').style.display='';
+  toast('Timer started');
+}
+
+function stopTimer() {
+  if (!timerInterval) return;
+  clearInterval(timerInterval); timerInterval=null;
+  const elapsed = Math.floor((Date.now()-timerStartTs)/1000);
+  const minutes = Math.round(elapsed/60);
+  const data = getData(); if(!data.timeLogs) data.timeLogs=[];
+  const log = {
+    id: uid(),
+    projectId: document.getElementById('timer-project').value,
+    description: document.getElementById('timer-desc').value.trim()||'Timer session',
+    minutes, date: new Date().toISOString().slice(0,10), createdAt: Date.now()
+  };
+  data.timeLogs.unshift(log); saveData(data);
+  document.getElementById('timer-display').textContent='00:00:00';
+  document.getElementById('timer-start-btn').style.display='';
+  document.getElementById('timer-stop-btn').style.display='none';
+  document.getElementById('timer-desc').value='';
+  timerStartTs=null;
+  renderTimeLogs(); toast('Time logged: '+fmtMinutes(minutes));
+}
+
+function saveTimeLog() {
+  const hours = parseInt(document.getElementById('tlog-hours').value)||0;
+  const mins = parseInt(document.getElementById('tlog-minutes').value)||0;
+  const minutes = hours*60+mins;
+  if (minutes<=0) { toast('Enter at least 1 minute','error'); return; }
+  const data = getData(); if(!data.timeLogs) data.timeLogs=[];
+  const id = document.getElementById('tlog-id').value;
+  const log = {
+    id: id||uid(),
+    projectId: document.getElementById('tlog-project').value,
+    description: document.getElementById('tlog-desc').value.trim()||'Manual entry',
+    minutes, date: document.getElementById('tlog-date').value,
+    createdAt: id?((data.timeLogs.find(l=>l.id===id)||{}).createdAt||Date.now()):Date.now()
+  };
+  if (id) { const idx=data.timeLogs.findIndex(l=>l.id===id); if(idx>=0) data.timeLogs[idx]=log; }
+  else { data.timeLogs.unshift(log); }
+  saveData(data); closeModal('time-log-modal'); renderTimeLogs(); toast('Time logged');
+}
+
+function deleteTimeLog(id) {
+  confirmDelete('Delete this time entry?', () => {
+    const data = getData(); data.timeLogs=(data.timeLogs||[]).filter(l=>l.id!==id);
+    saveData(data); renderTimeLogs(); toast('Entry deleted');
+  });
+}
+
+function fmtMinutes(m) {
+  const h=Math.floor(m/60), min=m%60;
+  return h>0 ? h+'h '+(min>0?min+'m':'') : min+'m';
+}
+
+function renderTimeView() {
+  const data = getData();
+  const projSel = document.getElementById('timer-project');
+  const filterSel = document.getElementById('time-project-filter');
+  const opts = '<option value="">None</option>'+data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  if(projSel) projSel.innerHTML = opts;
+  if(filterSel) filterSel.innerHTML = '<option value="">All Projects</option>'+data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  const logs = data.timeLogs||[];
+  const totalMins = logs.reduce((s,l)=>s+(parseFloat(l.minutes)||0),0);
+  const kpis = document.getElementById('time-kpis');
+  if(kpis) kpis.innerHTML = [
+    {label:'Total Hours',value:fmtMinutes(totalMins)},
+    {label:'Sessions',value:logs.length},
+    {label:'Projects Tracked',value:[...new Set(logs.filter(l=>l.projectId).map(l=>l.projectId))].length}
+  ].map(k=>`<div class="stat-card"><div class="stat-label">${k.label}</div><div class="stat-value" style="font-size:1.4rem">${k.value}</div></div>`).join('');
+  renderTimeLogs();
+}
+
+function renderTimeLogs() {
+  const data = getData(); const logs = data.timeLogs||[];
+  const projF = document.getElementById('time-project-filter')?.value||'';
+  const filtered = logs.filter(l=>!projF||l.projectId===projF).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const tbody = document.getElementById('time-tbody');
+  const empty = document.getElementById('time-empty');
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  tbody.innerHTML=filtered.map(l=>`<tr>
+    <td>${fmtDate(l.date)}</td>
+    <td>${l.projectId?esc(projectName(l.projectId)):'<span class="text-muted">General</span>'}</td>
+    <td>${esc(l.description)}</td>
+    <td style="font-weight:600">${fmtMinutes(l.minutes)}</td>
+    <td><div class="table-actions">
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteTimeLog('${l.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ── CONTRACTS ──
+const CONTRACT_TEMPLATE = `PHOTOGRAPHY SERVICES AGREEMENT
+
+This Agreement is entered into between {businessName} ("Photographer") and {clientName} ("Client") for the following services:
+
+PROJECT: {projectName}
+DATE: {date}
+INVESTMENT: {amount}
+
+1. SERVICES
+Photographer agrees to provide photography services as described above.
+
+2. PAYMENT
+A 50% deposit is due upon signing. The remaining balance is due upon delivery of final images. A late fee of 5% per week applies after 14 days.
+
+3. IMAGE DELIVERY
+Edited images will be delivered within 4 weeks of the shoot via online gallery.
+
+4. CANCELLATION
+Client must provide 72 hours notice to cancel or reschedule. The deposit is non-refundable after 48 hours of booking.
+
+5. COPYRIGHT
+Photographer retains copyright of all images. Client receives a personal-use license.
+
+6. LIABILITY
+Photographer's liability is limited to the amount paid for services.
+
+PHOTOGRAPHER SIGNATURE: ____________________  DATE: ________
+
+CLIENT SIGNATURE: ____________________  DATE: ________`;
+
+function insertContractTemplate() {
+  const data = getData(); const s = data.settings;
+  const clientId = document.getElementById('contract-client').value;
+  const projId = document.getElementById('contract-project').value;
+  const client = data.clients.find(c=>c.id===clientId);
+  const proj = data.projects.find(p=>p.id===projId);
+  let body = CONTRACT_TEMPLATE
+    .replace(/{businessName}/g, s.businessName||'Photographer')
+    .replace(/{clientName}/g, client?client.name:'{clientName}')
+    .replace(/{projectName}/g, proj?proj.name:'{projectName}')
+    .replace(/{amount}/g, proj&&proj.amount?'$'+proj.amount:'{amount}')
+    .replace(/{date}/g, proj&&proj.shootDate?proj.shootDate:'{date}');
+  document.getElementById('contract-body').value = body;
+}
+
+function openContractModal(id) {
+  const data = getData();
+  document.getElementById('contract-client').innerHTML = '<option value="">Select client...</option>'+data.clients.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  document.getElementById('contract-project').innerHTML = '<option value="">None</option>'+data.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  if (id) {
+    const contract = (data.contracts||[]).find(c=>c.id===id); if(!contract) return;
+    document.getElementById('contract-modal-title').textContent='Edit Contract';
+    document.getElementById('contract-id').value=contract.id;
+    document.getElementById('contract-name').value=contract.name||'';
+    document.getElementById('contract-client').value=contract.clientId||'';
+    document.getElementById('contract-project').value=contract.projectId||'';
+    document.getElementById('contract-body').value=contract.body||'';
+  } else {
+    document.getElementById('contract-modal-title').textContent='New Contract';
+    document.getElementById('contract-id').value='';
+    ['contract-name','contract-body'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('contract-client').value='';
+    document.getElementById('contract-project').value='';
+  }
+  openModal('contract-modal');
+}
+
+function saveContract() {
+  const name = document.getElementById('contract-name').value.trim();
+  if (!name) { toast('Contract name is required','error'); return; }
+  const data = getData(); if(!data.contracts) data.contracts=[];
+  const id = document.getElementById('contract-id').value;
+  const contract = {
+    id: id||uid(), name,
+    clientId: document.getElementById('contract-client').value,
+    projectId: document.getElementById('contract-project').value,
+    body: document.getElementById('contract-body').value.trim(),
+    status: id?((data.contracts.find(c=>c.id===id)||{}).status||'draft'):'draft',
+    token: id?((data.contracts.find(c=>c.id===id)||{}).token||secureToken()):secureToken(),
+    createdAt: id?((data.contracts.find(c=>c.id===id)||{}).createdAt||Date.now()):Date.now()
+  };
+  if (id) { const idx=data.contracts.findIndex(c=>c.id===id); if(idx>=0) data.contracts[idx]=contract; }
+  else { data.contracts.unshift(contract); }
+  if (!data.contractCounter) data.contractCounter=1; else data.contractCounter++;
+  saveData(data); closeModal('contract-modal'); renderContracts(); toast(id?'Contract updated':'Contract created');
+}
+
+function deleteContract(id) {
+  confirmDelete('Delete this contract?', () => {
+    const data = getData(); data.contracts=(data.contracts||[]).filter(c=>c.id!==id);
+    saveData(data); renderContracts(); toast('Contract deleted');
+  });
+}
+
+function shareContractLink(id) {
+  const data = getData(); const contract = (data.contracts||[]).find(c=>c.id===id); if(!contract) return;
+  const url = window.location.href.split('#')[0]+'#contract/'+contract.token;
+  navigator.clipboard.writeText(url).then(()=>toast('Contract link copied!'));
+}
+
+function renderContracts() {
+  const data = getData(); const contracts = data.contracts||[];
+  const tbody = document.getElementById('contracts-tbody');
+  const empty = document.getElementById('contracts-empty');
+  if (!contracts.length) { tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  tbody.innerHTML=contracts.map(c=>`<tr>
+    <td><div style="font-weight:600">${esc(c.name)}</div></td>
+    <td>${c.clientId?esc(clientName(c.clientId)):'<span class="text-muted">—</span>'}</td>
+    <td>${c.projectId?esc(projectName(c.projectId)):'<span class="text-muted">—</span>'}</td>
+    <td>${fmtDate(c.createdAt?new Date(c.createdAt).toISOString().slice(0,10):'')}</td>
+    <td>${statusBadge(c.status||'draft')}</td>
+    <td><div class="table-actions">
+      <button class="btn btn-secondary btn-sm" onclick="shareContractLink('${c.id}')">🔗 Share</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="openContractModal('${c.id}')">✏️</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteContract('${c.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function showContractPage(token) {
+  const data = getData(); const contract = (data.contracts||[]).find(c=>c.token===token);
+  const screen = document.getElementById('contract-screen');
+  if (!screen) return;
+  screen.classList.remove('hidden');
+  document.querySelector('.sidebar') && (document.querySelector('.sidebar').style.display='none');
+  document.querySelector('.main') && (document.querySelector('.main').style.display='none');
+  if (!contract) { screen.innerHTML='<div style="color:#CBD5E1;text-align:center;padding:60px">Contract not found.</div>'; return; }
+  const s = data.settings; const client = data.clients.find(c=>c.id===contract.clientId);
+  document.getElementById('contract-inner').innerHTML = `
+    <div class="contract-hero">
+      <div style="color:rgba(255,255,255,0.8);font-size:0.8rem;margin-bottom:8px">${esc(s.businessName||'ShootFlow')}</div>
+      <div style="color:white;font-size:1.6rem;font-weight:800;margin-bottom:4px">${esc(contract.name)}</div>
+      ${client?`<div style="color:rgba(255,255,255,0.75);font-size:0.9rem">Prepared for ${esc(client.name)}</div>`:''}
+    </div>
+    <div class="contract-body-text">${esc(contract.body)}</div>
+    <div class="contract-sign-box">
+      ${contract.status==='signed'
+        ? `<div style="color:#4ADE80;font-weight:700;font-size:1rem">✅ Signed by ${esc(contract.signedBy||'Client')} on ${contract.signedAt?new Date(contract.signedAt).toLocaleDateString():''}</div>`
+        : `<div style="margin-bottom:12px;color:#94A3B8;font-size:0.85rem">By typing your name below and clicking Sign, you agree to the terms above.</div>
+           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+             <input class="form-control" id="contract-sig-name" placeholder="Type your full name to sign" style="flex:1;min-width:200px;background:#0F172A;border-color:#334155;color:#F1F5F9">
+             <button class="btn btn-primary" onclick="clientSignContract('${contract.token}')">✍️ Sign Contract</button>
+           </div>`
+      }
+    </div>`;
+}
+
+function clientSignContract(token) {
+  const name = (document.getElementById('contract-sig-name')?.value||'').trim();
+  if (!name) { toast('Please type your full name to sign','error'); return; }
+  const data = getData(); const contract = (data.contracts||[]).find(c=>c.token===token); if(!contract) return;
+  contract.status='signed'; contract.signedBy=name; contract.signedAt=Date.now();
+  saveData(data); showContractPage(token); toast('Contract signed!');
+}
+
+function showClientQuotePage(token) { toast('Quote page: '+token,'info'); }
+function showClientPortal(token) { toast('Client portal: '+token,'info'); }
+function renderPackagesList() {}
+function openPackageModal() { toast('Packages feature coming soon','info'); }
+
 // ── INIT ──
 async function init() {
   await ensureFounderAccount();
@@ -2423,6 +3390,9 @@ async function init() {
     checkDeliveryHash();
     return;
   }
+  if (window.location.hash.startsWith('#quote/'))          { document.getElementById('auth-screen').classList.add('hidden'); showClientQuotePage(window.location.hash.slice(7)); return; }
+  if (window.location.hash.startsWith('#client-portal/'))  { document.getElementById('auth-screen').classList.add('hidden'); showClientPortal(window.location.hash.slice(15)); return; }
+  if (window.location.hash.startsWith('#contract/'))       { document.getElementById('auth-screen').classList.add('hidden'); showContractPage(window.location.hash.slice(10)); return; }
   const session = getSession();
   if (session) {
     document.getElementById('auth-screen').classList.add('hidden');
@@ -2434,56 +3404,39 @@ async function init() {
     setTimeout(() => { const el = document.getElementById('si-email'); if(el) el.focus(); }, 100);
   }
   window.addEventListener('hashchange', () => {
-    if (window.location.hash.startsWith('#schedule/')) {
+    const h = window.location.hash;
+    if (h.startsWith('#schedule/')) {
       document.getElementById('auth-screen').classList.add('hidden');
       checkScheduleHash();
-    } else if (window.location.hash.startsWith('#deliver/')) {
+    } else if (h.startsWith('#deliver/')) {
       document.getElementById('auth-screen').classList.add('hidden');
       checkDeliveryHash();
-    }
+    } else if (h.startsWith('#quote/'))          { document.getElementById('auth-screen').classList.add('hidden'); showClientQuotePage(h.slice(7)); }
+    else if (h.startsWith('#client-portal/'))  { document.getElementById('auth-screen').classList.add('hidden'); showClientPortal(h.slice(15)); }
+    else if (h.startsWith('#contract/'))       { document.getElementById('auth-screen').classList.add('hidden'); showContractPage(h.slice(10)); }
   });
   setInterval(() => { updateAutosaveChip(); }, 60000);
 }
 init();
 
-// ── AI ASSISTANT ──────────────────────────────────────────────────
-const AI_KEY_STORE = 'sf_ai_key_v1';
-
-function getAiKey() { return localStorage.getItem(AI_KEY_STORE) || ''; }
-
+// ── AI ASSISTANT (legacy save/test wrappers) ──────────────────────
 function saveAiKey() {
   const key = document.getElementById('s-ai-key').value.trim();
-  if (!key) { setAiKeyStatus('Key cleared.', 'var(--text-muted)'); localStorage.removeItem(AI_KEY_STORE); return; }
-  if (!key.startsWith('sk-ant-')) { setAiKeyStatus('That does not look like an Anthropic key. It should start with sk-ant-', 'var(--danger)'); return; }
-  localStorage.setItem(AI_KEY_STORE, key);
-  setAiKeyStatus('Key saved to this device.', 'var(--success)');
+  if (!key) { localStorage.removeItem(AI_KEY_STORAGE); toast('API key cleared'); return; }
+  if (!key.startsWith('sk-ant-')) { toast('Key should start with sk-ant-', 'error'); return; }
+  localStorage.setItem(AI_KEY_STORAGE, key);
   toast('AI key saved');
-}
-
-function setAiKeyStatus(msg, color) {
-  const el = document.getElementById('ai-key-status');
-  if (el) { el.textContent = msg; el.style.color = color; }
 }
 
 async function testAiKey() {
   const key = document.getElementById('s-ai-key').value.trim() || getAiKey();
-  if (!key) { setAiKeyStatus('Enter a key first.', 'var(--danger)'); return; }
-  const btn = document.getElementById('ai-test-btn');
-  btn.disabled = true; btn.textContent = 'Testing...';
-  setAiKeyStatus('Connecting to Anthropic...', 'var(--text-muted)');
+  if (!key) { toast('Enter a key first', 'error'); return; }
+  toast('Testing connection...', 'info');
   try {
     const result = await askClaude('Reply with exactly: OK', key);
-    if (result) {
-      setAiKeyStatus('Key works! AI features are active.', 'var(--success)');
-      localStorage.setItem(AI_KEY_STORE, key);
-      toast('AI key verified');
-    } else {
-      setAiKeyStatus('Key test failed — check the key and try again.', 'var(--danger)');
-    }
-  } catch(e) {
-    setAiKeyStatus('Error: ' + e.message, 'var(--danger)');
-  }
-  btn.disabled = false; btn.textContent = 'Test Key';
+    if (result) { localStorage.setItem(AI_KEY_STORAGE, key); toast('AI key works!'); }
+    else { toast('Key test failed', 'error'); }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function askClaude(prompt, keyOverride) {
@@ -2514,25 +3467,8 @@ async function askClaude(prompt, keyOverride) {
   return data.content?.[0]?.text ?? null;
 }
 
-// ── AI OUTPUT MODAL ──────────────────────────────────────────────
-function showAiModal(title, content, onUse) {
-  document.getElementById('ai-modal-title').textContent = title;
-  const body = document.getElementById('ai-modal-body');
-  body.value = content;
-  const useBtn = document.getElementById('ai-modal-use-btn');
-  if (onUse) {
-    useBtn.style.display = '';
-    useBtn.onclick = () => { onUse(body.value); closeModal('ai-modal'); };
-  } else {
-    useBtn.style.display = 'none';
-  }
-  openModal('ai-modal');
-}
-
-function copyAiOutput() {
-  const text = document.getElementById('ai-modal-body').value;
-  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard'));
-}
+// ── AI OUTPUT (legacy compat) ─────────────────────────────────────
+function copyAiOutput() { copyAiResult(); }
 
 // ── AI DRAFT: CONTRACT ───────────────────────────────────────────
 async function aiDraftContract() {
@@ -2546,45 +3482,17 @@ async function aiDraftContract() {
   const settings = data.settings;
   const client = data.clients.find(c => c.id === clientId);
   const clientNameStr = client ? client.name : 'Client';
-
   if (!name) { toast('Fill in the project name first', 'error'); return; }
-
   const btn = document.getElementById('ai-contract-btn');
   btn.disabled = true; btn.textContent = '✨ Drafting...';
-
-  const prompt = `Write a professional photography services contract for the following job:
-
-Photographer / Business: ${settings.businessName || 'Photographer'}
-Photographer Contact: ${settings.email || ''}
-Client Name: ${clientNameStr}
-Project / Event: ${name}
-Shoot Type: ${type}
-Shoot Date: ${date || 'TBD'}
-Location: ${location || 'TBD'}
-Total Fee: ${amount ? '$' + parseFloat(amount).toFixed(2) : 'TBD'}
-
-Include these sections:
-1. Services — describe what is covered for this shoot type
-2. Payment — 50% deposit due on signing, remainder due on delivery; mention late fee after 14 days
-3. Image Delivery — final edited images delivered within 4 weeks via online gallery
-4. Cancellation Policy — 72-hour notice required; deposit non-refundable after 48 hours
-5. Copyright & Usage — photographer retains copyright; client receives personal-use license
-6. Liability — photographer liability limited to fee paid
-7. Signatures — two signature lines (Photographer and Client) with date
-
-Write in plain, professional English. No legal jargon. Keep it concise but complete. Do not include any placeholder brackets — use the actual information provided above.`;
-
+  showAiModal('AI Draft Contract', (text) => {
+    const notes = document.getElementById('project-notes');
+    if (notes) { notes.value = text; toast('Contract added to project notes'); }
+  });
   try {
-    const result = await askClaude(prompt);
-    if (result) {
-      showAiModal('AI Draft Contract', result, (text) => {
-        const notes = document.getElementById('project-notes');
-        if (notes) { notes.value = text; toast('Contract added to project notes'); }
-      });
-    }
-  } catch(e) {
-    toast('AI error: ' + e.message, 'error');
-  }
+    const result = await askClaude(`Write a professional photography services contract.\nBusiness: ${settings.businessName||'Photographer'}\nClient: ${clientNameStr}\nProject: ${name}\nType: ${type}\nDate: ${date||'TBD'}\nLocation: ${location||'TBD'}\nFee: ${amount?'$'+parseFloat(amount).toFixed(2):'TBD'}\n\nSections: Services, Payment (50% deposit, remainder on delivery, late fee after 14 days), Image Delivery (4 weeks), Cancellation (72hr notice, deposit non-refundable after 48hr), Copyright (photographer retains, client gets personal-use license), Liability (limited to fee paid), Signatures. Plain English, concise.`);
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
   btn.disabled = false; btn.textContent = '✨ Draft Contract';
 }
 
@@ -2596,32 +3504,14 @@ async function aiDraftEmail(clientId) {
   const settings = data.settings;
   const projects = data.projects.filter(p => p.clientId === clientId);
   const lastProject = projects.sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
-
   const btn = document.getElementById('ai-email-btn-' + clientId);
   if (btn) { btn.disabled = true; btn.textContent = '✨ Writing...'; }
-
-  const prompt = `Write a short, friendly and professional follow-up email from a photographer to a client.
-
-Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
-Business: ${settings.businessName || ''}
-Client Name: ${client.name}
-${lastProject ? 'Last shoot: ' + lastProject.name + ' (' + lastProject.type + ')' + (lastProject.date ? ' on ' + lastProject.date : '') : 'No previous shoots on record.'}
-${client.notes ? 'Client notes: ' + client.notes : ''}
-
-Goals: Check in, express appreciation, ask if they need anything, and gently invite them to book again or refer a friend.
-Tone: Warm, personal, not salesy.
-Length: 4-6 sentences. Sign off with the photographer name.
-Do not use placeholder text — write the actual email.`;
-
+  showAiModal('AI Draft Email — ' + client.name);
   try {
-    const result = await askClaude(prompt);
-    if (result) {
-      showAiModal('AI Draft Email — ' + client.name, result, null);
-    }
-  } catch(e) {
-    toast('AI error: ' + e.message, 'error');
-  }
-  if (btn) { btn.disabled = false; btn.textContent = '✨ Draft Email'; }
+    const result = await askClaude(`Write a short, friendly follow-up email from a photographer to a client.\nPhotographer: ${settings.ownerName||settings.businessName||'Photographer'}\nClient: ${client.name}\n${lastProject?'Last shoot: '+lastProject.name+' ('+lastProject.type+')'+(lastProject.date?' on '+lastProject.date:''):'No previous shoots.'}\n${client.notes?'Notes: '+client.notes:''}\nGoals: check in, express appreciation, invite to rebook or refer. Warm, not salesy. 4-6 sentences.`);
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
+  if (btn) { btn.disabled = false; btn.textContent = '✨ Email'; }
 }
 
 // ── AI DRAFT: INVOICE NOTES ──────────────────────────────────────
@@ -2632,36 +3522,16 @@ async function aiDraftInvoiceNotes() {
   const client = data.clients.find(c => c.id === clientId);
   const proj = data.projects.find(p => p.id === projId);
   const settings = data.settings;
-
   const btn = document.getElementById('ai-inv-notes-btn');
   btn.disabled = true; btn.textContent = '✨ Writing...';
-
-  const prompt = `Write a short, professional invoice note / thank-you message for a photography invoice.
-
-Photographer: ${settings.ownerName || settings.businessName || 'Photographer'}
-Client: ${client ? client.name : 'Valued Client'}
-Project: ${proj ? proj.name + ' (' + proj.type + ')' : 'Photography Services'}
-${proj && proj.date ? 'Shoot Date: ' + proj.date : ''}
-
-Write 2-3 sentences that:
-- Thank the client for choosing the photographer
-- Briefly note what the invoice covers
-- Mention the payment terms (e.g., due within 14 days)
-- Optionally invite them to reach out with questions
-
-Keep it warm and professional. No brackets or placeholders.`;
-
+  showAiModal('AI Invoice Note', (text) => {
+    const notes = document.getElementById('invoice-notes');
+    if (notes) { notes.value = text; toast('Note added to invoice'); }
+  });
   try {
-    const result = await askClaude(prompt);
-    if (result) {
-      showAiModal('AI Invoice Note', result, (text) => {
-        const notes = document.getElementById('invoice-notes');
-        if (notes) { notes.value = text; toast('Note added to invoice'); }
-      });
-    }
-  } catch(e) {
-    toast('AI error: ' + e.message, 'error');
-  }
+    const result = await askClaude(`Write a short professional invoice note for a photography invoice.\nPhotographer: ${settings.ownerName||settings.businessName||'Photographer'}\nClient: ${client?client.name:'Valued Client'}\nProject: ${proj?proj.name+' ('+proj.type+')':'Photography Services'}\n${proj&&proj.date?'Date: '+proj.date:''}\n2-3 sentences: thank client, note what invoice covers, mention payment terms. Warm, professional.`);
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
   btn.disabled = false; btn.textContent = '✨ Draft Note';
 }
 
@@ -2679,6 +3549,7 @@ async function aiWeeklyBriefing() {
 
   const btn = event.target;
   btn.disabled = true; btn.textContent = '⏳ Generating...';
+  showAiModal('Weekly Business Briefing');
 
   const prompt = `You are a business assistant for a photography business called "${settings.businessName || 'this photography business'}".
 
@@ -2703,8 +3574,8 @@ Keep it under 200 words. Tone: professional but warm, like a trusted assistant.`
 
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Weekly Business Briefing', result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
   btn.disabled = false; btn.textContent = '📋 Weekly Briefing';
 }
 
@@ -2734,13 +3605,14 @@ Generate a practical checklist with these sections:
 
 Be specific and practical. For a real estate shoot the list looks very different from a wedding. Use the shoot type and notes to tailor it.`;
 
+  showAiModal('Shoot Prep Checklist — ' + p.name, (text) => {
+    const notes = document.getElementById('project-notes');
+    if (notes) { notes.value = (notes.value ? notes.value + '\n\n---\n' : '') + text; toast('Checklist added to project notes'); }
+  });
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Shoot Prep Checklist — ' + p.name, result, (text) => {
-      const notes = document.getElementById('project-notes');
-      if (notes) { notes.value = (notes.value ? notes.value + '\n\n---\n' : '') + text; toast('Checklist added to project notes'); }
-    });
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: CLIENT INTAKE QUESTIONNAIRE ─────────────────────────────
@@ -2767,10 +3639,11 @@ Write 8-12 questions tailored specifically to this shoot type. For example:
 
 Format as a friendly email with a brief intro, numbered questions, and a warm sign-off. Sign with the photographer name.`;
 
+  showAiModal('Client Intake — ' + (client ? client.name : p.name));
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Client Intake — ' + (client ? client.name : p.name), result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: DELIVERY MESSAGE ─────────────────────────────────────────
@@ -2801,10 +3674,11 @@ The email should:
 
 Tone: enthusiastic, personal, not generic. Under 150 words.`;
 
+  showAiModal('Delivery Message — ' + p.name);
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Delivery Message — ' + p.name, result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: OVERDUE INVOICE NUDGE ────────────────────────────────────
@@ -2832,10 +3706,11 @@ Include:
 
 Keep it under 100 words.`;
 
+  showAiModal('Payment Reminder — ' + inv.invoiceNumber);
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Payment Reminder — ' + inv.invoiceNumber, result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: TESTIMONIAL REQUEST ──────────────────────────────────────
@@ -2863,10 +3738,11 @@ The message should:
 - Be warm and conversational, not pushy
 - Under 120 words`;
 
+  showAiModal('Testimonial Request — ' + p.name);
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Testimonial Request — ' + p.name, result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: PRICING SUGGESTION ───────────────────────────────────────
@@ -2910,10 +3786,11 @@ Provide:
 
 Be direct and specific. This is business advice, not generic tips. Under 300 words.`;
 
+  showAiModal('Pricing Analysis');
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Pricing Analysis', result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
   btn.disabled = false; btn.textContent = '💡 Pricing Analysis';
 }
 
@@ -2953,10 +3830,11 @@ Write a 3-4 sentence professional summary covering:
 
 Tone: like a CRM assistant briefing a salesperson.`;
 
+  showAiModal('Client Profile — ' + client.name);
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Client Profile — ' + client.name, result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: SOCIAL MEDIA CAPTION ─────────────────────────────────────
@@ -2983,10 +3861,11 @@ Write 3 caption options:
 Each caption should include 8-12 relevant hashtags at the end.
 Tone: authentic, not corporate. Real photographer voice.`;
 
+  showAiModal('Social Captions — ' + p.name);
   try {
     const result = await askClaude(prompt);
-    if (result) showAiModal('Social Captions — ' + p.name, result, null);
-  } catch(e) { toast('AI error: ' + e.message, 'error'); }
+    if (result) showAiResult(result); else showAiError('No result returned.');
+  } catch(e) { showAiError(e.message); }
 }
 
 // ── AI: PHOTOGRAPHER BIO ─────────────────────────────────────────
@@ -3025,32 +3904,125 @@ Both should sound human, not generic. Emphasize the specialty shoot types. If lo
 const _origLoadSettings = loadSettings;
 loadSettings = function() {
   _origLoadSettings();
-  const key = getAiKey();
-  const el = document.getElementById('s-ai-key');
-  if (el && key) {
-    el.value = key;
-    setAiKeyStatus('Key loaded from this device.', 'var(--success)');
-  }
+  loadAiKeyIntoSettings();
+  renderPackagesList();
 };
 </script>
 
-<!-- AI OUTPUT MODAL -->
+<!-- LEAD MODAL -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="lead-modal-title">New Lead</div><button class="modal-close" onclick="closeModal('lead-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="lead-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name <span>*</span></label><input class="form-control" id="lead-name" placeholder="Contact name or company"></div>
+        <div class="form-group"><label class="form-label">Stage</label><select class="form-control" id="lead-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="quoted">Quoted</option><option value="booked">Booked</option><option value="lost">Lost</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="lead-email" type="email" placeholder="lead@email.com"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="lead-phone" placeholder="(555) 000-0000"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Job Type</label><select class="form-control" id="lead-type"><option value="real-estate">Real Estate</option><option value="wedding">Wedding</option><option value="portrait">Portrait</option><option value="commercial">Commercial</option><option value="event">Event</option><option value="video">Video</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label class="form-label">Est. Value ($)</label><input class="form-control" id="lead-value" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="lead-notes" placeholder="Source, requirements, follow-up notes..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('lead-modal')">Cancel</button><button class="btn btn-primary" onclick="saveLead()">Save Lead</button></div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="expense-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="expense-modal-title">Log Expense</div><button class="modal-close" onclick="closeModal('expense-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="expense-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Description <span>*</span></label><input class="form-control" id="expense-desc" placeholder="e.g. Memory cards, travel mileage"></div>
+        <div class="form-group"><label class="form-label">Amount ($) <span>*</span></label><input class="form-control" id="expense-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-control" id="expense-category"><option value="gear">Gear</option><option value="travel">Travel</option><option value="software">Software</option><option value="marketing">Marketing</option><option value="education">Education</option><option value="meals">Meals</option><option value="office">Office</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-control" id="expense-date" type="date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Linked Project (optional)</label><select class="form-control" id="expense-project"><option value="">None</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('expense-modal')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save Expense</button></div>
+  </div>
+</div>
+
+<!-- TIME LOG MODAL -->
+<div class="modal-overlay" id="time-log-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Log Time Manually</div><button class="modal-close" onclick="closeModal('time-log-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="tlog-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Project</label><select class="form-control" id="tlog-project"><option value="">None</option></select></div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-control" id="tlog-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Hours</label><input class="form-control" id="tlog-hours" type="number" min="0" step="1" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Minutes</label><input class="form-control" id="tlog-minutes" type="number" min="0" max="59" step="5" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><input class="form-control" id="tlog-desc" placeholder="What did you work on?"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('time-log-modal')">Cancel</button><button class="btn btn-primary" onclick="saveTimeLog()">Log Time</button></div>
+  </div>
+</div>
+
+<!-- CONTRACT MODAL -->
+<div class="modal-overlay" id="contract-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="contract-modal-title">New Contract</div><button class="modal-close" onclick="closeModal('contract-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="contract-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Contract Name <span>*</span></label><input class="form-control" id="contract-name" placeholder="e.g. Photography Services Agreement"></div>
+        <div class="form-group"><label class="form-label">Client</label><select class="form-control" id="contract-client"><option value="">Select client...</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Linked Project (optional)</label><select class="form-control" id="contract-project"><option value="">None</option></select></div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Contract Body</span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="insertContractTemplate()" style="font-size:0.75rem;padding:2px 8px">Load Template</button>
+        </label>
+        <textarea class="form-control" id="contract-body" rows="12" placeholder="Enter contract terms...&#10;&#10;Use {clientName}, {projectName}, {amount}, {date}, {businessName} as placeholders."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('contract-modal')">Cancel</button><button class="btn btn-primary" onclick="saveContract()">Save Contract</button></div>
+  </div>
+</div>
+
+<!-- AI RESULT MODAL -->
 <div class="modal-overlay" id="ai-modal">
-  <div class="modal" style="max-width:640px">
+  <div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title" id="ai-modal-title">AI Draft</div>
+      <div class="modal-title" id="ai-modal-title">🤖 AI Draft</div>
       <button class="modal-close" onclick="closeModal('ai-modal')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">Review and edit the AI draft below before using it.</p>
-      <textarea id="ai-modal-body" class="form-control" rows="16" style="font-size:0.85rem;line-height:1.6;font-family:inherit"></textarea>
+      <div id="ai-loading" style="display:none;text-align:center;padding:32px 0">
+        <div style="font-size:2rem;margin-bottom:12px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+        <div style="color:var(--text-muted);font-size:0.9rem">Claude is drafting...</div>
+      </div>
+      <div id="ai-result-wrap">
+        <textarea class="form-control" id="ai-result" rows="14" style="font-family:inherit;line-height:1.7;resize:vertical" placeholder="Result will appear here..."></textarea>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="copyAiOutput()">📋 Copy</button>
+    <div class="modal-footer" id="ai-modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('ai-modal')">Close</button>
-      <button class="btn btn-primary" id="ai-modal-use-btn">Use This</button>
+      <button class="btn btn-secondary" onclick="copyAiResult()">📋 Copy</button>
+      <button class="btn btn-primary" id="ai-apply-btn" style="display:none" onclick="applyAiResult()">Apply</button>
     </div>
   </div>
+</div>
+
+<!-- CONTRACT SCREEN -->
+<div id="contract-screen" class="hidden">
+  <div class="contract-inner" id="contract-inner"></div>
 </div>
 
 </body>
