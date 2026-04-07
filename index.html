@@ -3023,7 +3023,7 @@ function showOrderPage(token) {
           <div class="op-card-body" id="op-services-select">
             ${(page.services||[]).map(svc => `
               <div class="op-service" onclick="opToggle('${svc.id}')">
-                <div class="op-service-check ${selected[svc.id]?'checked':'}" id="op-check-${svc.id}">${selected[svc.id]?'✓':''}</div>
+                <div class="op-service-check ${selected[svc.id]?'checked':''}" id="op-check-${svc.id}">${selected[svc.id]?'✓':''}</div>
                 <div class="op-service-info">
                   <div class="op-service-name">${esc(svc.name)}</div>
                   ${svc.description ? `<div class="op-service-desc">${esc(svc.description)}</div>` : ''}
