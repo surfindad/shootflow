@@ -468,6 +468,38 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ai-dropdown-item { display:block; width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:var(--text); font-size:0.85rem; cursor:pointer; font-family:inherit; transition:background 0.12s; }
 .ai-dropdown-item:hover { background:var(--bg); }
 .ai-dropdown-label { padding:8px 16px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; }
+/* ── FEATURE: EMAIL NOTIFICATIONS ── */
+.notif-drop { position:fixed;z-index:99999;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.3);min-width:270px;overflow:hidden; }
+.notif-drop-item { display:block;width:100%;text-align:left;padding:11px 16px;background:none;border:none;color:var(--text);font-size:0.85rem;cursor:pointer;font-family:inherit;transition:background 0.12s;border-bottom:1px solid var(--border); }
+.notif-drop-item:last-child { border-bottom:none; }
+.notif-drop-item:hover { background:var(--bg); }
+.notif-drop-label { padding:8px 16px 4px;font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em; }
+/* ── FEATURE: COUPON ── */
+.coupon-row { display:flex;gap:8px;margin:10px 0; }
+.coupon-applied-bar { background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:8px 14px;font-size:0.82rem;color:#065F46;display:flex;align-items:center;gap:8px;margin:8px 0; }
+/* ── FEATURE: UPSELL ── */
+.upsell-section { background:linear-gradient(135deg,#FFF7ED,#FFFBEB);border:1px solid #FDE68A;border-radius:10px;padding:14px;margin-top:10px; }
+.upsell-title { font-weight:700;font-size:0.82rem;color:#92400E;margin-bottom:8px; }
+.upsell-item { display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #FDE68A; }
+.upsell-item:last-child { border-bottom:none; }
+.upsell-add-btn { font-size:0.75rem;padding:4px 12px;border-radius:6px;background:#F59E0B;color:white;border:none;cursor:pointer;font-family:inherit;font-weight:700; }
+/* ── FEATURE: MILEAGE ── */
+.mileage-banner { background:var(--info-bg);border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:24px;flex-wrap:wrap; }
+.mileage-stat { text-align:center; }
+.mileage-stat-val { font-size:1.3rem;font-weight:800;color:var(--info); }
+.mileage-stat-lbl { font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em; }
+/* ── FEATURE: PRICING GROUP ── */
+.pg-badge { display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:700; }
+.pg-badge-vip { background:#F5F3FF;color:#6D28D9; }
+.pg-badge-brokerage { background:#ECFDF5;color:#065F46; }
+.pg-badge-wholesale { background:#FFF7ED;color:#9A3412; }
+/* ── FEATURE: BROKERAGE ALLOWANCE ── */
+.allowance-notice { background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:0.82rem;color:#065F46;display:flex;align-items:center;justify-content:space-between;gap:8px; }
+/* ── FEATURE: VIEW TRACKING ── */
+.view-pill { display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:2px 8px;font-size:0.7rem;color:var(--text-muted);margin-left:8px; }
+/* ── FEATURE: PRICING GROUPS SETTINGS ── */
+.pg-list-item { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border); }
+.pg-list-item:last-child { border-bottom:none; }
 </style>
 </head>
 <body>
@@ -632,7 +664,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div class="sidebar-section-label">Operations</div>
     <div class="nav-item" onclick="navigate('expenses')" data-view="expenses"><span class="nav-icon">💰</span> Expenses</div>
     <div class="nav-item" onclick="navigate('time')" data-view="time"><span class="nav-icon">⏱</span> Time Tracking</div>
+    <div class="nav-item" onclick="navigate('mileage')" data-view="mileage"><span class="nav-icon">🚗</span> Mileage</div>
     <div class="nav-item" onclick="navigate('contracts')" data-view="contracts"><span class="nav-icon">📄</span> Contracts</div>
+    <div class="nav-item" onclick="navigate('coupons')" data-view="coupons"><span class="nav-icon">🎟</span> Coupons</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Account</div>
@@ -900,6 +934,31 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div id="time-empty" style="display:none"><div class="empty-state"><div class="empty-icon">⏱</div><div class="empty-title">No time logged</div><div class="empty-sub">Start the timer or log time manually</div></div></div>
       </div>
     </div>
+    <!-- MILEAGE -->
+    <div class="view" id="view-mileage">
+      <div class="section-header">
+        <div><div class="section-title">Mileage Tracker</div><div class="section-sub">Log drive miles per booking — deductible at IRS rate</div></div>
+        <button class="btn btn-primary" onclick="openMileageModal()">+ Log Miles</button>
+      </div>
+      <div class="mileage-banner" id="mileage-banner"></div>
+      <div class="card">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div class="card-title">Mileage Log</div>
+          <select class="filter-select" id="mileage-project-filter" onchange="renderMileageLogs()" style="min-width:140px"><option value="">All Projects</option></select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Project</th><th>Miles</th><th>Deduction</th><th></th></tr></thead><tbody id="mileage-tbody"></tbody></table></div>
+        <div id="mileage-empty" style="display:none"><div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-title">No mileage logged</div><div class="empty-sub">Log your driving for tax deductions</div><button class="btn btn-primary" onclick="openMileageModal()">+ Log Miles</button></div></div>
+      </div>
+    </div>
+    <!-- COUPONS -->
+    <div class="view" id="view-coupons">
+      <div class="section-header">
+        <div><div class="section-title">Coupons &amp; Promos</div><div class="section-sub">Create discount codes clients can apply on order pages</div></div>
+        <button class="btn btn-primary" onclick="openCouponModal()">+ New Coupon</button>
+      </div>
+      <div id="coupons-list"></div>
+      <div id="coupons-empty" style="display:none"><div class="card"><div class="empty-state"><div class="empty-icon">🎟</div><div class="empty-title">No coupons yet</div><div class="empty-sub">Create a coupon code to share with clients</div><button class="btn btn-primary" onclick="openCouponModal()">+ New Coupon</button></div></div></div>
+    </div>
     <!-- CONTRACTS -->
     <div class="view" id="view-contracts">
       <div class="section-header">
@@ -1043,6 +1102,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </div>
       <div class="settings-section">
+        <div class="settings-section-title">🚗 Mileage Rate</div>
+        <div class="settings-grid">
+          <div class="form-group"><label class="form-label">IRS Rate ($/mile)</label><input class="form-control" id="s-mileage-rate" type="number" min="0" step="0.001" placeholder="0.670"><div class="form-hint">2025 IRS standard mileage rate is $0.70/mile. Used to calculate tax deductions.</div></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">🏷 Pricing Groups</div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Tag clients with a pricing tier. Discounts auto-apply on order pages when the client's email matches.</p>
+        <div id="pricing-groups-list"></div>
+        <button class="btn btn-secondary" onclick="openPricingGroupModal()" style="margin-top:10px">+ Add Pricing Group</button>
+      </div>
+      <div class="settings-section">
         <div class="settings-section-title">📦 Service Packages</div>
         <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Preset packages that can be added to any quote or invoice in one click.</p>
         <div id="packages-list"></div>
@@ -1110,6 +1181,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </div>
     </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="project-unbranded" style="width:16px;height:16px;cursor:pointer">
+          <label for="project-unbranded" class="form-label" style="margin:0;cursor:pointer">🏡 Unbranded delivery page (MLS-compliant, hides photographer/agent info)</label>
+        </div>
+      </div>
+    </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('project-modal')">Cancel</button><button class="btn btn-secondary" id="ai-contract-btn" onclick="aiDraftContract()" title="Generate a contract draft with AI">✨ Draft Contract</button><button class="btn btn-primary" onclick="saveProject()">Save Project</button></div>
   </div>
 </div>
@@ -1130,6 +1208,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group"><label class="form-label">Company / Brokerage</label><input class="form-control" id="client-company" placeholder="e.g. Coldwell Banker"></div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="client-notes" placeholder="Preferences, referral source..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Pricing Group</label><select class="form-control" id="client-pricing-group"><option value="">Standard (no discount)</option></select></div>
+        <div class="form-group"><label class="form-label">Brokerage Allowance ($)</label><input class="form-control" id="client-brokerage-allowance" type="number" min="0" step="0.01" placeholder="0.00"><div class="form-hint">Auto-credit applied to this client's orders</div></div>
+      </div>
       <div class="form-group" style="display:flex;align-items:center;gap:10px;margin-top:4px">
         <input type="checkbox" id="client-recurring" style="width:16px;height:16px;cursor:pointer">
         <label for="client-recurring" class="form-label" style="margin:0;cursor:pointer">Mark as recurring client</label>
@@ -1197,7 +1279,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div class="form-group"><label class="form-label">Start Time</label><input class="form-control" id="booking-start" type="time"></div>
         <div class="form-group"><label class="form-label">End Time</label><input class="form-control" id="booking-end" type="time"></div>
       </div>
-      <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="booking-location" placeholder="Address or location name"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Location</label><input class="form-control" id="booking-location" placeholder="Address or location name"></div>
+        <div class="form-group"><label class="form-label">Miles Driven (round trip)</label><input class="form-control" id="booking-miles" type="number" min="0" step="0.1" placeholder="0"><div class="form-hint">Logged to mileage tracker automatically</div></div>
+      </div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="booking-notes" placeholder="Access instructions, gear needed, special notes..."></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('booking-modal')">Cancel</button><button class="btn btn-primary" onclick="saveBooking()">Save Booking</button></div>
@@ -1557,7 +1642,7 @@ function doSignOut() {
 const STORAGE_KEY = 'shootflow_v1';
 function getData() {
   try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
-  return { projects: [], clients: [], invoices: [], bookings: [], leads: [], expenses: [], timeLogs: [], contracts: [], orderPages: [], settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!' }, invoiceCounter: 1, contractCounter: 1 };
+  return { projects: [], clients: [], invoices: [], bookings: [], leads: [], expenses: [], timeLogs: [], contracts: [], orderPages: [], coupons: [], pricingGroups: [], mileageLogs: [], viewCounts: {}, settings: { businessName: 'My Photography Business', ownerName: '', email: '', phone: '', location: '', website: '', taxRate: 0, currency: 'USD', paymentTerms: 'due-on-receipt', invoiceNotes: 'Thank you for your business!', mileageRate: 0.67 }, invoiceCounter: 1, contractCounter: 1 };
 }
 function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); updateAutosaveChip(); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
@@ -1592,6 +1677,8 @@ const PAGE_CONFIG = {
   contracts:    { title: 'Contracts',      action: '+ New Contract',    actionFn: 'openContractModal' },
   marketing:    { title: 'Marketing Kits', action: null },
   'order-pages':{ title: 'Order Pages',   action: '+ New Order Page',  actionFn: 'openOrderPageModal' },
+  mileage:      { title: 'Mileage Tracker', action: '+ Log Miles',       actionFn: 'openMileageModal' },
+  coupons:      { title: 'Coupons & Promos', action: '+ New Coupon',    actionFn: 'openCouponModal' },
   integrations: { title: 'Integrations', action: 'Save Integrations', actionFn: 'saveIntegrations' },
   settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
 };
@@ -1619,6 +1706,8 @@ function navigate(view) {
   if (view === 'contracts')    renderContracts();
   if (view === 'marketing')    renderMarketingView();
   if (view === 'order-pages')  renderOrderPages();
+  if (view === 'mileage')      renderMileageView();
+  if (view === 'coupons')      renderCoupons();
   if (view === 'integrations') loadIntegrations();
   if (view === 'settings')     loadSettings();
 }
@@ -1727,6 +1816,7 @@ function openProjectModal(id) {
     document.getElementById('project-sqft').value = p.sqft || '';
     document.getElementById('project-prop-type').value = p.propertyType || '';
     document.getElementById('project-agent').value = p.agent || '';
+    document.getElementById('project-unbranded').checked = !!p.unbranded;
     if (p.mls || p.beds || p.listingPrice) document.getElementById('prop-fields').style.display = 'block';
   } else {
     document.getElementById('project-modal-title').textContent = 'New Project';
@@ -1738,6 +1828,7 @@ function openProjectModal(id) {
     document.getElementById('project-amount').value = '';
     document.getElementById('project-prop-type').value = '';
     document.getElementById('prop-fields').style.display = 'none';
+    document.getElementById('project-unbranded').checked = false;
   }
   openModal('project-modal');
 }
@@ -1762,6 +1853,10 @@ function saveProject() {
     sqft: parseFloat(document.getElementById('project-sqft').value) || 0,
     propertyType: document.getElementById('project-prop-type').value,
     agent: document.getElementById('project-agent').value.trim(),
+    unbranded: document.getElementById('project-unbranded').checked,
+    deliveryToken: id ? (data.projects.find(p=>p.id===id)||{}).deliveryToken : undefined,
+    deliveryUnlocked: id ? (data.projects.find(p=>p.id===id)||{}).deliveryUnlocked : false,
+    media: id ? (data.projects.find(p=>p.id===id)||{}).media : undefined,
     createdAt: id ? (data.projects.find(p=>p.id===id)||{}).createdAt || Date.now() : Date.now(),
     updatedAt: Date.now()
   };
@@ -1817,6 +1912,7 @@ function renderProjects() {
 
 // ── CLIENTS ──
 function openClientModal(id) {
+  populateClientPricingGroupDropdown();
   if (id) {
     const data = getData(); const c = data.clients.find(c => c.id === id); if (!c) return;
     document.getElementById('client-modal-title').textContent = 'Edit Client';
@@ -1828,11 +1924,14 @@ function openClientModal(id) {
     document.getElementById('client-company').value = c.company || '';
     document.getElementById('client-notes').value = c.notes || '';
     document.getElementById('client-recurring').checked = !!c.isRecurring;
+    document.getElementById('client-pricing-group').value = c.pricingGroupId || '';
+    document.getElementById('client-brokerage-allowance').value = c.brokerageAllowance || '';
   } else {
     document.getElementById('client-modal-title').textContent = 'New Client';
-    ['client-id','client-name','client-email','client-phone','client-company','client-notes'].forEach(id => document.getElementById(id).value = '');
+    ['client-id','client-name','client-email','client-phone','client-company','client-notes','client-brokerage-allowance'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('client-type').value = 'agent';
     document.getElementById('client-recurring').checked = false;
+    document.getElementById('client-pricing-group').value = '';
   }
   openModal('client-modal');
 }
@@ -1848,6 +1947,8 @@ function saveClient() {
     company: document.getElementById('client-company').value.trim(),
     notes: document.getElementById('client-notes').value.trim(),
     isRecurring: document.getElementById('client-recurring').checked,
+    pricingGroupId: document.getElementById('client-pricing-group').value || '',
+    brokerageAllowance: parseFloat(document.getElementById('client-brokerage-allowance').value) || 0,
     createdAt: id ? (data.clients.find(c=>c.id===id)||{}).createdAt || Date.now() : Date.now()
   };
   if (id) { const idx = data.clients.findIndex(c => c.id === id); if (idx >= 0) data.clients[idx] = client; }
@@ -2062,6 +2163,7 @@ function saveBooking() {
   const data = getData();
   const id = document.getElementById('booking-id').value;
   const existing = id ? data.bookings.find(b => b.id === id) : null;
+  const miles = parseFloat(document.getElementById('booking-miles').value) || 0;
   const booking = {
     id: id || uid(),
     title, clientId,
@@ -2071,6 +2173,7 @@ function saveBooking() {
     startTime: document.getElementById('booking-start').value,
     endTime: document.getElementById('booking-end').value,
     location: document.getElementById('booking-location').value.trim(),
+    miles,
     notes: document.getElementById('booking-notes').value.trim(),
     scheduleToken: existing?.scheduleToken || secureToken(),
     clientConfirmed: existing?.clientConfirmed || false,
@@ -2080,6 +2183,13 @@ function saveBooking() {
   };
   if (id) { const idx = data.bookings.findIndex(b => b.id === id); if (idx >= 0) data.bookings[idx] = booking; }
   else { data.bookings.unshift(booking); }
+  // Auto-log mileage if miles entered
+  if (miles > 0) {
+    if (!data.mileageLogs) data.mileageLogs = [];
+    const existingMileLog = id ? data.mileageLogs.find(m => m.bookingId === id) : null;
+    if (existingMileLog) { existingMileLog.miles = miles; existingMileLog.desc = title; }
+    else { data.mileageLogs.unshift({ id: uid(), desc: title, miles, date: booking.date || new Date().toISOString().split('T')[0], projectId: booking.projectId || '', bookingId: booking.id, createdAt: Date.now() }); }
+  }
   saveData(data); closeModal('booking-modal'); renderBookings(); renderDashboard();
   toast(id ? 'Booking updated ✓' : 'Booking created! Add it to your calendar below.');
   showPhotographerCalendarPrompt(booking);
@@ -2121,6 +2231,7 @@ function renderBookings() {
       ${statusBadge(b.status)}
       <div class="table-actions">
         <button class="btn btn-secondary btn-sm" onclick="showBookingAiMenu('${b.id}',this)">🤖 AI</button>
+        <button class="btn btn-secondary btn-sm" onclick="showBookingNotifMenu('${b.id}',this)">📧 Notify</button>
         <button class="btn btn-secondary btn-sm" onclick="addToCalendar('${b.id}')" title="Add to your calendar">📅 Cal</button>
         <button class="btn btn-secondary btn-sm" onclick="shareScheduleLink('${b.id}')" title="Copy client booking link">📤 Share</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openBookingModal('${b.id}')">✏️</button>
@@ -2137,14 +2248,18 @@ function renderDelivery() {
     list.innerHTML = '<div class="empty-state"><div class="empty-icon">📤</div><div class="empty-title">No projects yet</div><div class="empty-sub">Create projects to generate delivery links</div></div>';
     return;
   }
-  list.innerHTML = data.projects.slice(0, 10).map(p => `
-    <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1"><div style="font-weight:600;font-size:0.9rem">${esc(p.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${clientName(p.clientId)} · ${statusBadge(p.status)}</div></div>
-      <div class="delivery-link-box" style="flex:2">
+  list.innerHTML = data.projects.slice(0, 10).map(p => {
+    const views = p.deliveryToken ? getViewCount(p.deliveryToken) : 0;
+    const unbrandedBadge = p.unbranded ? '<span style="font-size:0.68rem;background:#FFF7ED;color:#9A3412;border-radius:6px;padding:1px 6px;font-weight:700;margin-left:6px">🏡 Unbranded</span>' : '';
+    return `<div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      <div style="flex:1;min-width:160px"><div style="font-weight:600;font-size:0.9rem">${esc(p.name)}${unbrandedBadge}</div><div style="font-size:0.75rem;color:var(--text-muted)">${clientName(p.clientId)} · ${statusBadge(p.status)}${views>0?` <span class="view-pill">👁 ${views} view${views!==1?'s':''}</span>`:''}</div></div>
+      <div class="delivery-link-box" style="flex:2;min-width:200px">
         <span class="delivery-link-url" id="dlv-${p.id}">${window.location.href.split('#')[0]}#deliver/${p.deliveryToken || p.id.substr(0,8)}</span>
         <button class="btn btn-secondary btn-sm" onclick="copyProjectDeliveryLink('${p.id}')">📋</button>
       </div>
-    </div>`).join('');
+      <button class="btn btn-secondary btn-sm" onclick="showProjectNotifMenu('${p.id}',this)">📧 Notify</button>
+    </div>`;
+  }).join('');
 }
 function copyProjectDeliveryLink(projectId) {
   const data = getData();
@@ -2168,6 +2283,8 @@ function loadSettings() {
   document.getElementById('s-currency').value = s.currency || 'USD';
   document.getElementById('s-payment-terms').value = s.paymentTerms || 'due-on-receipt';
   document.getElementById('s-invoice-notes').value = s.invoiceNotes || '';
+  document.getElementById('s-mileage-rate').value = s.mileageRate || 0.67;
+  renderPricingGroupsList();
 }
 function saveSettings() {
   const data = getData();
@@ -2181,7 +2298,8 @@ function saveSettings() {
     taxRate: parseFloat(document.getElementById('s-tax-rate').value) || 0,
     currency: document.getElementById('s-currency').value,
     paymentTerms: document.getElementById('s-payment-terms').value,
-    invoiceNotes: document.getElementById('s-invoice-notes').value.trim()
+    invoiceNotes: document.getElementById('s-invoice-notes').value.trim(),
+    mileageRate: parseFloat(document.getElementById('s-mileage-rate').value) || 0.67
   };
   saveData(data); refreshUserUI(getSession(), data.settings); toast('Settings saved');
 }
@@ -2366,8 +2484,12 @@ function showClientDeliveryView(token) {
     document.getElementById('cdv-payment-wall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">This delivery link is invalid or has expired.</div>';
     return;
   }
-  document.getElementById('cdv-business-name').textContent = data.settings.businessName || 'Your Photographer';
-  document.getElementById('cdv-project-name').textContent = proj.name;
+  // Feature 4: track view
+  trackDeliveryView(token);
+  // Feature 3: unbranded mode — hide photographer/biz name if flag set
+  const bizName = proj.unbranded ? 'Property Gallery' : (data.settings.businessName || 'Your Photographer');
+  document.getElementById('cdv-business-name').textContent = bizName;
+  document.getElementById('cdv-project-name').textContent = proj.unbranded ? (proj.location || proj.name) : proj.name;
   if (proj.deliveryUnlocked) {
     document.getElementById('cdv-payment-wall').style.display = 'none';
     document.getElementById('cdv-unlocked').style.display = 'block';
@@ -2842,9 +2964,33 @@ function showOrderPage(token) {
   const bizInit = (s.businessName||'SF').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const selected = {};
   (page.services||[]).forEach(svc => { selected[svc.id] = false; });
+  let appliedCoupon = null;
+  let appliedGroupDiscount = null;
+  let brokerageCredit = 0;
 
-  function calcTotal() {
+  function calcRawTotal() {
     return (page.services||[]).filter(svc => selected[svc.id]).reduce((sum, svc) => sum + svc.price, 0);
+  }
+  function calcFinalTotal() {
+    let t = calcRawTotal();
+    if (appliedGroupDiscount) t = applyCouponDiscount(t, appliedGroupDiscount);
+    if (appliedCoupon) t = applyCouponDiscount(t, appliedCoupon);
+    t = Math.max(0, t - brokerageCredit);
+    return t;
+  }
+  function updateTotalDisplay() {
+    const raw = calcRawTotal();
+    const final = calcFinalTotal();
+    const totalEl = document.getElementById('op-running-total');
+    if (totalEl) {
+      if (final < raw && raw > 0) {
+        totalEl.innerHTML = `<span style="text-decoration:line-through;color:#94A3B8;font-size:0.85rem">${fmtCurrency(raw)}</span> ${fmtCurrency(final)}`;
+      } else {
+        totalEl.textContent = fmtCurrency(final);
+      }
+    }
+    const btn = document.getElementById('op-submit-btn');
+    if (btn) btn.disabled = raw === 0;
   }
 
   function renderPage(submitted) {
@@ -2881,12 +3027,13 @@ function showOrderPage(token) {
               </div>`).join('')}
           </div>
         </div>
+        <div id="op-upsell-section"></div>
         <div class="op-card">
           <div class="op-card-header"><div class="op-card-title">📝 Your Details</div></div>
           <div class="op-card-body">
             <div class="form-row">
               <div class="form-group"><label class="form-label">Your Name <span>*</span></label><input class="form-control" id="op-client-name" placeholder="Jane Smith"></div>
-              <div class="form-group"><label class="form-label">Email <span>*</span></label><input class="form-control" id="op-client-email" type="email" placeholder="jane@email.com"></div>
+              <div class="form-group"><label class="form-label">Email <span>*</span></label><input class="form-control" id="op-client-email" type="email" placeholder="jane@email.com" oninput="opCheckEmailDiscount()"></div>
             </div>
             <div class="form-row">
               <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="op-client-phone" placeholder="(555) 000-0000"></div>
@@ -2896,9 +3043,20 @@ function showOrderPage(token) {
             <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="op-client-notes" rows="2" placeholder="Anything we should know..."></textarea></div>
           </div>
         </div>
+        <div class="op-card">
+          <div class="op-card-header"><div class="op-card-title">🎟 Promo Code</div></div>
+          <div class="op-card-body">
+            <div class="coupon-row">
+              <input class="form-control" id="op-coupon-input" placeholder="Enter promo code" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+              <button class="btn btn-secondary" onclick="opApplyCoupon()">Apply</button>
+            </div>
+            <div id="op-coupon-feedback"></div>
+          </div>
+        </div>
+        <div id="op-brokerage-notice"></div>
         <div class="op-total-bar">
           <div><div class="op-total-label">Order Total</div><div class="op-total-amount" id="op-running-total">${fmtCurrency(0)}</div></div>
-          <div style="color:#94A3B8;font-size:0.75rem">Select services above</div>
+          <div style="color:#94A3B8;font-size:0.75rem" id="op-total-note">Select services above</div>
         </div>
         <button class="op-submit-btn" id="op-submit-btn" onclick="submitOrderPage('${page.id}','${token}')" disabled>Submit Order Request</button>
         <div style="text-align:center;color:#94A3B8;font-size:0.72rem;margin-top:10px">By submitting you agree to be contacted to confirm your booking. No payment required now.</div>
@@ -2909,51 +3067,96 @@ function showOrderPage(token) {
     selected[svcId] = !selected[svcId];
     const chk = document.getElementById('op-check-' + svcId);
     if (chk) { chk.classList.toggle('checked', selected[svcId]); chk.textContent = selected[svcId] ? '✓' : ''; }
-    const total = calcTotal();
-    const totalEl = document.getElementById('op-running-total');
-    if (totalEl) totalEl.textContent = fmtCurrency(total);
-    const btn = document.getElementById('op-submit-btn');
-    if (btn) btn.disabled = total === 0;
+    updateTotalDisplay();
+    // Feature 5: upsell suggestions
+    const selNames = (page.services||[]).filter(sv=>selected[sv.id]).map(sv=>sv.name);
+    const upsells = buildUpsellSuggestions(selNames);
+    const upsellEl = document.getElementById('op-upsell-section');
+    if (upsellEl && selNames.length && upsells.length) {
+      upsellEl.innerHTML = `<div class="upsell-section"><div class="upsell-title">✨ Clients also add...</div>${upsells.map(u=>`<div class="upsell-item"><span style="font-size:0.82rem;font-weight:600">${esc(u)}</span><button class="upsell-add-btn" onclick="opAskAboutUpsell('${esc(u)}')">Ask about this</button></div>`).join('')}</div>`;
+    } else if (upsellEl) { upsellEl.innerHTML=''; }
+  };
+
+  window.opAskAboutUpsell = function(name) {
+    const notes = document.getElementById('op-client-notes');
+    if (notes) { notes.value = (notes.value ? notes.value + '\n' : '') + 'Interested in: ' + name; }
+    alert('Added "' + name + '" to your notes. We\'ll reach out about pricing!');
+  };
+
+  window.opApplyCoupon = function() {
+    const code = (document.getElementById('op-coupon-input')?.value || '').trim().toUpperCase();
+    const fb = document.getElementById('op-coupon-feedback');
+    if (!code) return;
+    const result = validateCoupon(code);
+    if (!result.valid) {
+      if (fb) fb.innerHTML = `<div style="color:var(--danger);font-size:0.8rem;margin-top:4px">❌ ${esc(result.reason)}</div>`;
+      return;
+    }
+    appliedCoupon = result.coupon;
+    const discStr = result.coupon.discountType==='percent' ? result.coupon.discountValue+'% off' : fmtCurrency(result.coupon.discountValue)+' off';
+    if (fb) fb.innerHTML = `<div class="coupon-applied-bar">🎟 <strong>${esc(code)}</strong> applied — ${discStr}!</div>`;
+    updateTotalDisplay();
+  };
+
+  window.opCheckEmailDiscount = function() {
+    const email = document.getElementById('op-client-email')?.value || '';
+    const group = getClientPricingDiscount(email);
+    const allowance = getClientBrokerageAllowance(email);
+    appliedGroupDiscount = group;
+    brokerageCredit = allowance;
+    const noticeEl = document.getElementById('op-brokerage-notice');
+    if (noticeEl) {
+      let html = '';
+      if (group) {
+        const discStr = group.discountType==='percent' ? group.discountValue+'% off' : fmtCurrency(group.discountValue)+' off';
+        html += `<div class="allowance-notice">🏷 <strong>${esc(group.name)} pricing</strong> applied — ${discStr} <span style="margin-left:auto;font-size:0.75rem;color:#10B981">✓ Recognized client</span></div>`;
+      }
+      if (allowance > 0) {
+        html += `<div class="allowance-notice">🏢 Brokerage allowance of <strong>${fmtCurrency(allowance)}</strong> applied to this order</div>`;
+      }
+      noticeEl.innerHTML = html;
+    }
+    updateTotalDisplay();
   };
 
   window.submitOrderPage = function(pageId, tok) {
-    const clientName = document.getElementById('op-client-name').value.trim();
+    const clientNameVal = document.getElementById('op-client-name').value.trim();
     const clientEmail = document.getElementById('op-client-email').value.trim();
-    if (!clientName || !clientEmail) { alert('Please enter your name and email.'); return; }
+    if (!clientNameVal || !clientEmail) { alert('Please enter your name and email.'); return; }
     const chosenServices = (page.services||[]).filter(svc => selected[svc.id]);
     if (!chosenServices.length) { alert('Please select at least one service.'); return; }
     const btn = document.getElementById('op-submit-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
-    // Save as a new lead + project in photographer's data
     const freshData = getData();
     if (!freshData.leads) freshData.leads = [];
     if (!freshData.projects) freshData.projects = [];
     const leadId = uid();
-    const serviceNames = chosenServices.map(s => s.name).join(', ');
-    const total = chosenServices.reduce((s, svc) => s + svc.price, 0);
-    // Create lead
+    const serviceNames = chosenServices.map(sv => sv.name).join(', ');
+    const rawTotal = chosenServices.reduce((sum, svc) => sum + svc.price, 0);
+    const finalTotal = calcFinalTotal();
+    const couponNote = appliedCoupon ? ` | Coupon: ${appliedCoupon.code}` : '';
+    const groupNote = appliedGroupDiscount ? ` | Pricing group: ${appliedGroupDiscount.name}` : '';
+    const brokerageNote = brokerageCredit > 0 ? ` | Brokerage credit: ${fmtCurrency(brokerageCredit)}` : '';
+    // Increment coupon use count
+    if (appliedCoupon) {
+      const c = (freshData.coupons||[]).find(c=>c.id===appliedCoupon.id);
+      if (c) { c.usedCount = (c.usedCount||0) + 1; }
+    }
     freshData.leads.unshift({
-      id: leadId,
-      name: clientName,
-      email: clientEmail,
+      id: leadId, name: clientNameVal, email: clientEmail,
       phone: document.getElementById('op-client-phone').value.trim(),
-      stage: 'new',
-      type: 'real-estate',
-      value: total,
-      notes: `Order page inquiry: ${serviceNames}. Date: ${document.getElementById('op-shoot-date').value||'TBD'}. Location: ${document.getElementById('op-location').value||'TBD'}. Notes: ${document.getElementById('op-client-notes').value||'—'}`,
+      stage: 'new', type: 'real-estate', value: finalTotal,
+      notes: `Order page inquiry: ${serviceNames}. Date: ${document.getElementById('op-shoot-date').value||'TBD'}. Location: ${document.getElementById('op-location').value||'TBD'}. Notes: ${document.getElementById('op-client-notes').value||'—'}${couponNote}${groupNote}${brokerageNote}`,
       createdAt: Date.now(), updatedAt: Date.now()
     });
-    // Create project
     freshData.projects.unshift({
       id: uid(),
-      name: `${clientName} — ${chosenServices[0].name}${chosenServices.length>1?' + more':''}`,
-      clientId: '',
-      type: 'real-estate',
-      status: 'inquiry',
+      name: `${clientNameVal} — ${chosenServices[0].name}${chosenServices.length>1?' + more':''}`,
+      clientId: '', type: 'real-estate', status: 'inquiry',
       shootDate: document.getElementById('op-shoot-date').value || '',
-      amount: total,
+      amount: finalTotal,
       location: document.getElementById('op-location').value.trim(),
-      notes: `Order page submission\nClient: ${clientName} | ${clientEmail}\nServices: ${serviceNames}\nClient notes: ${document.getElementById('op-client-notes').value||'—'}`,
+      notes: `Order page submission\nClient: ${clientNameVal} | ${clientEmail}\nServices: ${serviceNames}\nOriginal total: ${fmtCurrency(rawTotal)}\nFinal total: ${fmtCurrency(finalTotal)}${couponNote}${groupNote}${brokerageNote}\nClient notes: ${document.getElementById('op-client-notes').value||'—'}`,
       createdAt: Date.now(), updatedAt: Date.now()
     });
     saveData(freshData);
@@ -3825,6 +4028,412 @@ function showClientPortal(token) { toast('Client portal: '+token,'info'); }
 function renderPackagesList() {}
 function openPackageModal() { toast('Packages feature coming soon','info'); }
 
+// ══════════════════════════════════════════════
+// FEATURE 1: AUTOMATED EMAIL NOTIFICATIONS
+// ══════════════════════════════════════════════
+function openNotifModal(title, to, subject, body) {
+  document.getElementById('notif-modal-title').textContent = '📧 ' + title;
+  document.getElementById('notif-to').value = to || '';
+  document.getElementById('notif-subject').value = subject || '';
+  document.getElementById('notif-body').value = body || '';
+  openModal('notif-modal');
+}
+function sendNotifEmail() {
+  const to = document.getElementById('notif-to').value.trim();
+  const subject = document.getElementById('notif-subject').value.trim();
+  const body = document.getElementById('notif-body').value;
+  const data = getData();
+  const provider = data.integrations?.emailProvider || 'default';
+  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
+  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
+  closeModal('notif-modal'); toast('Opening email compose...');
+}
+function copyNotifBody() {
+  const body = document.getElementById('notif-body').value;
+  navigator.clipboard.writeText(body).then(() => toast('Message copied!'));
+}
+function sendBookingConfirmation(bookingId) {
+  const data = getData();
+  const b = data.bookings.find(b => b.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId);
+  const s = data.settings;
+  const to = client?.email || '';
+  const subject = `Booking Confirmed — ${b.title}`;
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},\n\nGreat news — your booking is confirmed!\n\n📅 Date: ${fmtDate(b.date)}${b.startTime ? '\n⏰ Time: ' + b.startTime + (b.endTime ? ' – ' + b.endTime : '') : ''}\n📍 Location: ${b.location || 'TBD'}\n\n${b.notes ? 'Notes: ' + b.notes + '\n\n' : ''}Looking forward to working with you!\n\n${s.ownerName || s.businessName || 'Your Photographer'}\n${s.phone || ''}\n${s.email || ''}`;
+  openNotifModal('Booking Confirmation', to, subject, body);
+}
+function sendOnMyWayNotification(bookingId) {
+  const data = getData();
+  const b = data.bookings.find(b => b.id === bookingId); if (!b) return;
+  const client = data.clients.find(c => c.id === b.clientId);
+  const s = data.settings;
+  const to = client?.email || '';
+  const subject = `On My Way — ${b.title}`;
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},\n\nJust wanted to let you know I'm on my way to ${b.location || 'the location'} and should arrive around ${b.startTime || 'the scheduled time'}.\n\nSee you soon!\n\n${s.ownerName || s.businessName || 'Your Photographer'}\n${s.phone || ''}`;
+  openNotifModal('On My Way', to, subject, body);
+}
+function sendFilesDeliveredNotification(projectId) {
+  const data = getData();
+  const proj = data.projects.find(p => p.id === projectId); if (!proj) return;
+  const client = data.clients.find(c => c.id === proj.clientId);
+  const s = data.settings;
+  const to = client?.email || '';
+  const deliveryUrl = proj.deliveryToken ? window.location.href.split('#')[0] + '#deliver/' + proj.deliveryToken : '';
+  const subject = `Your Photos Are Ready — ${proj.name}`;
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},\n\nYour files from ${proj.name} are ready!${deliveryUrl ? '\n\n🔗 Access your files here:\n' + deliveryUrl : ''}\n\n${proj.deliveryUnlocked ? '' : 'Files unlock automatically once payment is received.\n\n'}Thank you so much — it was a pleasure working with you!\n\n${s.ownerName || s.businessName || 'Your Photographer'}\n${s.phone || ''}\n${s.email || ''}`;
+  openNotifModal('Files Delivered', to, subject, body);
+}
+function showBookingNotifMenu(bookingId, btn) {
+  document.querySelectorAll('.notif-drop').forEach(d => d.remove());
+  const drop = document.createElement('div');
+  drop.className = 'notif-drop';
+  drop.innerHTML = `<div class="notif-drop-label">Send Notification</div>
+    <button class="notif-drop-item" onclick="sendBookingConfirmation('${bookingId}');this.closest('.notif-drop').remove()">✅ Booking Confirmed</button>
+    <button class="notif-drop-item" onclick="sendOnMyWayNotification('${bookingId}');this.closest('.notif-drop').remove()">🚗 On My Way</button>`;
+  const rect = btn.getBoundingClientRect();
+  drop.style.top = (rect.bottom + 6) + 'px';
+  drop.style.left = rect.left + 'px';
+  document.body.appendChild(drop);
+  setTimeout(() => document.addEventListener('click', function h(e){ if(!drop.contains(e.target)){drop.remove();document.removeEventListener('click',h);} }), 50);
+}
+function showProjectNotifMenu(projectId, btn) {
+  document.querySelectorAll('.notif-drop').forEach(d => d.remove());
+  const drop = document.createElement('div');
+  drop.className = 'notif-drop';
+  drop.innerHTML = `<div class="notif-drop-label">Send Notification</div>
+    <button class="notif-drop-item" onclick="sendFilesDeliveredNotification('${projectId}');this.closest('.notif-drop').remove()">📤 Files Delivered</button>`;
+  const rect = btn.getBoundingClientRect();
+  drop.style.top = (rect.bottom + 6) + 'px';
+  drop.style.left = rect.left + 'px';
+  document.body.appendChild(drop);
+  setTimeout(() => document.addEventListener('click', function h(e){ if(!drop.contains(e.target)){drop.remove();document.removeEventListener('click',h);} }), 50);
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 2: COUPON / PROMO CODES
+// ══════════════════════════════════════════════
+function openCouponModal(id) {
+  const data = getData();
+  if (id) {
+    const c = (data.coupons||[]).find(c => c.id === id); if (!c) return;
+    document.getElementById('coupon-modal-title').textContent = 'Edit Coupon';
+    document.getElementById('coupon-id').value = c.id;
+    document.getElementById('coupon-code').value = c.code;
+    document.getElementById('coupon-type').value = c.discountType;
+    document.getElementById('coupon-value').value = c.discountValue;
+    document.getElementById('coupon-max-uses').value = c.maxUses || 0;
+    document.getElementById('coupon-expires').value = c.expires || '';
+    document.getElementById('coupon-active').checked = c.active !== false;
+    document.getElementById('coupon-note').value = c.note || '';
+  } else {
+    document.getElementById('coupon-modal-title').textContent = 'New Coupon';
+    ['coupon-id','coupon-code','coupon-value','coupon-expires','coupon-note'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('coupon-type').value = 'percent';
+    document.getElementById('coupon-max-uses').value = '0';
+    document.getElementById('coupon-active').checked = true;
+  }
+  openModal('coupon-modal');
+}
+function saveCoupon() {
+  const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+  const val = parseFloat(document.getElementById('coupon-value').value) || 0;
+  if (!code) { toast('Coupon code is required', 'error'); return; }
+  if (val <= 0) { toast('Discount value must be > 0', 'error'); return; }
+  const data = getData();
+  if (!data.coupons) data.coupons = [];
+  const id = document.getElementById('coupon-id').value;
+  const coupon = {
+    id: id || uid(), code, discountType: document.getElementById('coupon-type').value,
+    discountValue: val, maxUses: parseInt(document.getElementById('coupon-max-uses').value)||0,
+    usedCount: id ? (data.coupons.find(c=>c.id===id)||{}).usedCount||0 : 0,
+    expires: document.getElementById('coupon-expires').value || '',
+    active: document.getElementById('coupon-active').checked,
+    note: document.getElementById('coupon-note').value.trim(),
+    createdAt: id ? (data.coupons.find(c=>c.id===id)||{}).createdAt||Date.now() : Date.now()
+  };
+  if (id) { const idx = data.coupons.findIndex(c=>c.id===id); if(idx>=0) data.coupons[idx]=coupon; }
+  else { data.coupons.unshift(coupon); }
+  saveData(data); closeModal('coupon-modal'); renderCoupons(); toast(id ? 'Coupon updated' : 'Coupon created');
+}
+function deleteCoupon(id) {
+  confirmDelete('Delete this coupon? The code will stop working on order pages.', () => {
+    const data = getData(); data.coupons = (data.coupons||[]).filter(c=>c.id!==id);
+    saveData(data); renderCoupons(); toast('Coupon deleted');
+  });
+}
+function renderCoupons() {
+  const data = getData();
+  const coupons = data.coupons || [];
+  const listEl = document.getElementById('coupons-list');
+  const emptyEl = document.getElementById('coupons-empty');
+  if (!coupons.length) { listEl.innerHTML=''; emptyEl.style.display=''; return; }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = coupons.map(c => {
+    const now = new Date().toISOString().split('T')[0];
+    const expired = c.expires && c.expires < now;
+    const maxed = c.maxUses > 0 && c.usedCount >= c.maxUses;
+    const isValid = c.active && !expired && !maxed;
+    const discStr = c.discountType === 'percent' ? c.discountValue + '% off' : fmtCurrency(c.discountValue) + ' off';
+    return `<div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;background:var(--card);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="background:${isValid?'#ECFDF5':'#FEF2F2'};border:2px dashed ${isValid?'#10B981':'#EF4444'};border-radius:8px;padding:8px 16px;font-weight:800;font-size:1rem;letter-spacing:0.1em;color:${isValid?'#065F46':'#991B1B'};min-width:120px;text-align:center">${esc(c.code)}</div>
+      <div style="flex:1;min-width:160px">
+        <div style="font-weight:700;font-size:0.9rem">${discStr} <span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;font-weight:700;${isValid?'background:#D1FAE5;color:#065F46':'background:#FEE2E2;color:#991B1B'}">${isValid?'Active':expired?'Expired':maxed?'Maxed Out':'Inactive'}</span></div>
+        <div style="font-size:0.76rem;color:var(--text-muted);margin-top:3px">Used ${c.usedCount||0}${c.maxUses?'/'+c.maxUses:''} times${c.expires?' · Expires '+fmtDate(c.expires):''}${c.note?' · '+esc(c.note):''}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="copyCouponCode('${esc(c.code)}')">📋 Copy Code</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openCouponModal('${c.id}')">✏️</button>
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteCoupon('${c.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function copyCouponCode(code) {
+  navigator.clipboard.writeText(code).then(() => toast('Coupon code copied: ' + code));
+}
+function validateCoupon(code) {
+  const data = getData();
+  const now = new Date().toISOString().split('T')[0];
+  const c = (data.coupons||[]).find(c => c.code === code.toUpperCase());
+  if (!c) return { valid: false, reason: 'Code not found' };
+  if (!c.active) return { valid: false, reason: 'Code is inactive' };
+  if (c.expires && c.expires < now) return { valid: false, reason: 'Code has expired' };
+  if (c.maxUses > 0 && c.usedCount >= c.maxUses) return { valid: false, reason: 'Code has reached max uses' };
+  return { valid: true, coupon: c };
+}
+function applyCouponDiscount(total, coupon) {
+  if (!coupon) return total;
+  if (coupon.discountType === 'percent') return Math.max(0, total - (total * coupon.discountValue / 100));
+  return Math.max(0, total - coupon.discountValue);
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 3: UNBRANDED DELIVERY PAGE
+// (handled in showClientDeliveryView — updated there)
+// ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// FEATURE 4: PROPERTY PAGE VIEW TRACKING
+// ══════════════════════════════════════════════
+function trackDeliveryView(token) {
+  const data = getData();
+  if (!data.viewCounts) data.viewCounts = {};
+  data.viewCounts[token] = (data.viewCounts[token] || 0) + 1;
+  saveData(data);
+}
+function getViewCount(token) {
+  const data = getData();
+  return (data.viewCounts || {})[token] || 0;
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 5: UPSELL SUGGESTIONS ON ORDER PAGES
+// (injected into showOrderPage render)
+// ══════════════════════════════════════════════
+function buildUpsellSuggestions(selectedServiceNames) {
+  const upsellMap = {
+    'photo': ['Drone/Aerial Add-On', 'Virtual Twilight Edit', 'Floor Plan'],
+    'aerial': ['Interior Photo Package', 'Virtual Tour'],
+    'video': ['Social Media Reel', 'Drone Video Add-On'],
+    'virtual': ['Interior Photos', 'Aerial Drone'],
+    'floor': ['3D Matterport Tour', 'Interior Photos'],
+    'twilight': ['Blue Hour Exterior', 'Interior Photos']
+  };
+  const suggestions = new Set();
+  selectedServiceNames.forEach(name => {
+    const lower = name.toLowerCase();
+    Object.entries(upsellMap).forEach(([key, items]) => {
+      if (lower.includes(key)) items.forEach(i => suggestions.add(i));
+    });
+  });
+  // Remove anything already selected
+  selectedServiceNames.forEach(n => suggestions.delete(n));
+  return [...suggestions].slice(0, 3);
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 6: MILEAGE TRACKING
+// ══════════════════════════════════════════════
+function openMileageModal(id) {
+  const data = getData();
+  // Populate project dropdown
+  const projSel = document.getElementById('mileage-project');
+  projSel.innerHTML = '<option value="">None</option>' + (data.projects||[]).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  if (id) {
+    const m = (data.mileageLogs||[]).find(m=>m.id===id); if (!m) return;
+    document.getElementById('mileage-modal-title').textContent = 'Edit Miles';
+    document.getElementById('mileage-id').value = m.id;
+    document.getElementById('mileage-desc').value = m.desc || '';
+    document.getElementById('mileage-date').value = m.date || '';
+    document.getElementById('mileage-miles').value = m.miles || '';
+    document.getElementById('mileage-project').value = m.projectId || '';
+  } else {
+    document.getElementById('mileage-modal-title').textContent = 'Log Miles';
+    ['mileage-id','mileage-desc','mileage-miles'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('mileage-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('mileage-project').value = '';
+  }
+  updateMileagePreview();
+  openModal('mileage-modal');
+}
+function updateMileagePreview() {
+  const miles = parseFloat(document.getElementById('mileage-miles').value) || 0;
+  const data = getData();
+  const rate = data.settings.mileageRate || 0.67;
+  const deduction = miles * rate;
+  document.getElementById('mileage-deduction-preview').textContent = miles > 0
+    ? `🧾 Tax deduction: ${fmtCurrency(deduction)} (${miles} miles × $${rate}/mi)`
+    : 'Enter miles to see estimated deduction';
+}
+document.addEventListener('input', e => { if (e.target.id === 'mileage-miles') updateMileagePreview(); });
+function saveMileageLog() {
+  const desc = document.getElementById('mileage-desc').value.trim();
+  const miles = parseFloat(document.getElementById('mileage-miles').value) || 0;
+  if (!desc) { toast('Description required', 'error'); return; }
+  if (miles <= 0) { toast('Enter miles > 0', 'error'); return; }
+  const data = getData();
+  if (!data.mileageLogs) data.mileageLogs = [];
+  const id = document.getElementById('mileage-id').value;
+  const log = { id: id||uid(), desc, miles, date: document.getElementById('mileage-date').value, projectId: document.getElementById('mileage-project').value, createdAt: id?(data.mileageLogs.find(m=>m.id===id)||{}).createdAt||Date.now():Date.now() };
+  if (id) { const idx = data.mileageLogs.findIndex(m=>m.id===id); if(idx>=0) data.mileageLogs[idx]=log; }
+  else { data.mileageLogs.unshift(log); }
+  saveData(data); closeModal('mileage-modal'); renderMileageView(); toast('Miles logged');
+}
+function deleteMileageLog(id) {
+  confirmDelete('Delete this mileage entry?', () => {
+    const data = getData(); data.mileageLogs=(data.mileageLogs||[]).filter(m=>m.id!==id);
+    saveData(data); renderMileageView(); toast('Entry deleted');
+  });
+}
+function renderMileageView() {
+  const data = getData();
+  const logs = data.mileageLogs || [];
+  const rate = data.settings.mileageRate || 0.67;
+  const totalMiles = logs.reduce((s,m)=>s+m.miles,0);
+  const totalDeduction = totalMiles * rate;
+  const yearLogs = logs.filter(m => m.date && m.date.startsWith(new Date().getFullYear().toString()));
+  const yearMiles = yearLogs.reduce((s,m)=>s+m.miles,0);
+  document.getElementById('mileage-banner').innerHTML = `
+    <div class="mileage-stat"><div class="mileage-stat-val">${totalMiles.toFixed(1)}</div><div class="mileage-stat-lbl">Total Miles</div></div>
+    <div class="mileage-stat"><div class="mileage-stat-val">${yearMiles.toFixed(1)}</div><div class="mileage-stat-lbl">This Year</div></div>
+    <div class="mileage-stat"><div class="mileage-stat-val">${fmtCurrency(totalDeduction)}</div><div class="mileage-stat-lbl">Total Deduction</div></div>
+    <div class="mileage-stat"><div class="mileage-stat-val">$${rate}/mi</div><div class="mileage-stat-lbl">IRS Rate</div></div>`;
+  // Populate project filter
+  const projFilter = document.getElementById('mileage-project-filter');
+  const prevVal = projFilter.value;
+  projFilter.innerHTML = '<option value="">All Projects</option>' + (data.projects||[]).map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  projFilter.value = prevVal;
+  renderMileageLogs();
+}
+function renderMileageLogs() {
+  const data = getData();
+  const logs = data.mileageLogs || [];
+  const rate = data.settings.mileageRate || 0.67;
+  const projFilter = document.getElementById('mileage-project-filter')?.value || '';
+  const filtered = logs.filter(m => !projFilter || m.projectId === projFilter);
+  const tbody = document.getElementById('mileage-tbody');
+  const empty = document.getElementById('mileage-empty');
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(m => `<tr>
+    <td>${fmtDate(m.date)}</td>
+    <td>${esc(m.desc)}</td>
+    <td>${m.projectId ? esc(projectName(m.projectId)) : '—'}</td>
+    <td>${m.miles.toFixed(1)}</td>
+    <td>${fmtCurrency(m.miles * rate)}</td>
+    <td class="table-actions"><button class="btn btn-ghost btn-icon btn-sm" onclick="openMileageModal('${m.id}')">✏️</button><button class="btn btn-ghost btn-icon btn-sm" onclick="deleteMileageLog('${m.id}')">🗑</button></td>
+  </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 7: BROKERAGE ALLOWANCES
+// (stored on client.brokerageAllowance — applied in order page)
+// ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// FEATURE 8: PRICING GROUPS
+// ══════════════════════════════════════════════
+function openPricingGroupModal(id) {
+  const data = getData();
+  if (id) {
+    const g = (data.pricingGroups||[]).find(g=>g.id===id); if (!g) return;
+    document.getElementById('pg-modal-title').textContent = 'Edit Pricing Group';
+    document.getElementById('pg-id').value = g.id;
+    document.getElementById('pg-name').value = g.name;
+    document.getElementById('pg-type').value = g.discountType;
+    document.getElementById('pg-value').value = g.discountValue;
+    document.getElementById('pg-color').value = g.color || 'purple';
+    document.getElementById('pg-notes').value = g.notes || '';
+  } else {
+    document.getElementById('pg-modal-title').textContent = 'New Pricing Group';
+    ['pg-id','pg-name','pg-value','pg-notes'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('pg-type').value = 'percent';
+    document.getElementById('pg-color').value = 'purple';
+  }
+  openModal('pricing-group-modal');
+}
+function savePricingGroup() {
+  const name = document.getElementById('pg-name').value.trim();
+  const val = parseFloat(document.getElementById('pg-value').value) || 0;
+  if (!name) { toast('Group name required', 'error'); return; }
+  if (val <= 0) { toast('Discount value must be > 0', 'error'); return; }
+  const data = getData();
+  if (!data.pricingGroups) data.pricingGroups = [];
+  const id = document.getElementById('pg-id').value;
+  const group = { id: id||uid(), name, discountType: document.getElementById('pg-type').value, discountValue: val, color: document.getElementById('pg-color').value, notes: document.getElementById('pg-notes').value.trim(), createdAt: id?(data.pricingGroups.find(g=>g.id===id)||{}).createdAt||Date.now():Date.now() };
+  if (id) { const idx=data.pricingGroups.findIndex(g=>g.id===id); if(idx>=0) data.pricingGroups[idx]=group; }
+  else { data.pricingGroups.push(group); }
+  saveData(data); closeModal('pricing-group-modal'); renderPricingGroupsList(); toast(id?'Group updated':'Group created');
+}
+function deletePricingGroup(id) {
+  confirmDelete('Delete this pricing group?', () => {
+    const data = getData(); data.pricingGroups=(data.pricingGroups||[]).filter(g=>g.id!==id);
+    saveData(data); renderPricingGroupsList(); toast('Group deleted');
+  });
+}
+function renderPricingGroupsList() {
+  const data = getData();
+  const groups = data.pricingGroups || [];
+  const el = document.getElementById('pricing-groups-list');
+  if (!el) return;
+  if (!groups.length) { el.innerHTML='<div style="font-size:0.82rem;color:var(--text-muted);padding:8px 0">No pricing groups yet.</div>'; return; }
+  const colorMap = { purple:'#6D28D9', green:'#065F46', orange:'#9A3412', blue:'#1E40AF' };
+  const bgMap = { purple:'#F5F3FF', green:'#ECFDF5', orange:'#FFF7ED', blue:'#EFF6FF' };
+  el.innerHTML = groups.map(g => {
+    const discStr = g.discountType==='percent' ? g.discountValue+'% off' : fmtCurrency(g.discountValue)+' off';
+    const c = colorMap[g.color]||'#6D28D9', bg = bgMap[g.color]||'#F5F3FF';
+    return `<div class="pg-list-item">
+      <span style="background:${bg};color:${c};padding:3px 10px;border-radius:10px;font-size:0.75rem;font-weight:700">${esc(g.name)}</span>
+      <span style="font-size:0.82rem;color:var(--text-muted)">${discStr}</span>
+      <span style="flex:1;font-size:0.78rem;color:var(--text-light)">${g.notes?esc(g.notes):''}</span>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="openPricingGroupModal('${g.id}')">✏️</button>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="deletePricingGroup('${g.id}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+function populateClientPricingGroupDropdown() {
+  const data = getData();
+  const sel = document.getElementById('client-pricing-group');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Standard (no discount)</option>' + (data.pricingGroups||[]).map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+}
+function getClientPricingDiscount(clientEmail) {
+  if (!clientEmail) return null;
+  const data = getData();
+  const client = (data.clients||[]).find(c => c.email && c.email.toLowerCase() === clientEmail.toLowerCase());
+  if (!client || !client.pricingGroupId) return null;
+  const group = (data.pricingGroups||[]).find(g => g.id === client.pricingGroupId);
+  return group || null;
+}
+function getClientBrokerageAllowance(clientEmail) {
+  if (!clientEmail) return 0;
+  const data = getData();
+  const client = (data.clients||[]).find(c => c.email && c.email.toLowerCase() === clientEmail.toLowerCase());
+  return parseFloat(client?.brokerageAllowance) || 0;
+}
+
 // ── INIT ──
 async function init() {
   await ensureFounderAccount();
@@ -4507,6 +5116,91 @@ loadSettings = function() {
 <!-- CONTRACT SCREEN -->
 <div id="contract-screen" class="hidden">
   <div class="contract-inner" id="contract-inner"></div>
+</div>
+
+<!-- MILEAGE LOG MODAL -->
+<div class="modal-overlay" id="mileage-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="mileage-modal-title">Log Miles</div><button class="modal-close" onclick="closeModal('mileage-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="mileage-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Description <span>*</span></label><input class="form-control" id="mileage-desc" placeholder="e.g. Drive to listing at 123 Main St"></div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-control" id="mileage-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Miles <span>*</span></label><input class="form-control" id="mileage-miles" type="number" min="0" step="0.1" placeholder="0.0"></div>
+        <div class="form-group"><label class="form-label">Linked Project</label><select class="form-control" id="mileage-project"><option value="">None</option></select></div>
+      </div>
+      <div id="mileage-deduction-preview" style="background:var(--info-bg);border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#1E40AF;margin-top:4px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('mileage-modal')">Cancel</button><button class="btn btn-primary" onclick="saveMileageLog()">Save</button></div>
+  </div>
+</div>
+
+<!-- COUPON MODAL -->
+<div class="modal-overlay" id="coupon-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="coupon-modal-title">New Coupon</div><button class="modal-close" onclick="closeModal('coupon-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="coupon-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Coupon Code <span>*</span></label><input class="form-control" id="coupon-code" placeholder="e.g. SUMMER20" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label class="form-label">Discount Type</label><select class="form-control" id="coupon-type"><option value="percent">Percent Off (%)</option><option value="fixed">Fixed Amount Off ($)</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Discount Value <span>*</span></label><input class="form-control" id="coupon-value" type="number" min="0" step="0.01" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Max Uses (0 = unlimited)</label><input class="form-control" id="coupon-max-uses" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Expires (optional)</label><input class="form-control" id="coupon-expires" type="date"></div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:24px">
+          <input type="checkbox" id="coupon-active" style="width:16px;height:16px;cursor:pointer" checked>
+          <label for="coupon-active" class="form-label" style="margin:0;cursor:pointer">Active</label>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Description / Internal Note</label><input class="form-control" id="coupon-note" placeholder="e.g. Summer promo for new real estate clients"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('coupon-modal')">Cancel</button><button class="btn btn-primary" onclick="saveCoupon()">Save Coupon</button></div>
+  </div>
+</div>
+
+<!-- PRICING GROUP MODAL -->
+<div class="modal-overlay" id="pricing-group-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="pg-modal-title">New Pricing Group</div><button class="modal-close" onclick="closeModal('pricing-group-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="pg-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Group Name <span>*</span></label><input class="form-control" id="pg-name" placeholder="e.g. VIP Agents, Brokerage, Wholesale"></div>
+        <div class="form-group"><label class="form-label">Discount Type</label><select class="form-control" id="pg-type"><option value="percent">Percent Off (%)</option><option value="fixed">Fixed Amount Off ($)</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Discount Value <span>*</span></label><input class="form-control" id="pg-value" type="number" min="0" step="0.01" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Badge Color</label><select class="form-control" id="pg-color"><option value="purple">Purple (VIP)</option><option value="green">Green (Brokerage)</option><option value="orange">Orange (Wholesale)</option><option value="blue">Blue (Partner)</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><input class="form-control" id="pg-notes" placeholder="Internal description of this pricing tier"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('pricing-group-modal')">Cancel</button><button class="btn btn-primary" onclick="savePricingGroup()">Save Group</button></div>
+  </div>
+</div>
+
+<!-- EMAIL NOTIFICATION MODAL -->
+<div class="modal-overlay" id="notif-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="notif-modal-title">📧 Send Notification</div><button class="modal-close" onclick="closeModal('notif-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">To</label><input class="form-control" id="notif-to" type="email" placeholder="client@email.com"></div>
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-control" id="notif-subject"></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" id="notif-body" rows="8" style="line-height:1.7"></textarea></div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">Opens in your default email app. No backend needed.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('notif-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="copyNotifBody()">📋 Copy Message</button>
+      <button class="btn btn-primary" onclick="sendNotifEmail()">📤 Open in Email App</button>
+    </div>
+  </div>
 </div>
 
 </body>
