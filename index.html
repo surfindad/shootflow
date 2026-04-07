@@ -671,6 +671,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div class="nav-item" onclick="navigate('order-pages')" data-view="order-pages"><span class="nav-icon">🛒</span> Order Pages</div>
   </div>
   <div class="sidebar-section">
+    <div class="sidebar-section-label">AI</div>
+    <div class="nav-item" onclick="navigate('ai-studio')" data-view="ai-studio"><span class="nav-icon">🤖</span> AI Studio</div>
+  </div>
+  <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
     <div class="nav-item" onclick="navigate('expenses')" data-view="expenses"><span class="nav-icon">💰</span> Expenses</div>
     <div class="nav-item" onclick="navigate('time')" data-view="time"><span class="nav-icon">⏱</span> Time Tracking</div>
@@ -870,6 +874,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div class="card-header"><div class="card-title">Project Delivery Links</div></div>
         <div class="card-body"><div id="delivery-list"></div></div>
       </div>
+    </div>
+    <!-- AI STUDIO VIEW -->
+    <div class="view" id="view-ai-studio">
+      <div class="section-header">
+        <div><div class="section-title">🤖 AI Studio</div><div class="section-sub">AI-powered tools for every part of your business</div></div>
+      </div>
+      <div id="ai-studio-content"></div>
     </div>
     <!-- LEADS -->
     <div class="view" id="view-leads">
@@ -1421,34 +1432,52 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 </div>
 
 <!-- CLIENT DELIVERY VIEW -->
-<div id="client-delivery-view" style="display:none;position:fixed;inset:0;background:#F1F5F9;z-index:10000;overflow-y:auto">
-  <div style="max-width:600px;margin:0 auto;padding:40px 20px">
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:white;margin:0 auto 12px">SF</div>
-      <div style="font-weight:800;font-size:1.4rem;color:var(--text)" id="cdv-business-name">ShootFlow</div>
-      <div style="color:var(--text-muted);font-size:0.85rem" id="cdv-project-name">Project delivery</div>
-    </div>
-    <div id="cdv-payment-wall">
-      <div style="background:white;border-radius:14px;border:1px solid var(--border);padding:28px;margin-bottom:20px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-        <div style="font-size:2rem;margin-bottom:12px">🔒</div>
-        <div style="font-weight:800;font-size:1.1rem;margin-bottom:8px">Payment Required</div>
-        <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px">Complete your payment to unlock and download your files.</div>
-        <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:8px;padding:14px;margin-bottom:20px">
-          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">Amount Due</div>
-          <div style="font-weight:800;font-size:1.8rem;color:var(--success)" id="cdv-amount">$0.00</div>
-        </div>
-        <div id="cdv-payment-methods"></div>
-        <div style="margin-top:16px;font-size:0.75rem;color:var(--text-muted)">After sending payment, notify your photographer and they will unlock your files.</div>
+<div id="client-delivery-view" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:10000;overflow-y:auto">
+  <!-- Header bar -->
+  <div style="background:#1E293B;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:0.9rem">SF</div>
+      <div>
+        <div style="font-weight:700;color:white;font-size:0.95rem" id="cdv-business-name">ShootFlow</div>
+        <div style="color:#94A3B8;font-size:0.72rem">Secure File Delivery</div>
       </div>
     </div>
+  </div>
+  <!-- Hero -->
+  <div style="max-width:660px;margin:0 auto;padding:40px 20px 60px">
+    <div style="text-align:center;margin-bottom:32px;padding-top:20px">
+      <div style="font-weight:800;font-size:1.6rem;color:white;margin-bottom:6px" id="cdv-project-name">Your Files</div>
+      <div style="color:#64748B;font-size:0.88rem">Secure, private delivery — just for you</div>
+    </div>
+
+    <!-- Payment wall -->
+    <div id="cdv-payment-wall">
+      <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;margin-bottom:20px;text-align:center">
+        <div style="width:64px;height:64px;background:rgba(229,50,90,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px">🔒</div>
+        <div style="font-weight:800;font-size:1.15rem;color:white;margin-bottom:8px">Files Locked</div>
+        <div style="color:#94A3B8;font-size:0.88rem;margin-bottom:24px">Complete your payment below to instantly unlock and download all your files.</div>
+        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:16px;margin-bottom:24px;display:inline-block;min-width:200px">
+          <div style="font-size:0.7rem;color:#6EE7B7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Amount Due</div>
+          <div style="font-weight:800;font-size:2rem;color:#10B981" id="cdv-amount">$0.00</div>
+        </div>
+        <div id="cdv-payment-methods" style="text-align:left;max-width:360px;margin:0 auto"></div>
+        <div style="margin-top:20px;font-size:0.75rem;color:#475569;line-height:1.6">After payment, your files unlock <strong style="color:#94A3B8">instantly</strong> — just refresh this page.<br>Questions? Contact your photographer directly.</div>
+      </div>
+    </div>
+
+    <!-- Unlocked state -->
     <div id="cdv-unlocked" style="display:none">
-      <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-        <div style="font-size:1.5rem">✅</div>
-        <div><div style="font-weight:700;color:var(--success)">Payment Received — Files Unlocked!</div><div style="font-size:0.78rem;color:var(--text-muted)">Your files are ready to download below.</div></div>
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:2rem">✅</div>
+        <div>
+          <div style="font-weight:700;color:#10B981;font-size:0.95rem">Payment Confirmed — Files Ready!</div>
+          <div style="font-size:0.78rem;color:#6EE7B7;margin-top:2px">Click any file below to download.</div>
+        </div>
       </div>
       <div id="cdv-files"></div>
     </div>
-    <div style="text-align:center;margin-top:32px;font-size:0.72rem;color:var(--text-muted)">Powered by ShootFlow</div>
+
+    <div style="text-align:center;margin-top:48px;font-size:0.68rem;color:#334155">Powered by ShootFlow • Secure Delivery</div>
   </div>
 </div>
 
@@ -1828,7 +1857,8 @@ const PAGE_CONFIG = {
   mileage:      { title: 'Mileage Tracker', action: '+ Log Miles',       actionFn: 'openMileageModal' },
   coupons:      { title: 'Coupons & Promos', action: '+ New Coupon',    actionFn: 'openCouponModal' },
   integrations: { title: 'Integrations', action: 'Save Integrations', actionFn: 'saveIntegrations' },
-  settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
+  settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' },
+  'ai-studio':  { title: 'AI Studio',    action: null,                actionFn: null }
 };
 function navigate(view) {
   // Session integrity check on every navigation
@@ -1864,6 +1894,7 @@ function navigate(view) {
   if (view === 'coupons')      renderCoupons();
   if (view === 'integrations') loadIntegrations();
   if (view === 'settings')     loadSettings();
+  if (view === 'ai-studio')   renderAiStudio();
 }
 function topbarAction() { const fn = document.getElementById('topbar-action-btn').dataset.fn; if (fn && window[fn]) window[fn](); }
 
@@ -2313,6 +2344,8 @@ function renderInvoices() {
   tbody.innerHTML = invoices.map(i => {
     const cname = clientName(i.clientId);
     const initials = cname.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const iProj = data.projects?.find(p => p.id === i.projectId);
+    const hasDelivery = iProj && iProj.deliveryToken;
     return `<tr>
       <td><span style="font-weight:700;font-family:monospace;font-size:0.82rem;color:var(--text-muted)">${i.invoiceNumber}</span></td>
       <td><div class="avatar-wrap"><div class="avatar">${initials}</div><span style="font-weight:600">${cname}</span></div></td>
@@ -2322,6 +2355,7 @@ function renderInvoices() {
       <td>${statusBadge(i.status)}</td>
       <td><div class="table-actions">
         ${i.status !== 'paid' ? `<button class="btn btn-primary btn-sm" onclick="requestPayment('${i.id}')">💰 Request</button><button class="btn btn-success btn-sm" onclick="markInvoicePaid('${i.id}')">✓ Paid</button>${i.status === 'overdue' ? `<button class="btn btn-ghost btn-sm" onclick="aiInvoiceNudge('${i.id}')" title="Draft payment reminder" style="font-size:0.75rem">✨ Nudge</button>` : ''}` : `<span class="badge badge-paid" style="padding:5px 10px">✓ Paid</span>`}
+        ${hasDelivery && i.status !== 'paid' ? `<button class="btn btn-success btn-sm" onclick="sendInvoiceWithDelivery('${i.id}')" title="Email invoice + delivery link in one message">📤 Deliver</button>` : ''}
         <button class="btn btn-secondary btn-sm" onclick="emailInvoice('${i.id}')">📧</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="openInvoiceModal('${i.id}')">✏️</button>
         <button class="btn btn-ghost btn-icon btn-sm" onclick="deleteInvoice('${i.id}')">🗑</button>
@@ -2730,16 +2764,20 @@ function showClientDeliveryView(token) {
 }
 function renderClientFiles(proj) {
   const typeIcons = { photos:'📷', video:'🎬', raw:'📦', edits:'✨', other:'📄' };
+  const typeLabels = { photos:'Photos', video:'Video', raw:'RAW Files', edits:'Edited Files', other:'Files' };
   const filesEl = document.getElementById('cdv-files');
   if (!proj.media || !proj.media.length) {
-    filesEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);background:white;border-radius:10px;border:1px solid var(--border)">Your photographer has not uploaded files yet.</div>';
+    filesEl.innerHTML = '<div style="text-align:center;padding:40px;color:#475569;background:#1E293B;border-radius:12px;border:1px solid rgba(255,255,255,0.08)">Your photographer has not yet added your files. Check back soon!</div>';
     return;
   }
   filesEl.innerHTML = proj.media.map(m => `
-    <div class="cdv-file-card">
-      <div class="cdv-file-icon">${typeIcons[m.type] || '📄'}</div>
-      <div style="flex:1"><div style="font-weight:700;font-size:0.95rem">${m.name}</div>${m.notes ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${esc(m.notes)}</div>` : ''}</div>
-      ${m.link ? `<a href="${safeUrl(m.link)}" target="_blank" style="background:var(--accent);color:white;padding:9px 16px;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none">⬇ Download</a>` : '<span style="color:var(--text-muted);font-size:0.8rem">Link coming soon</span>'}
+    <div style="background:#1E293B;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+      <div style="width:48px;height:48px;border-radius:10px;background:rgba(229,50,90,0.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">${typeIcons[m.type] || '📄'}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:0.95rem;color:white">${esc(m.name)}</div>
+        <div style="font-size:0.75rem;color:#64748B;margin-top:2px">${typeLabels[m.type] || 'File'}${m.notes ? ' • ' + esc(m.notes) : ''}</div>
+      </div>
+      ${m.link ? `<a href="${safeUrl(m.link)}" target="_blank" style="background:var(--accent);color:white;padding:10px 18px;border-radius:8px;font-weight:700;font-size:0.85rem;text-decoration:none;white-space:nowrap;flex-shrink:0">⬇ Download</a>` : '<span style="color:#475569;font-size:0.8rem">Coming soon</span>'}
     </div>`).join('');
 }
 function unlockProjectDelivery(invoiceId) {
@@ -2747,6 +2785,41 @@ function unlockProjectDelivery(invoiceId) {
   if (!inv || !inv.projectId) return;
   const proj = data.projects.find(p => p.id === inv.projectId);
   if (proj) { proj.deliveryUnlocked = true; saveData(data); }
+}
+
+function sendInvoiceWithDelivery(invoiceId) {
+  const data = getData(); const inv = data.invoices.find(i => i.id === invoiceId); if (!inv) return;
+  const client = data.clients.find(c => c.id === inv.clientId);
+  const proj = data.projects?.find(p => p.id === inv.projectId);
+  const s = data.settings;
+  const to = client?.email || '';
+  const deliveryUrl = proj?.deliveryToken ? window.location.href.split('#')[0] + '#deliver/' + proj.deliveryToken : '';
+  const int = data.integrations || {};
+  const payLines = [];
+  if (int.stripe?.enabled && int.stripe?.paymentLink)   payLines.push(`Pay via Stripe: ${int.stripe.paymentLink}`);
+  if (int.paypal?.enabled && int.paypal?.username)       payLines.push(`Pay via PayPal: https://paypal.me/${int.paypal.username}/${inv.total}`);
+  if (int.venmo?.enabled && int.venmo?.username)         payLines.push(`Pay via Venmo: ${int.venmo.username}`);
+  if (int.cashapp?.enabled && int.cashapp?.cashtag)      payLines.push(`Pay via Cash App: ${int.cashapp.cashtag}`);
+  if (int.zelle?.enabled && int.zelle?.contact)          payLines.push(`Pay via Zelle: ${int.zelle.contact}`);
+  const paySection = payLines.length ? `\n\nHow to Pay:\n${payLines.join('\n')}` : '';
+  const subject = `Your Photos Are Ready + Invoice ${inv.invoiceNumber} — ${fmtCurrency(inv.total)}`;
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},
+
+Great news — your photos are ready for download!${deliveryUrl ? `
+
+🔗 Access your files here:
+${deliveryUrl}
+
+Your files will unlock automatically as soon as payment is received.` : ''}
+
+Invoice ${inv.invoiceNumber}: ${fmtCurrency(inv.total)}
+Due: ${fmtDate(inv.dueDate)}${paySection}
+
+${s.invoiceNotes || 'Thank you for your business!'}
+
+${s.businessName || 'Your Photographer'}
+${s.phone || ''}`;
+  openEmailCompose({ to, toName: client?.name || '', subject, body, title: '📤 Send Invoice + Delivery Link' });
 }
 
 // ── PAYMENT REQUEST ──
@@ -3695,6 +3768,115 @@ function applyAiResult() {
 }
 
 // ── AI FEATURES ──
+function renderAiStudio() {
+  const data = getData();
+  const hasKey = !!getAiKey();
+  const projects = data.projects || [];
+  const clients = data.clients || [];
+  const invoices = data.invoices || [];
+  const bookings = data.bookings || [];
+  const leads = data.leads || [];
+
+  const projOpts = '<option value="">— Select project —</option>' + projects.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  const clientOpts = '<option value="">— Select client —</option>' + clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  const invoiceOpts = '<option value="">— Select invoice —</option>' + invoices.map(i => `<option value="${esc(i.id)}">${esc(i.invoiceNumber)} — ${fmtCurrency(i.total)}</option>`).join('');
+  const bookingOpts = '<option value="">— Select booking —</option>' + bookings.map(b => `<option value="${esc(b.id)}">${esc(b.title)} (${fmtDate(b.date)})</option>`).join('');
+  const leadOpts = '<option value="">— Select lead —</option>' + leads.map(l => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('');
+
+  if (!hasKey) {
+    document.getElementById('ai-studio-content').innerHTML = `
+      <div style="background:var(--warning-bg);border:1px solid #FDE68A;border-radius:12px;padding:24px;text-align:center;max-width:500px;margin:40px auto">
+        <div style="font-size:2.5rem;margin-bottom:12px">🤖</div>
+        <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px">AI Key Required</div>
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px">Add your Anthropic API key in Settings to unlock all AI tools.</div>
+        <button class="btn btn-primary" onclick="navigate('settings')">Go to Settings →</button>
+      </div>`;
+    return;
+  }
+
+  const categories = [
+    {
+      id: 'emails', icon: '📧', title: 'Emails & Outreach',
+      tools: [
+        { id: 'draft-email', title: 'Client Email Draft', desc: 'Write a personalized follow-up or outreach email to any client.', select: `<select id="as-client-draft-email" class="form-control">${clientOpts}</select>`, fn: `aiDraftEmail(document.getElementById('as-client-draft-email').value)` },
+        { id: 'booking-confirm', title: 'Booking Confirmation', desc: 'Send a polished booking confirmation with shoot details.', select: `<select id="as-booking-confirm" class="form-control">${bookingOpts}</select>`, fn: `sendBookingConfirmation(document.getElementById('as-booking-confirm').value)` },
+        { id: 'reschedule-msg', title: 'Reschedule Message', desc: 'Professionally ask a client to reschedule.', select: `<select id="as-reschedule" class="form-control">${bookingOpts}</select>`, fn: `aiRescheduleMessage(document.getElementById('as-reschedule').value)` },
+        { id: 'no-show', title: 'No-Show Follow-up', desc: 'Handle a client who missed their shoot gracefully.', select: `<select id="as-no-show" class="form-control">${bookingOpts}</select>`, fn: `aiNoShowMessage(document.getElementById('as-no-show').value)` },
+        { id: 'delivery-msg', title: 'File Delivery Email', desc: 'Announce that photos/videos are ready with your delivery link.', select: `<select id="as-delivery-msg" class="form-control">${projOpts}</select>`, fn: `aiDeliveryMessage(document.getElementById('as-delivery-msg').value)` },
+        { id: 'testimonial', title: 'Testimonial Request', desc: 'Ask for a Google or social review after a great shoot.', select: `<select id="as-testimonial" class="form-control">${projOpts}</select>`, fn: `aiTestimonialRequest(document.getElementById('as-testimonial').value)` },
+        { id: 'lead-response', title: 'Lead Response', desc: 'Reply to a new inquiry to convert them to a booking.', select: `<select id="as-lead-resp" class="form-control">${leadOpts}</select>`, fn: `aiLeadResponse(document.getElementById('as-lead-resp').value)` },
+        { id: 'cold-outreach', title: 'Cold Outreach', desc: 'Generate a prospecting email for new real estate agents.', select: null, fn: `aiColdOutreach()` },
+        { id: 'newsletter', title: 'Monthly Newsletter', desc: 'Write a client newsletter for this month.', select: null, fn: `aiMonthlyNewsletter()` },
+        { id: 'price-increase', title: 'Price Increase Notice', desc: 'Communicate a rate increase to a client professionally.', select: `<select id="as-price-increase" class="form-control">${clientOpts}</select>`, fn: `aiPriceIncreaseNotice(document.getElementById('as-price-increase').value)` },
+        { id: 'lead-nurture', title: 'Lead Nurture Sequence', desc: 'Multi-step email sequence to warm up a lead.', select: `<select id="as-lead-nurture" class="form-control">${leadOpts}</select>`, fn: `aiLeadNurture(document.getElementById('as-lead-nurture').value)` },
+      ]
+    },
+    {
+      id: 'documents', icon: '📄', title: 'Documents & Proposals',
+      tools: [
+        { id: 'proposal', title: 'Project Proposal', desc: 'Full PDF-ready proposal for a client or project.', select: `<select id="as-proposal" class="form-control">${projOpts}</select>`, fn: `aiProjectProposal(document.getElementById('as-proposal').value)` },
+        { id: 'contract', title: 'Contract Draft', desc: 'Generate a professional photography contract.', select: `<select id="as-contract" class="form-control">${projOpts}</select>`, fn: `aiContractDraft(document.getElementById('as-contract').value)` },
+        { id: 'model-release', title: 'Model Release', desc: 'Create a model/talent release form for a session.', select: `<select id="as-model-release" class="form-control">${projOpts}</select>`, fn: `aiModelRelease(document.getElementById('as-model-release').value)` },
+        { id: 'property-release', title: 'Property Release', desc: 'Generate a location/property usage release.', select: `<select id="as-prop-release" class="form-control">${projOpts}</select>`, fn: `aiPropertyRelease(document.getElementById('as-prop-release').value)` },
+        { id: 'invoice-notes', title: 'Invoice Notes', desc: 'AI-drafted professional payment terms & notes for an invoice.', select: null, fn: `aiDraftInvoiceNotes()` },
+        { id: 'invoice-nudge', title: 'Payment Reminder', desc: 'Politely nudge an overdue client to pay their invoice.', select: `<select id="as-nudge" class="form-control">${invoiceOpts}</select>`, fn: `aiInvoiceNudge(document.getElementById('as-nudge').value)` },
+      ]
+    },
+    {
+      id: 'clients', icon: '👤', title: 'Client Intelligence',
+      tools: [
+        { id: 'client-profile', title: 'Client Profile Summary', desc: 'Full AI breakdown of a client: history, value, preferences.', select: `<select id="as-client-profile" class="form-control">${clientOpts}</select>`, fn: `aiClientProfileSummary(document.getElementById('as-client-profile').value)` },
+        { id: 'intake', title: 'Client Intake Questions', desc: 'Custom pre-shoot questionnaire for a client.', select: `<select id="as-intake" class="form-control">${projOpts}</select>`, fn: `aiClientIntake(document.getElementById('as-intake').value)` },
+        { id: 'survey', title: 'Post-Shoot Survey', desc: 'Gather feedback after a completed session.', select: `<select id="as-survey" class="form-control">${bookingOpts}</select>`, fn: `aiPostShootSurvey(document.getElementById('as-survey').value)` },
+        { id: 'shoot-prep', title: 'Shoot Prep Checklist', desc: 'Day-before checklist for you and the client.', select: `<select id="as-shoot-prep" class="form-control">${projOpts}</select>`, fn: `aiShootPrepChecklist(document.getElementById('as-shoot-prep').value)` },
+      ]
+    },
+    {
+      id: 'social', icon: '📱', title: 'Social & Marketing',
+      tools: [
+        { id: 'social-caption', title: 'Social Media Caption', desc: 'Instagram/Facebook caption with hashtags for a delivered project.', select: `<select id="as-social-caption" class="form-control">${projOpts}</select>`, fn: `aiSocialCaption(document.getElementById('as-social-caption').value)` },
+        { id: 'blog-post', title: 'Blog Post Outline', desc: 'SEO-ready blog post outline about a recent shoot.', select: null, fn: `aiBlogPostOutline()` },
+        { id: 'website-copy', title: 'Website Copy', desc: 'Refresh homepage or about-page copy for your photography site.', select: null, fn: `aiWebsiteCopy()` },
+        { id: 'bio', title: 'Photographer Bio', desc: 'Update your professional bio for websites and social profiles.', select: null, fn: `aiPhotographerBio()` },
+      ]
+    },
+    {
+      id: 'business', icon: '📊', title: 'Business Intelligence',
+      tools: [
+        { id: 'weekly-briefing', title: 'Weekly Briefing', desc: "Summary of this week's projects, invoices, and priorities.", select: null, fn: `aiWeeklyBriefing()` },
+        { id: 'year-review', title: 'Year in Review', desc: 'Full annual business performance report with insights.', select: null, fn: `aiYearInReview()` },
+        { id: 'best-clients', title: 'Best Client Report', desc: 'Identify your highest-value clients and patterns.', select: null, fn: `aiBestClientReport()` },
+        { id: 'seasonal-trends', title: 'Seasonal Trends', desc: 'Analyze booking patterns and plan for peak seasons.', select: null, fn: `aiSeasonalTrends()` },
+        { id: 'pricing-suggestion', title: 'Pricing Suggestion', desc: 'Get AI recommendations on pricing your services.', select: null, fn: `aiPricingSuggestion()` },
+        { id: 'expense-summary', title: 'Tax & Expense Summary', desc: 'Summarize deductible expenses for your accountant.', select: null, fn: `aiExpenseTaxSummary()` },
+        { id: 'time-summary', title: 'Time & Efficiency Report', desc: 'Analyze your time logs to find where to optimize.', select: null, fn: `aiTimeSummary()` },
+      ]
+    },
+  ];
+
+  const html = categories.map(cat => `
+    <div style="margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--border)">
+        <span style="font-size:1.4rem">${cat.icon}</span>
+        <span style="font-size:1rem;font-weight:700;color:var(--text)">${cat.title}</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:2px 8px">${cat.tools.length} tools</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+        ${cat.tools.map(tool => `
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="font-weight:700;font-size:0.92rem;margin-bottom:4px">${tool.title}</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.5">${tool.desc}</div>
+            </div>
+            ${tool.select ? `<div>${tool.select}</div>` : ''}
+            <button class="btn btn-primary btn-sm" onclick="${tool.fn}" style="align-self:flex-start;margin-top:auto">✨ Generate</button>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('ai-studio-content').innerHTML = html;
+}
+
 async function aiProjectProposal(projectId) {
   const data = getData(); const p = data.projects.find(x => x.id === projectId); if (!p) return;
   const client = data.clients.find(c => c.id === p.clientId); const s = data.settings;
