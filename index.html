@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://api.anthropic.com; img-src 'self' data: https:; frame-ancestors 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <title>ShootFlow — Photography & Video Business Platform</title>
 <style>
 /* ───────────────────────────────────────────────
@@ -564,7 +567,9 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
         <div class="auth-form-group">
           <label class="auth-form-label">Password <span style="color:var(--text-light);font-weight:400">(min 8 chars, 1 uppercase, 1 number)</span></label>
-          <input class="auth-form-input" type="password" id="su-password" placeholder="Create a password" onkeydown="if(event.key==='Enter')doSignUp()">
+          <input class="auth-form-input" type="password" id="su-password" placeholder="Create a password" onkeydown="if(event.key==='Enter')doSignUp()" oninput="updatePasswordStrength(this.value)">
+          <div id="pw-strength-bar" style="height:4px;border-radius:2px;margin-top:6px;transition:all 0.3s;background:#E5E7EB;overflow:hidden"><div id="pw-strength-fill" style="height:100%;width:0%;transition:all 0.3s;border-radius:2px"></div></div>
+          <div id="pw-strength-label" style="font-size:0.72rem;margin-top:3px;color:var(--text-muted)"></div>
         </div>
         <div class="auth-form-group" style="display:flex;align-items:flex-start;gap:10px;margin-top:4px">
           <input type="checkbox" id="su-agree" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;margin-top:2px">
@@ -1428,12 +1433,50 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 <script>
+// ── SECURITY: HTTPS ENFORCEMENT ──
+if (location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('https:' + location.href.slice(5));
+}
+
+// ── SECURITY: FRAME-BUSTING (clickjacking protection) ──
+if (window.top !== window.self) { window.top.location = window.self.location; }
+
 // ── AUTH LAYER ──
 const AUTH_KEY = 'shootflow_auth_v2';
 const SESSION_KEY = 'shootflow_session_v2';
 const LOCKOUT_KEY = 'shootflow_lockout_v1';
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+const LOCKOUT_MS = 30 * 60 * 1000; // 30 minutes
+const SIGNUP_KEY = 'shootflow_signup_v1';
+const MAX_SIGNUPS = 3; // max new accounts per hour from same browser
+const SIGNUP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const SESSION_TIMEOUT_MS = 60 * 60 * 1000; // 60 min inactivity auto-logout
+const PBKDF2_ITERATIONS = 310000; // OWASP 2024 recommendation
+
+// ── SESSION TIMEOUT (inactivity) ──
+let _inactivityTimer = null;
+function resetInactivityTimer() {
+  clearTimeout(_inactivityTimer);
+  const session = getSession();
+  if (!session) return;
+  _inactivityTimer = setTimeout(() => {
+    clearSession();
+    toast('Session expired — please sign in again.', 'info');
+    setTimeout(() => {
+      document.getElementById('auth-screen').classList.remove('hidden');
+      showAuthTab('signin');
+    }, 1500);
+  }, SESSION_TIMEOUT_MS);
+}
+function startInactivityWatch() {
+  ['click','keydown','mousemove','touchstart','scroll'].forEach(evt =>
+    document.addEventListener(evt, resetInactivityTimer, { passive: true })
+  );
+  resetInactivityTimer();
+}
+function stopInactivityWatch() {
+  clearTimeout(_inactivityTimer);
+}
 
 function getAuthStore() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || { users: [] }; } catch(e) { return { users: [] }; } }
 function saveAuthStore(store) { localStorage.setItem(AUTH_KEY, JSON.stringify(store)); }
@@ -1485,7 +1528,7 @@ async function hashPassword(password, salt) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: enc.encode(salt), iterations: 100000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: enc.encode(salt), iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
     keyMaterial, 256
   );
   return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -1521,6 +1564,46 @@ async function ensureFounderAccount() {
     store.users[store.users.indexOf(existing)] = { ...existing, ...FOUNDER_META, salt: existing.salt, passwordHash: existing.passwordHash };
     saveAuthStore(store);
   }
+}
+
+// ── SIGNUP RATE LIMITING ──
+function checkSignupLimit() {
+  try {
+    const rec = JSON.parse(localStorage.getItem(SIGNUP_KEY) || '{"attempts":[],"blocked":false}');
+    const now = Date.now();
+    // Remove attempts outside the window
+    rec.attempts = (rec.attempts || []).filter(t => now - t < SIGNUP_WINDOW_MS);
+    if (rec.attempts.length >= MAX_SIGNUPS) return false;
+    rec.attempts.push(now);
+    localStorage.setItem(SIGNUP_KEY, JSON.stringify(rec));
+    return true;
+  } catch(e) { return true; }
+}
+
+// ── PASSWORD STRENGTH METER ──
+function updatePasswordStrength(pw) {
+  const fill = document.getElementById('pw-strength-fill');
+  const label = document.getElementById('pw-strength-label');
+  if (!fill || !label) return;
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [
+    { pct: '0%',   color: '#E5E7EB', text: '' },
+    { pct: '25%',  color: '#EF4444', text: '⚠ Weak' },
+    { pct: '50%',  color: '#F59E0B', text: '◑ Fair' },
+    { pct: '75%',  color: '#3B82F6', text: '◕ Good' },
+    { pct: '90%',  color: '#8B5CF6', text: '★ Strong' },
+    { pct: '100%', color: '#10B981', text: '✓ Very Strong' },
+  ];
+  const lvl = levels[Math.min(score, 5)];
+  fill.style.width = pw.length ? lvl.pct : '0%';
+  fill.style.background = lvl.color;
+  label.textContent = pw.length ? lvl.text : '';
+  label.style.color = lvl.color;
 }
 
 function setAuthLoading(loading) {
@@ -1586,13 +1669,17 @@ async function doSignUp() {
   if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
   if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) { showAuthError('Password must include an uppercase letter and a number.'); return; }
   if (!document.getElementById('su-agree').checked) { showAuthError('Please read and agree to the Terms of Service to continue.'); return; }
+  if (!checkSignupLimit()) { showAuthError('Too many accounts created recently. Please try again in an hour.'); return; }
+  // Sanitize free-text fields — strip any HTML tags
+  const safeName = name.replace(/<[^>]*>/g, '').slice(0, 100);
+  const safeBusiness = business.replace(/<[^>]*>/g, '').slice(0, 100);
   setSignupLoading(true);
   try {
     const store = getAuthStore();
     if (store.users.find(u => u.email === email)) { showAuthError('An account with that email already exists.'); return; }
     const salt = generateSalt();
     const passwordHash = await hashPassword(password, salt);
-    const user = { id: Date.now().toString(36), name, businessName: business || name + ' Photography', email, salt, passwordHash, createdAt: Date.now() };
+    const user = { id: Date.now().toString(36), name: safeName, businessName: safeBusiness || safeName + ' Photography', email, salt, passwordHash, createdAt: Date.now() };
     store.users.push(user);
     saveAuthStore(store);
     saveSession(user);
@@ -1620,6 +1707,7 @@ function launchApp(user) {
     if (priceEl) priceEl.textContent = 'Free · Lifetime Access ♾';
   }
   navigate('dashboard');
+  startInactivityWatch();
 }
 function refreshUserUI(user, settings) {
   const displayName = settings?.ownerName || user?.name || 'My Account';
@@ -1634,8 +1722,7 @@ function refreshUserUI(user, settings) {
 }
 function doSignOut() {
   if (!confirm('Sign out of ShootFlow?')) return;
-  const emailEl = document.getElementById('si-email');
-  if (emailEl && emailEl.value) clearLockout(emailEl.value.trim().toLowerCase());
+  stopInactivityWatch();
   clearSession();
   document.getElementById('auth-screen').classList.remove('hidden');
   showAuthTab('signin');
@@ -1688,6 +1775,12 @@ const PAGE_CONFIG = {
   settings:     { title: 'Settings',      action: 'Save Settings',     actionFn: 'saveSettings' }
 };
 function navigate(view) {
+  // Session integrity check on every navigation
+  if (!getSession()) {
+    document.getElementById('auth-screen').classList.remove('hidden');
+    showAuthTab('signin');
+    return;
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const el = document.getElementById('view-' + view);
@@ -3327,12 +3420,61 @@ function showLeadAiMenu(id, btn) {
 }
 
 // ── AI INFRASTRUCTURE ──
-const AI_KEY_STORAGE = 'sf_ai_key_v1';
-function getAiKey() { return localStorage.getItem(AI_KEY_STORAGE) || ''; }
+const AI_KEY_STORAGE = 'sf_ai_key_v2'; // v2 = encrypted
+const AI_DEVICE_KEY_STORAGE = 'sf_dk_v1';
+let _aiKeyCache = ''; // in-memory only — never persisted as plaintext
+
+async function _getOrCreateDeviceKey() {
+  let dk = localStorage.getItem(AI_DEVICE_KEY_STORAGE);
+  if (!dk) {
+    dk = Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2,'0')).join('');
+    localStorage.setItem(AI_DEVICE_KEY_STORAGE, dk);
+  }
+  const enc = new TextEncoder();
+  const km = await crypto.subtle.importKey('raw', enc.encode(dk), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('sf-ai-key-v2'), iterations: 10000, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+async function _encryptAiKey(plaintext) {
+  const key = await _getOrCreateDeviceKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+  const combined = new Uint8Array(12 + ct.byteLength);
+  combined.set(iv, 0); combined.set(new Uint8Array(ct), 12);
+  return btoa(String.fromCharCode(...combined));
+}
+async function _decryptAiKey(stored) {
+  try {
+    const key = await _getOrCreateDeviceKey();
+    const combined = Uint8Array.from(atob(stored), c => c.charCodeAt(0));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: combined.slice(0,12) }, key, combined.slice(12));
+    return new TextDecoder().decode(pt);
+  } catch(e) { return ''; }
+}
+async function loadEncryptedAiKey() {
+  const stored = localStorage.getItem(AI_KEY_STORAGE);
+  // Migrate unencrypted v1 key if present
+  const legacy = localStorage.getItem('sf_ai_key_v1');
+  if (!stored && legacy) {
+    _aiKeyCache = legacy;
+    await persistAiKey(legacy);
+    localStorage.removeItem('sf_ai_key_v1');
+    return;
+  }
+  _aiKeyCache = stored ? await _decryptAiKey(stored) : '';
+}
+async function persistAiKey(plaintext) {
+  if (!plaintext) { localStorage.removeItem(AI_KEY_STORAGE); _aiKeyCache = ''; return; }
+  const enc = await _encryptAiKey(plaintext);
+  localStorage.setItem(AI_KEY_STORAGE, enc);
+  _aiKeyCache = plaintext;
+}
+function getAiKey() { return _aiKeyCache || ''; }
 function loadAiKeyIntoSettings() {
-  const key = getAiKey();
   const el = document.getElementById('s-ai-key');
-  if (el && key) el.value = key;
+  if (el && _aiKeyCache) el.value = _aiKeyCache;
 }
 function showAiModal(title, applyFn) {
   document.getElementById('ai-modal-title').textContent = title;
@@ -4441,6 +4583,7 @@ function getClientBrokerageAllowance(clientEmail) {
 
 // ── INIT ──
 async function init() {
+  await loadEncryptedAiKey(); // decrypt AI key into memory before anything else
   await ensureFounderAccount();
   // Client scheduling page — bypass auth
   if (window.location.hash.startsWith('#schedule/')) {
@@ -4485,13 +4628,13 @@ async function init() {
 }
 init();
 
-// ── AI ASSISTANT (legacy save/test wrappers) ──────────────────────
-function saveAiKey() {
+// ── AI ASSISTANT (save/test wrappers) ──────────────────────
+async function saveAiKey() {
   const key = document.getElementById('s-ai-key').value.trim();
-  if (!key) { localStorage.removeItem(AI_KEY_STORAGE); toast('API key cleared'); return; }
+  if (!key) { await persistAiKey(''); toast('API key cleared'); return; }
   if (!key.startsWith('sk-ant-')) { toast('Key should start with sk-ant-', 'error'); return; }
-  localStorage.setItem(AI_KEY_STORAGE, key);
-  toast('AI key saved');
+  await persistAiKey(key);
+  toast('AI key saved & encrypted ✓');
 }
 
 async function testAiKey() {
@@ -4500,7 +4643,7 @@ async function testAiKey() {
   toast('Testing connection...', 'info');
   try {
     const result = await askClaude('Reply with exactly: OK', key);
-    if (result) { localStorage.setItem(AI_KEY_STORAGE, key); toast('AI key works!'); }
+    if (result) { await persistAiKey(key); toast('AI key works & saved ✓'); }
     else { toast('Key test failed', 'error'); }
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
