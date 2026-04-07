@@ -566,6 +566,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <label class="auth-form-label">Password <span style="color:var(--text-light);font-weight:400">(min 8 chars, 1 uppercase, 1 number)</span></label>
           <input class="auth-form-input" type="password" id="su-password" placeholder="Create a password" onkeydown="if(event.key==='Enter')doSignUp()">
         </div>
+        <div class="auth-form-group" style="display:flex;align-items:flex-start;gap:10px;margin-top:4px">
+          <input type="checkbox" id="su-agree" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;margin-top:2px">
+          <label for="su-agree" style="font-size:0.82rem;color:var(--text-muted);cursor:pointer;line-height:1.5">I have read and agree to the <a onclick="openModal('tos-modal')" style="color:var(--accent);cursor:pointer;font-weight:600;text-decoration:underline">Terms of Service &amp; User Agreement</a></label>
+        </div>
         <button class="auth-submit" id="signup-btn" onclick="doSignUp()">Create Account →</button>
         <div class="auth-footer-text">Already have an account? <a onclick="showAuthTab('signin')">Sign in</a></div>
       </div>
@@ -1581,6 +1585,7 @@ async function doSignUp() {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAuthError('Please enter a valid email address.'); return; }
   if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
   if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) { showAuthError('Password must include an uppercase letter and a number.'); return; }
+  if (!document.getElementById('su-agree').checked) { showAuthError('Please read and agree to the Terms of Service to continue.'); return; }
   setSignupLoading(true);
   try {
     const store = getAuthStore();
@@ -5110,6 +5115,70 @@ loadSettings = function() {
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('order-page-modal')">Cancel</button><button class="btn btn-primary" onclick="saveOrderPage()">Save Page</button></div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div class="modal-overlay" id="tos-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">📋 Terms of Service &amp; User Agreement</div>
+      <button class="modal-close" onclick="closeModal('tos-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:60vh;overflow-y:auto;font-size:0.85rem;line-height:1.8;color:var(--text)">
+      <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:16px">Last updated: April 6, 2026</p>
+
+      <p>Welcome to <strong>ShootFlow</strong>. By creating an account and using this platform, you agree to the following terms. Please read them carefully.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">1. Acceptance of Terms</h3>
+      <p>By registering for a ShootFlow account, you confirm that you are at least 18 years old, have read and understood these Terms, and agree to be bound by them. If you do not agree, do not create an account.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">2. Description of Service</h3>
+      <p>ShootFlow is a photography and video business management platform that provides tools for project tracking, client management, invoicing, file delivery, booking, contracts, and AI-assisted content generation. The platform is provided on an "as is" basis during the alpha/beta period and features may change without notice.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">3. Your Account</h3>
+      <p>You are responsible for maintaining the confidentiality of your password and for all activity that occurs under your account. You agree to notify ShootFlow immediately of any unauthorized use of your account. ShootFlow is not liable for any loss resulting from unauthorized account access.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">4. Data Storage &amp; Privacy</h3>
+      <p>ShootFlow stores all your business data locally in your browser using <code>localStorage</code>. No client data, invoices, or business information is transmitted to or stored on ShootFlow's servers, except for AI features which send prompts directly to the Anthropic API using your own API key. You are solely responsible for backing up your data. ShootFlow is not liable for data loss due to browser clearing, device failure, or other causes.</p>
+      <p>If you use the AI Assistant feature, your prompts are sent directly to Anthropic's API under your own account and key. Review Anthropic's privacy policy separately.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">5. Acceptable Use</h3>
+      <p>You agree not to use ShootFlow to: (a) violate any applicable law or regulation; (b) infringe on any third party's intellectual property or privacy rights; (c) transmit harmful, offensive, or fraudulent content; (d) attempt to reverse-engineer, copy, or resell the platform without written permission; or (e) use the platform for any purpose other than legitimate photography/videography business management.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">6. Client Data Responsibility</h3>
+      <p>You are solely responsible for any data you enter about your clients, including names, email addresses, and financial information. You agree to handle all client data in accordance with applicable privacy laws (including GDPR, CCPA, or similar regulations in your jurisdiction). ShootFlow is a tool — compliance is your responsibility.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">7. Payment &amp; Invoicing</h3>
+      <p>ShootFlow does not process payments on your behalf. Any invoices, payment links, or payment platform integrations you configure are solely between you and your clients. ShootFlow makes no guarantees regarding payment collection and is not a party to any financial transaction.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">8. Intellectual Property</h3>
+      <p>ShootFlow and its underlying code, design, and branding are the intellectual property of ShootFlow and its creators. You retain full ownership of all content you create using the platform (projects, invoices, contracts, etc.). You grant ShootFlow no rights to your business data.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">9. Alpha / Beta Disclaimer</h3>
+      <p>ShootFlow is currently in an alpha/beta phase. Features are provided free of charge during this period. The platform may be unavailable, changed, or discontinued at any time. We make no guarantees of uptime, data persistence, or feature availability. Use at your own risk and always maintain your own backups.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">10. Limitation of Liability</h3>
+      <p>To the fullest extent permitted by law, ShootFlow and its creators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform, including but not limited to loss of data, loss of revenue, or business interruption.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">11. Termination</h3>
+      <p>ShootFlow reserves the right to suspend or terminate any account that violates these Terms. You may delete your account and data at any time via Settings → Data Management → Clear All Data.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">12. Changes to Terms</h3>
+      <p>ShootFlow may update these Terms at any time. Continued use of the platform after changes constitutes acceptance of the updated Terms. We will make reasonable efforts to notify users of material changes.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">13. Governing Law</h3>
+      <p>These Terms are governed by the laws of the State of California, United States, without regard to conflict of law principles.</p>
+
+      <h3 style="margin:20px 0 8px;font-size:0.92rem;color:var(--text)">14. Contact</h3>
+      <p>For questions about these Terms, contact us at <a href="mailto:seangreeleyphotography@gmail.com" style="color:var(--accent)">seangreeleyphotography@gmail.com</a>.</p>
+
+      <p style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);color:var(--text-muted);font-size:0.78rem">By creating an account you confirm you have read, understood, and agree to these Terms of Service.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('tos-modal')">Close</button>
+      <button class="btn btn-primary" onclick="document.getElementById('su-agree').checked=true;closeModal('tos-modal');toast('Terms accepted ✓')">I Agree</button>
+    </div>
   </div>
 </div>
 
