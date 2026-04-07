@@ -504,6 +504,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .pg-list-item { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border); }
 .pg-list-item:last-child { border-bottom:none; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 <!-- AUTH SCREEN -->
@@ -1062,14 +1063,26 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </div>
       <div class="int-section">
-        <div class="int-section-header"><div class="int-section-icon" style="background:#FFF7ED">📧</div><div><div class="int-section-title">Email</div><div class="int-section-sub">Choose your email provider for invoice sending.</div></div></div>
-        <div class="form-group" style="max-width:340px">
-          <label class="form-label">Email Provider</label>
-          <select class="form-control" id="int-email-provider">
+        <div class="int-section-header"><div class="int-section-icon" style="background:#FFF7ED">📧</div><div><div class="int-section-title">Email — Send from ShootFlow</div><div class="int-section-sub">Connect EmailJS to send invoices, contracts &amp; reminders directly — no email app popup. Free up to 200 emails/month at <a href="https://www.emailjs.com" target="_blank" rel="noopener" style="color:var(--accent)">emailjs.com</a>.</div></div></div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px;font-size:0.82rem;color:var(--text-muted);line-height:1.7">
+          <strong style="color:var(--text)">Setup (2 min):</strong> 1) Create free account at emailjs.com &rarr; 2) Add an Email Service (connect Gmail/Outlook) &rarr; 3) Create a Template with variables: <code>{{to_email}}</code>, <code>{{to_name}}</code>, <code>{{from_name}}</code>, <code>{{subject}}</code>, <code>{{message}}</code>, <code>{{reply_to}}</code> &rarr; 4) Paste your IDs below.
+        </div>
+        <div class="settings-grid" style="max-width:700px">
+          <div class="form-group"><label class="form-label">Public Key</label><input class="form-control" id="int-ejs-pubkey" placeholder="e.g. user_xxxxxxxxxxxxxxx"><div class="form-hint">Found in EmailJS → Account → API Keys</div></div>
+          <div class="form-group"><label class="form-label">Service ID</label><input class="form-control" id="int-ejs-service" placeholder="e.g. service_xxxxxxx"><div class="form-hint">Found in EmailJS → Email Services</div></div>
+          <div class="form-group"><label class="form-label">Template ID</label><input class="form-control" id="int-ejs-template" placeholder="e.g. template_xxxxxxx"><div class="form-hint">Found in EmailJS → Email Templates</div></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="testEmailJS()">🔌 Test Connection</button>
+          <span id="ejs-status" style="font-size:0.8rem;color:var(--text-muted);align-self:center"></span>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <label class="form-label" style="margin-bottom:4px">Fallback (if EmailJS not configured)</label>
+          <select class="form-control" id="int-email-provider" style="max-width:280px">
             <option value="default">Default Email App (mailto:)</option><option value="gmail">Gmail</option>
             <option value="outlook">Outlook / Microsoft 365</option><option value="yahoo">Yahoo Mail</option>
-            <option value="apple">Apple Mail</option>
           </select>
+          <div class="form-hint">Used when EmailJS keys are not set up.</div>
         </div>
       </div>
       <div class="int-section">
@@ -1165,6 +1178,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="project-type"><option value="real-estate">Real Estate Photo</option><option value="wedding">Wedding</option><option value="portrait">Portrait</option><option value="commercial">Commercial</option><option value="sports">Sports</option><option value="event">Event</option><option value="video">Video</option><option value="other">Other</option></select></div>
         <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="project-status"><option value="inquiry">Inquiry</option><option value="booked">Booked</option><option value="shot">Shot</option><option value="editing">Editing</option><option value="delivered">Delivered</option><option value="invoiced">Invoiced</option><option value="paid">Paid</option></select></div>
       </div>
+      <div class="form-group">
+        <label class="form-label">📸 Post-Production Stage</label>
+        <div id="postprod-pipeline" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+        <input type="hidden" id="project-postprod-stage" value="">
+      </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Shoot Date</label><input class="form-control" id="project-date" type="date"></div>
         <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-control" id="project-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
@@ -1220,6 +1238,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <div class="form-row">
         <div class="form-group"><label class="form-label">Pricing Group</label><select class="form-control" id="client-pricing-group"><option value="">Standard (no discount)</option></select></div>
         <div class="form-group"><label class="form-label">Brokerage Allowance ($)</label><input class="form-control" id="client-brokerage-allowance" type="number" min="0" step="0.01" placeholder="0.00"><div class="form-hint">Auto-credit applied to this client's orders</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">🤝 Referred By</label><select class="form-control" id="client-referred-by"><option value="">— No referral —</option></select><div class="form-hint">Track which client sent this referral</div></div>
+        <div class="form-group"><label class="form-label">Brokerage (for billing)</label><input class="form-control" id="client-brokerage-name" placeholder="e.g. Compass, eXp Realty"><div class="form-hint">Bill brokerage instead of agent on invoices</div></div>
       </div>
       <div class="form-group" style="display:flex;align-items:center;gap:10px;margin-top:4px">
         <input type="checkbox" id="client-recurring" style="width:16px;height:16px;cursor:pointer">
@@ -1427,6 +1449,40 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <div id="cdv-files"></div>
     </div>
     <div style="text-align:center;margin-top:32px;font-size:0.72rem;color:var(--text-muted)">Powered by ShootFlow</div>
+  </div>
+</div>
+
+<!-- EMAIL COMPOSE MODAL -->
+<div class="modal-overlay" id="email-compose-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="email-compose-title">Send Email</div>
+      <button class="modal-close" onclick="closeModal('email-compose-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="email-compose-ejs-warning" style="display:none;background:#FFF7ED;border:1px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:0.82rem;color:#92400E">
+        ⚠️ <strong>EmailJS not configured.</strong> Set up EmailJS in <button onclick="closeModal('email-compose-modal');navigate('integrations')" class="btn btn-ghost btn-sm" style="padding:0;color:#92400E;text-decoration:underline">Integrations</button> to send emails directly. Using email app fallback.
+      </div>
+      <div class="form-group">
+        <label class="form-label">To</label>
+        <input class="form-control" id="ec-to" type="email" placeholder="client@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input class="form-control" id="ec-subject" placeholder="Subject">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-control" id="ec-body" rows="10" style="font-family:monospace;font-size:0.82rem"></textarea>
+      </div>
+      <input type="hidden" id="ec-reply-to">
+      <input type="hidden" id="ec-to-name">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('email-compose-modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="emailComposeFallback()">Open in Email App</button>
+      <button class="btn btn-primary" id="ec-send-btn" onclick="emailComposeSend()">📧 Send Email</button>
+    </div>
   </div>
 </div>
 
@@ -1889,6 +1945,21 @@ function renderDashboard() {
   if (unpaid > 0) { badge.style.display = ''; badge.textContent = unpaid; } else badge.style.display = 'none';
 }
 
+// ── POST-PRODUCTION PIPELINE ──
+const POSTPROD_STAGES = ['Culling','Editing','Retouching','Color Grade','Export','Ready','Delivered'];
+function renderPostProdPipeline(currentStage) {
+  const container = document.getElementById('postprod-pipeline');
+  if (!container) return;
+  container.innerHTML = POSTPROD_STAGES.map(stage => {
+    const active = stage === currentStage;
+    return `<button type="button" onclick="selectPostProdStage('${stage}')" style="padding:5px 12px;border-radius:20px;border:1.5px solid ${active?'var(--accent)':'var(--border)'};background:${active?'var(--accent)':'var(--bg)'};color:${active?'white':'var(--text-muted)'};font-size:0.75rem;font-weight:${active?'700':'500'};cursor:pointer;transition:all .15s">${stage}</button>`;
+  }).join('') + `<button type="button" onclick="selectPostProdStage('')" style="padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-muted);font-size:0.75rem;cursor:pointer">✕ Clear</button>`;
+}
+function selectPostProdStage(stage) {
+  document.getElementById('project-postprod-stage').value = stage;
+  renderPostProdPipeline(stage);
+}
+
 // ── PROJECTS ──
 function openProjectModal(id) {
   const data = getData();
@@ -1915,10 +1986,12 @@ function openProjectModal(id) {
     document.getElementById('project-prop-type').value = p.propertyType || '';
     document.getElementById('project-agent').value = p.agent || '';
     document.getElementById('project-unbranded').checked = !!p.unbranded;
+    document.getElementById('project-postprod-stage').value = p.postProdStage || '';
+    renderPostProdPipeline(p.postProdStage || '');
     if (p.mls || p.beds || p.listingPrice) document.getElementById('prop-fields').style.display = 'block';
   } else {
     document.getElementById('project-modal-title').textContent = 'New Project';
-    ['project-id','project-name','project-location','project-notes','project-mls','project-listing-price','project-beds','project-baths','project-sqft','project-agent'].forEach(id => document.getElementById(id).value = '');
+    ['project-id','project-name','project-location','project-notes','project-mls','project-listing-price','project-beds','project-baths','project-sqft','project-agent','project-postprod-stage'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('project-client').value = '';
     document.getElementById('project-type').value = 'real-estate';
     document.getElementById('project-status').value = 'inquiry';
@@ -1927,6 +2000,7 @@ function openProjectModal(id) {
     document.getElementById('project-prop-type').value = '';
     document.getElementById('prop-fields').style.display = 'none';
     document.getElementById('project-unbranded').checked = false;
+    renderPostProdPipeline('');
   }
   openModal('project-modal');
 }
@@ -1952,6 +2026,7 @@ function saveProject() {
     propertyType: document.getElementById('project-prop-type').value,
     agent: document.getElementById('project-agent').value.trim(),
     unbranded: document.getElementById('project-unbranded').checked,
+    postProdStage: document.getElementById('project-postprod-stage').value || '',
     deliveryToken: id ? (data.projects.find(p=>p.id===id)||{}).deliveryToken : undefined,
     deliveryUnlocked: id ? (data.projects.find(p=>p.id===id)||{}).deliveryUnlocked : false,
     media: id ? (data.projects.find(p=>p.id===id)||{}).media : undefined,
@@ -1962,6 +2037,29 @@ function saveProject() {
   else { data.projects.unshift(proj); }
   saveData(data); closeModal('project-modal'); renderProjects(); renderDashboard();
   toast(id ? 'Project updated' : 'Project created');
+}
+function sendShootDayReminder(projectId) {
+  const data = getData();
+  const p = data.projects.find(x => x.id === projectId); if (!p) return;
+  const client = data.clients.find(c => c.id === p.clientId);
+  const s = data.settings;
+  const to = client?.email || '';
+  const subject = `Reminder — Your shoot is today! ${p.name}`;
+  const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},
+
+Just a quick reminder that your shoot is TODAY!
+
+📍 Location: ${p.location || 'TBD'}
+📅 Date: ${fmtDate(p.shootDate)}
+
+Please make sure the property is ready and accessible. If you have any last-minute questions, don't hesitate to reach out.
+
+Looking forward to seeing you today!
+
+${s.ownerName || s.businessName || 'Your Photographer'}
+${s.phone || ''}
+${s.email || ''}`;
+  openEmailCompose({ to, toName: client?.name || '', subject, body, title: 'Shoot Day Reminder' });
 }
 function deleteProject(id) {
   confirmDelete('Delete this project? This cannot be undone.', () => {
@@ -1992,8 +2090,12 @@ function renderProjects() {
       <td><span class="tag">${p.type||'—'}</span></td>
       <td>${fmtDate(p.shootDate)}</td>
       <td style="font-weight:600">${p.amount ? fmtCurrency(p.amount) : '—'}</td>
-      <td>${statusBadge(p.status)}</td>
+      <td>
+        ${statusBadge(p.status)}
+        ${p.postProdStage ? `<div style="margin-top:4px"><span style="display:inline-block;padding:2px 8px;border-radius:10px;background:#EDE9FE;color:#6D28D9;font-size:0.7rem;font-weight:600">🎞 ${esc(p.postProdStage)}</span></div>` : ''}
+      </td>
       <td><div class="table-actions" style="flex-wrap:wrap;gap:4px">
+        ${p.shootDate === new Date().toISOString().slice(0,10) ? `<button class="btn btn-primary btn-sm" onclick="sendShootDayReminder('${p.id}')" title="Send day-of reminder to client" style="font-size:0.75rem">📅 Remind</button>` : ''}
         ${['inquiry','booked'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiClientIntake('${p.id}')" title="Generate client intake questions" style="font-size:0.75rem">✨ Intake</button>` : ''}
         ${['booked','shot'].includes(p.status) ? `<button class="btn btn-ghost btn-sm" onclick="aiShootPrepChecklist('${p.id}')" title="Generate shoot prep checklist" style="font-size:0.75rem">✨ Prep</button>` : ''}
         ${p.status === 'delivered' ? `<button class="btn btn-ghost btn-sm" onclick="aiDeliveryMessage('${p.id}')" title="Draft delivery email" style="font-size:0.75rem">✨ Deliver</button>` : ''}
@@ -2009,8 +2111,15 @@ function renderProjects() {
 }
 
 // ── CLIENTS ──
+function populateClientReferralDropdown(excludeId) {
+  const data = getData();
+  const sel = document.getElementById('client-referred-by');
+  sel.innerHTML = '<option value="">— No referral —</option>' +
+    data.clients.filter(c => c.id !== excludeId).map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+}
 function openClientModal(id) {
   populateClientPricingGroupDropdown();
+  populateClientReferralDropdown(id || null);
   if (id) {
     const data = getData(); const c = data.clients.find(c => c.id === id); if (!c) return;
     document.getElementById('client-modal-title').textContent = 'Edit Client';
@@ -2024,12 +2133,15 @@ function openClientModal(id) {
     document.getElementById('client-recurring').checked = !!c.isRecurring;
     document.getElementById('client-pricing-group').value = c.pricingGroupId || '';
     document.getElementById('client-brokerage-allowance').value = c.brokerageAllowance || '';
+    document.getElementById('client-referred-by').value = c.referredBy || '';
+    document.getElementById('client-brokerage-name').value = c.brokerageName || '';
   } else {
     document.getElementById('client-modal-title').textContent = 'New Client';
-    ['client-id','client-name','client-email','client-phone','client-company','client-notes','client-brokerage-allowance'].forEach(id => document.getElementById(id).value = '');
+    ['client-id','client-name','client-email','client-phone','client-company','client-notes','client-brokerage-allowance','client-brokerage-name'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('client-type').value = 'agent';
     document.getElementById('client-recurring').checked = false;
     document.getElementById('client-pricing-group').value = '';
+    document.getElementById('client-referred-by').value = '';
   }
   openModal('client-modal');
 }
@@ -2047,6 +2159,8 @@ function saveClient() {
     isRecurring: document.getElementById('client-recurring').checked,
     pricingGroupId: document.getElementById('client-pricing-group').value || '',
     brokerageAllowance: parseFloat(document.getElementById('client-brokerage-allowance').value) || 0,
+    referredBy: document.getElementById('client-referred-by').value || '',
+    brokerageName: document.getElementById('client-brokerage-name').value.trim(),
     createdAt: id ? (data.clients.find(c=>c.id===id)||{}).createdAt || Date.now() : Date.now()
   };
   if (id) { const idx = data.clients.findIndex(c => c.id === id); if (idx >= 0) data.clients[idx] = client; }
@@ -2073,11 +2187,11 @@ function renderClients() {
     const pCount = data.projects.filter(p => p.clientId === c.id).length;
     const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     return `<tr>
-      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><div style="font-weight:600">${esc(c.name)}${c.isRecurring?'<span class="badge-recurring">⭐ Recurring</span>':''}</div></div></td>
+      <td><div class="avatar-wrap"><div class="avatar">${initials}</div><div><div style="font-weight:600">${esc(c.name)}${c.isRecurring?'<span class="badge-recurring">⭐ Recurring</span>':''}</div>${c.referredBy ? `<div style="font-size:0.7rem;color:var(--text-muted)">🤝 Ref: ${esc(data.clients.find(x=>x.id===c.referredBy)?.name||'')}</div>` : ''}</div></div></td>
       <td>${c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--accent)">${esc(c.email)}</a>` : '<span class="text-muted">—</span>'}</td>
       <td>${c.phone || '<span class="text-muted">—</span>'}</td>
       <td><span class="tag">${c.type||'—'}</span></td>
-      <td>${c.company || '<span class="text-muted">—</span>'}</td>
+      <td>${c.brokerageName ? `<div style="font-weight:600;font-size:0.82rem">${esc(c.brokerageName)}</div><div style="font-size:0.72rem;color:var(--text-muted)">${esc(c.company||'')}</div>` : (c.company || '<span class="text-muted">—</span>')}</td>
       <td><span class="badge badge-booked">${pCount} project${pCount!==1?'s':''}</span></td>
       <td><div class="table-actions" style="flex-wrap:wrap;gap:4px">
         <button class="btn btn-secondary btn-sm" onclick="showClientAiMenu('${c.id}',this)">🤖 AI</button>
@@ -2478,8 +2592,13 @@ function loadIntegrations() {
   document.getElementById('int-custom-enabled').checked     = int.custom?.enabled || false;
   document.getElementById('int-custom-name').value          = int.custom?.name || '';
   document.getElementById('int-custom-instructions').value  = int.custom?.instructions || '';
+  document.getElementById('int-ejs-pubkey').value        = int.emailjs?.publicKey || '';
+  document.getElementById('int-ejs-service').value       = int.emailjs?.serviceId || '';
+  document.getElementById('int-ejs-template').value      = int.emailjs?.templateId || '';
   document.getElementById('int-email-provider').value    = int.emailProvider || 'default';
   document.getElementById('int-calendar-provider').value = int.calendarProvider || 'ics';
+  const ejsStatus = document.getElementById('ejs-status');
+  if (ejsStatus) ejsStatus.textContent = (int.emailjs?.publicKey && int.emailjs?.serviceId && int.emailjs?.templateId) ? '✅ EmailJS configured — emails send directly from ShootFlow' : '';
 }
 function saveIntegrations() {
   const data = getData();
@@ -2499,6 +2618,11 @@ function saveIntegrations() {
     revolut:  { enabled: document.getElementById('int-revolut-enabled').checked,  link: document.getElementById('int-revolut-link').value.trim() },
     ach:      { enabled: document.getElementById('int-ach-enabled').checked,      instructions: document.getElementById('int-ach-instructions').value.trim() },
     custom:   { enabled: document.getElementById('int-custom-enabled').checked,   name: document.getElementById('int-custom-name').value.trim(), instructions: document.getElementById('int-custom-instructions').value.trim() },
+    emailjs: {
+      publicKey:  document.getElementById('int-ejs-pubkey').value.trim(),
+      serviceId:  document.getElementById('int-ejs-service').value.trim(),
+      templateId: document.getElementById('int-ejs-template').value.trim(),
+    },
     emailProvider:    document.getElementById('int-email-provider').value,
     calendarProvider: document.getElementById('int-calendar-provider').value
   };
@@ -2677,53 +2801,119 @@ function renderPRPaymentMethods(amount, int) {
 function sendPaymentRequest() {
   const data = getData(); const inv = data.invoices.find(i => i.id === _prInvoiceId); if (!inv) return;
   const client = data.clients.find(c => c.id === inv.clientId);
-  const int = data.integrations || {}; const provider = int.emailProvider || 'default';
   const to = client?.email || ''; const amt = getPRAmount();
   const subject = `Payment Request — ${inv.invoiceNumber} (${fmtCurrency(amt)})`;
-  const msg = document.getElementById('pr-message').value;
-  const body = msg;
-  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
-  closeModal('payment-request-modal'); toast('Payment request sent ✓');
+  const body = document.getElementById('pr-message').value;
+  closeModal('payment-request-modal');
+  openEmailCompose({ to, toName: client?.name || '', subject, body, title: 'Send Payment Request' });
 }
 function copyPaymentRequest() {
   const msg = document.getElementById('pr-message').value;
   navigator.clipboard.writeText(msg).then(() => toast('Payment request copied!'));
 }
+// ── EMAIL COMPOSE (EMAILJS + FALLBACK) ──
+function ejsConfig() { return getData().integrations?.emailjs || {}; }
+function ejsReady() { const e = ejsConfig(); return !!(e.publicKey && e.serviceId && e.templateId); }
+
+function openEmailCompose({ to = '', toName = '', subject = '', body = '', title = 'Send Email' }) {
+  document.getElementById('email-compose-title').textContent = title;
+  document.getElementById('ec-to').value = to;
+  document.getElementById('ec-to-name').value = toName;
+  document.getElementById('ec-subject').value = subject;
+  document.getElementById('ec-body').value = body;
+  const data = getData();
+  document.getElementById('ec-reply-to').value = data.settings?.email || '';
+  const warn = document.getElementById('email-compose-ejs-warning');
+  warn.style.display = ejsReady() ? 'none' : 'block';
+  const sendBtn = document.getElementById('ec-send-btn');
+  sendBtn.textContent = ejsReady() ? '📧 Send Email' : '📧 Open in Email App';
+  openModal('email-compose-modal');
+}
+
+async function emailComposeSend() {
+  const to = document.getElementById('ec-to').value.trim();
+  const subject = document.getElementById('ec-subject').value.trim();
+  const body = document.getElementById('ec-body').value.trim();
+  if (!to || !subject) { toast('To and Subject are required', 'error'); return; }
+  if (!ejsReady()) { emailComposeFallback(); return; }
+  const btn = document.getElementById('ec-send-btn');
+  btn.disabled = true; btn.textContent = '⏳ Sending...';
+  try {
+    const ejs = ejsConfig(); const data = getData();
+    await emailjs.send(ejs.serviceId, ejs.templateId, {
+      to_email:  to,
+      to_name:   document.getElementById('ec-to-name').value || to,
+      from_name: data.settings?.businessName || 'ShootFlow',
+      reply_to:  document.getElementById('ec-reply-to').value || data.settings?.email || '',
+      subject,
+      message:   body,
+    }, ejs.publicKey);
+    toast('Email sent ✓', 'success');
+    closeModal('email-compose-modal');
+  } catch(err) {
+    toast('Failed to send: ' + (err?.text || err?.message || 'Unknown error'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = ejsReady() ? '📧 Send Email' : '📧 Open in Email App';
+  }
+}
+
+function emailComposeFallback() {
+  const to = document.getElementById('ec-to').value.trim();
+  const subject = document.getElementById('ec-subject').value.trim();
+  const body = document.getElementById('ec-body').value.trim();
+  const provider = getData().integrations?.emailProvider || 'default';
+  if (provider === 'gmail') window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+  else if (provider === 'outlook') window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+  else if (provider === 'yahoo') window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+  else window.open(`mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+}
+
+async function testEmailJS() {
+  const pk = document.getElementById('int-ejs-pubkey').value.trim();
+  const svc = document.getElementById('int-ejs-service').value.trim();
+  const tpl = document.getElementById('int-ejs-template').value.trim();
+  const statusEl = document.getElementById('ejs-status');
+  if (!pk || !svc || !tpl) { statusEl.textContent = '⚠️ Fill in all three fields first'; statusEl.style.color = '#F59E0B'; return; }
+  statusEl.textContent = '⏳ Testing...'; statusEl.style.color = 'var(--text-muted)';
+  const data = getData();
+  try {
+    await emailjs.send(svc, tpl, {
+      to_email: data.settings?.email || 'test@example.com',
+      to_name: data.settings?.ownerName || 'Test',
+      from_name: data.settings?.businessName || 'ShootFlow',
+      reply_to: data.settings?.email || '',
+      subject: 'ShootFlow — Email Test',
+      message: 'Your EmailJS integration is working! Emails from ShootFlow will now send directly.',
+    }, pk);
+    statusEl.textContent = '✅ Connected! Check your inbox.'; statusEl.style.color = 'var(--success)';
+  } catch(err) {
+    statusEl.textContent = '❌ Error: ' + (err?.text || err?.message || 'Check your keys'); statusEl.style.color = 'var(--danger)';
+  }
+}
+
 function emailInvoice(id) {
   const data = getData(); const inv = data.invoices.find(i => i.id === id); if (!inv) return;
   const client = data.clients.find(c => c.id === inv.clientId);
-  const provider = data.integrations?.emailProvider || 'default';
   const to = client?.email || '';
   const subject = `Invoice ${inv.invoiceNumber} — ${fmtCurrency(inv.total)}`;
   const int = data.integrations || {};
   const payLines = [];
-  if (int.stripe?.enabled && int.stripe?.paymentLink)   payLines.push(`Stripe: ${int.stripe.paymentLink}`);
-  if (int.paypal?.enabled && int.paypal?.username)       payLines.push(`PayPal: https://paypal.me/${int.paypal.username}/${inv.total}`);
-  if (int.venmo?.enabled && int.venmo?.username)         payLines.push(`Venmo: ${int.venmo.username}`);
-  if (int.cashapp?.enabled && int.cashapp?.cashtag)      payLines.push(`Cash App: ${int.cashapp.cashtag}`);
-  if (int.square?.enabled && int.square?.paymentLink)    payLines.push(`Square: ${int.square.paymentLink}`);
-  if (int.chime?.enabled && int.chime?.contact)          payLines.push(`Chime: ${int.chime.contact}`);
-  if (int.zelle?.enabled && int.zelle?.contact)          payLines.push(`Zelle: ${int.zelle.contact}`);
-  const paySection = payLines.length ? `
-
-How to Pay:
-${payLines.join('\n')}` : '';
+  if (int.stripe?.enabled && int.stripe?.paymentLink)   payLines.push(`Pay via Stripe: ${int.stripe.paymentLink}`);
+  if (int.paypal?.enabled && int.paypal?.username)       payLines.push(`Pay via PayPal: https://paypal.me/${int.paypal.username}/${inv.total}`);
+  if (int.venmo?.enabled && int.venmo?.username)         payLines.push(`Pay via Venmo: ${int.venmo.username}`);
+  if (int.cashapp?.enabled && int.cashapp?.cashtag)      payLines.push(`Pay via Cash App: ${int.cashapp.cashtag}`);
+  if (int.square?.enabled && int.square?.paymentLink)    payLines.push(`Pay via Square: ${int.square.paymentLink}`);
+  if (int.zelle?.enabled && int.zelle?.contact)          payLines.push(`Pay via Zelle: ${int.zelle.contact}`);
+  const paySection = payLines.length ? `\n\nHow to Pay:\n${payLines.join('\n')}` : '';
   const body = `Hi ${client ? client.name.split(' ')[0] : 'there'},
 
 Please find your invoice ${inv.invoiceNumber} for ${fmtCurrency(inv.total)}, due ${fmtDate(inv.dueDate)}.${paySection}
 
-${data.settings.invoiceNotes || 'Thank you!'}
+${data.settings.invoiceNotes || 'Thank you for your business!'}
 
 ${data.settings.businessName || 'Your Photographer'}
 ${data.settings.phone || ''}`;
-  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
-  toast('Opening email compose...');
+  openEmailCompose({ to, toName: client?.name || '', subject, body, title: `Email Invoice ${inv.invoiceNumber}` });
 }
 
 // ── PAYMENT LINKS HELPER ──
@@ -4178,24 +4368,9 @@ function openPackageModal() { toast('Packages feature coming soon','info'); }
 // ══════════════════════════════════════════════
 // FEATURE 1: AUTOMATED EMAIL NOTIFICATIONS
 // ══════════════════════════════════════════════
+// openNotifModal now routes through unified email compose
 function openNotifModal(title, to, subject, body) {
-  document.getElementById('notif-modal-title').textContent = '📧 ' + title;
-  document.getElementById('notif-to').value = to || '';
-  document.getElementById('notif-subject').value = subject || '';
-  document.getElementById('notif-body').value = body || '';
-  openModal('notif-modal');
-}
-function sendNotifEmail() {
-  const to = document.getElementById('notif-to').value.trim();
-  const subject = document.getElementById('notif-subject').value.trim();
-  const body = document.getElementById('notif-body').value;
-  const data = getData();
-  const provider = data.integrations?.emailProvider || 'default';
-  if (provider === 'gmail') { window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'outlook') { window.open(`https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else if (provider === 'yahoo') { window.open(`https://compose.mail.yahoo.com/?to=${encodeURIComponent(to)}&subj=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); }
-  else { window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; }
-  closeModal('notif-modal'); toast('Opening email compose...');
+  openEmailCompose({ to, subject, body, title });
 }
 function copyNotifBody() {
   const body = document.getElementById('notif-body').value;
